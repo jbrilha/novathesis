@@ -1,0 +1,44 @@
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{caption}
+
+\newcommand*{\inlinetodo}[1]{{\color{red}\large\textbf{TODO:} #1}}
+\newcommand*{\escape}[1]{\texttt{\textbackslash#1}}
+
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolor}{rgb}{0.95,0.95,0.92}
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{bgcolor}{rgb}{0.15,0.15,0.15}
+
+\captionsetup[lstlisting]{
+    font={small},
+    skip=2pt
+}
+
+\lstdefinestyle{minimal}{
+    backgroundcolor=\color{gray!10},
+    basicstyle=\ttfamily,
+    frame=none,
+    numbers=none,
+    xleftmargin=0pt,
+    xrightmargin=0pt
+}
+
+\lstdefinestyle{def_style}{
+    backgroundcolor=\color{gray!10},
+    basicstyle=\ttfamily\footnotesize,
+    numbers=left,
+    numberstyle=\tiny\color{gray},
+    stepnumber=1,
+    breaklines=true,
+    showstringspaces=false,
+    tabsize=4,
+    frame=single,
+    keywordstyle=\color{blue}\bfseries,
+    commentstyle=\color{green!50!black},
+    stringstyle=\color{red},
+}
+
+\lstset{style=def_style}
+

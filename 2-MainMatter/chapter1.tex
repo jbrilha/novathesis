@@ -31,28 +31,59 @@
 % \section{Welcome to the \novathesis\ Template}
 % \label{sec:if_you_use_this_template}
 
-The proliferation of Internet of Things (IoT) devices has changed how we
-monitor and interact with physical spaces, from smart homes to industrial
-facilities.
-However, current IoT systems remain fundamentally dependent on continuous
-Internet connectivity, and often rely on centralized cloud infrastructures.
-These factors lead to shortcomings in key areas that are in dire need of
-addressing in the current technological landscape:\\
+% \todo{extend initial paragraph, more current context - what's the state of the
+% art, how it's done and addressed, how it can be a problem}
 
-\begin{itemize}
-    \item \textbf{Limited suitability for hazardous environments} — Remote or
-        dangerous locations (industrial sites, disaster-prone areas) require
-        systems that can operate reliably without constant human intervention
-        or stable network infrastructure;
-    \item \textbf{Lack of autonomous operation} — Device deployment and
-        operation en masse can be brittle, with little tolerance for individual
-        node failures in the IoT infrastructure, which is naturally susceptible
-        to network failures and intermittent connectivity;
-    \item \textbf{Privacy and data sovereignty concerns} — Cloud platforms and
-        other third-parties are oftentimes an unavoidable middle layer between
-        end devices and end users, raising questions about data processing and
-        control.
-\end{itemize}
+The proliferation of Internet of Things (IoT) devices has changed how we
+monitor and interact with physical spaces -- from smart homes to industrial
+facilities -- with the global IoT market projected to reach 40 billion
+connected devices by 2030\cite{sinha2024stateofiot}, and add between \$14 and
+\$15 trillion to the global GDP by the same year.~\cite{thierer2015projecting}.
+\todo{too much money talk? also, artigo de 2015, maybe menos relevante?}
+
+However, current IoT systems remain fundamentally dependent on continuous
+Internet connectivity and centralized cloud infrastructures. The dominant
+architectural pattern across the industry involves edge devices collecting data
+and transmitting it to remote cloud servers for processing, storage, and other
+control logic. This approach delivers scalability and ease of management
+but creates a fundamental dependency on network availability.
+
+While this cloud-centric model has enabled rapid IoT adoption, it introduces
+critical vulnerabilities across scenarios where continuous connectivity cannot
+be guaranteed.\\
+
+Recent infrastructure failures illustrate the fragility of cloud-dependent
+architectures: the AWS US-EAST-1 outage in October 2025 disrupted services from
+banking to smart homes worldwide, demonstrating how a DNS configuration error
+in a \textit{single region} can cascade into global disruptions.
+\todo{exemplo mais concreto ou isto basta?}
+
+Attempts have been made to address these challenges through incremental
+improvements, such as shifting focus to edge computing in order to reduce
+latency, redundant cloud regions for availability, and hybrid architectures
+that combine local and remote processing.\todo{citations here!!}
+
+However, these solutions remain fundamentally tied to the assumption of
+eventual connectivity, and often increase system complexity without eliminating
+the core dependency. This leads to shortcomings in key areas that demand
+more fundamental architectural reconsideration:
+
+\begin{description}
+    \item \todo{expandir estes também ou short and to the point é melhor?}
+    \item \textbf{Limited suitability for hazardous environments}\\
+        Remote or dangerous locations (industrial sites, disaster-prone areas)
+        require systems that can operate reliably without constant human
+        intervention or stable network infrastructure;
+    \item \textbf{Lack of autonomous operation}\\
+        Device deployment and operation en masse can be brittle, with little
+        tolerance for individual node failures in the IoT infrastructure, which
+        is naturally susceptible to network failures and intermittent
+        connectivity;
+    \item \textbf{Privacy and data sovereignty concerns}\\
+        Cloud platforms and other third-parties are oftentimes an unavoidable
+        middle layer between end devices and end users, raising questions about
+        data processing and control.
+\end{description}
 
 These limitations are accentuated in disaster response and awareness scenarios,
 where real-time data collection and dissemination are crucial. During
@@ -61,19 +92,32 @@ infrastructure often fails first, yet the need for sensor data (structural
 integrity, air quality, evacuation routes) and bidirectional communication
 (threats alerts, user feedback) becomes critical.
 
-% \todo{mention Babel as alternative to azure, amazon, etc?
-% 	in particular explain the cloud limitations and solutions to cloud, we're not 100\% against cloud, but like 60\% due to trust etc}
-% \todo{iot is more focused on data collection and domotics more so on other things,
-% 	iot cloud platforms usually focus on processing, and domotics has the APIs that allow remote device control}
+A pragmatic issue in the context of smart homes is that without cloud
+connectivity, users cannot interact with their appliances, such that during a
+Wi-Fi outage smart lights become uncontrollable despite all hardware being
+physically present.
+\todo{muito denso?}
+While merely inconvenient domestically, this architectural dependency has
+critical implications in other contexts and \texttt{MicroBabel} addresses such
+scenarios across scales: from residential systems requiring local control, to
+building monitoring infrastructures that must operate during emergencies, to
+disaster response networks where autonomous operation becomes essential when
+traditional infrastructure fails.\\
 
 While cloud platforms like Amazon Alexa, Google Home, and Microsoft Azure IoT
 Hub offer convenience for data processing and remote device control, their
-inherent dependence on continuous Internet connectivity makes them unsuitable
-for scenarios that require or prioritize local operation\todo{mention latency,
-availability and fault-tolerance here too?}. The Babel Ecosystem \todo{cite
-Babel here!!} addresses these limitations by enabling devices to operate
-autonomously without cloud infrastructure, while still supporting cloud
-integration when connectivity is available and desired.
+inherent dependence on continuous Internet connectivity introduces some
+critical limitations: increased latency from round-trip communication to distant
+servers, reduced availability during network disruptions or cloud outages, and
+poor fault-tolerance when infrastructure fails.
+
+These characteristics make cloud-centric architectures fundamentally unsuitable
+for scenarios that require or prioritize local operation, autonomous behavior,
+or guaranteed responsiveness during emergencies.
+
+The Babel Ecosystem~\cite{fouto2022babel} addresses these limitations by
+enabling devices to operate autonomously without cloud infrastructure, while
+still supporting cloud integration when connectivity is available and desired.
 
 In this document we introduce \textbf{MicroBabel}, a lightweight framework targeting
 embedded platforms (ESP32, Raspberry Pi Pico) aimed at developing resilient,
@@ -84,12 +128,12 @@ or computers, enabling a tiered architecture where resource-constrained edge
 devices can seamlessly interoperate with computational nodes for data
 aggregation, processing, and coordination.
 
-\section{Research Topics}
+\section*{Research Topics}
 \label{sec:research_topics}
 
 We focus on three main research questions:
 
-\subsection{How can these systems maintain communication when traditional
+\paragraph{How can these systems maintain communication when traditional
 infrastructure fails?}
 
 Traditional IoT deployments rely heavily on Wi-Fi access points, cellular
@@ -104,7 +148,7 @@ By enabling adaptive protocol selection and peer-to-peer mesh formation,
 devices can establish alternative communication paths when primary channels
 fail.
 
-\subsection{How can device heterogeneity be leveraged to create and orchestrate
+\paragraph{How can device heterogeneity be leveraged to create and orchestrate
 these networks?}
 
 IoT deployments naturally comprise devices with varying capabilities, from
@@ -114,11 +158,12 @@ and storage. Rather than treating this heterogeneity as a limitation,
 devices to negotiate roles dynamically via discovery.
 
 Resource-rich nodes can serve as data aggregation and processing points, or
-bridges between a remote deployment and??, while simpler devices focus on
-sensing and actuation, creating a resilient multi-tier architecture.
-\todo{is this too repetitive considering the paragraph before the research topics?}
+bridges between a remote deployment and traditional network infrastructure (if
+desired), while simpler devices focus on sensing and actuation, creating a
+resilient multi-tier architecture. \todo{is this too repetitive considering the
+paragraph before the research topics?}
 
-\subsection{How can we achieve (near-)zero-configuration deployment, suitable for emergency scenarios and hazardous location monitoring where manual setup is impractical or even impossible?}
+\paragraph{How can we achieve (near-)zero-configuration deployment, suitable for emergency scenarios and hazardous location monitoring where manual setup is impractical or even impossible?}
 
 Emergency response and hazardous environment monitoring demand systems that 
 can be deployed rapidly without extensive configuration. \textbf{MicroBabel} 
@@ -131,30 +176,35 @@ and begin operation upon being activated, enabling deployment by non-technical
 personnel or in hard-to-reach locations.
 \todo{is this too ambitious?}
 
-\section{Use Case: Smart Classroom System}
+% \todo{move to immediately before amazon azure etc, use as motivation like:
+% "to motivate this consider these relevant examples of use cases: imagine that etc etc; that suffer from x y and z with cloud infra etc dependencies"}
+% \todo{also the wifi goes out can't turn on house lights anedoctal example}
+% \todo{a pragmatic issue in the context of smart home is that without connectivity to the cloud you can't interact with your home appliances etc, this can lead to more disatrous consequences in other contextes}
+% TODOTODOTODO MOVE THIS TO LATER SECTIONS IN DETAIL
+% \section{Use Case: Smart Classroom System}
+%
+% To apply these research questions in a concrete application, we plan to develop a 
+% smart classroom monitoring system that operates in both normal and emergency 
+% conditions.
+%
+% Under normal operation, the system displays useful daily information such as
+% room schedules and occupancy, as well as noncritical environmental factors like
+% temperature, humidity and  CO$_2$ levels; simultaneously, it coordinates
+% with other devices in the ecosystem to detect potentially hazardous conditions,
+% such as fires, structural instability or critical network failures.
+%
+% During such disasters, the same system automatically transitions to emergency
+% mode, in which devices form peer-to-peer mesh networks for disseminating safety
+% information and evacuation routes, perform real-time hazard mapping
+% (smoke/flame detection, temperature monitoring), and adapt evacuation guidance
+% based on blocked or presumed-dangerous routes.
+%
+% This dual-mode operation demonstrates how \textbf{MicroBabel} systems can
+% provide everyday utility while maintaining resilience and usefulness for
+% emergency scenarios, without requiring infrastructure reconfiguration or manual
+% intervention.
 
-To apply these research questions in a concrete application, we plan to develop a 
-smart classroom monitoring system that operates in both normal and emergency 
-conditions.
-
-Under normal operation, the system displays useful daily information such as
-room schedules and occupancy, as well as noncritical environmental factors like
-temperature, humidity and  CO$_2$ levels; simultaneously, it coordinates
-with other devices in the ecosystem to detect potentially hazardous conditions,
-such as fires, structural instability or critical network failures.
-
-During such disasters, the same system automatically transitions to emergency
-mode, in which devices form peer-to-peer mesh networks for disseminating safety
-information and evacuation routes, perform real-time hazard mapping
-(smoke/flame detection, temperature monitoring), and adapt evacuation guidance
-based on blocked or presumed-dangerous routes.
-
-This dual-mode operation demonstrates how \textbf{MicroBabel} systems can
-provide everyday utility while maintaining resilience and usefulness for
-emergency scenarios, without requiring infrastructure reconfiguration or manual
-intervention.
-
-\section{Contributions}
+\section*{Contributions}
 
 We plan to make the following contributions:
 \begin{itemize}
