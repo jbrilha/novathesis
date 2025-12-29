@@ -17,9 +17,9 @@ The proliferation of Internet of Things (IoT) devices has changed how we
 monitor and interact with physical spaces -- from smart homes to industrial
 facilities -- with the global IoT market reaching 18.5 billion connected
 devices in 2024, and projected to reach 39 billion by
-2030\cite{sinha2025stateofiot}. Industry analysts estimate that IoT
+2030\cite{sinha2025stateofiot}, with industry analysts estimating that IoT
 technologies could unlock between \$5.5 and \$12.6 trillion in economic value
-by 2030~\cite{mckinsey2021iot}.
+by the same year\cite{mckinsey2021iot}.
 
 However, current IoT systems remain fundamentally dependent on continuous
 Internet connectivity and centralized cloud
@@ -54,7 +54,7 @@ improvements, such as shifting focus to edge computing in order to reduce
 latency\cite{s20226441,8123913,8664595}, redundant cloud regions for
 availability\cite{mesbahi2018reliability,maciel2022survey}, and hybrid
 architectures that combine local and remote
-processing.\cite{9846938,s24165320,KREKOVIC2025101553}
+processing\cite{9846938,s24165320,KREKOVIC2025101553}.
 
 However, these solutions remain fundamentally tied to the assumption of
 eventual connectivity, and often increase system complexity without eliminating
@@ -80,17 +80,16 @@ more fundamental architectural reconsideration:
 \todo{fazer distinção maior entre iot e domotics?}
 While these challenges affect both IoT and domotics systems alike -- from
 industrial monitoring to residential automation -- they become particularly
-acute in disaster response and emergency scenarios, where additional
-difficulties arise: communication infrastructure failing precisely when needed
-most, rapid deployment with little configuration becoming essential, and
-autonomous operation transitioning desirable to indispensable.
+acute in disaster response and emergency scenarios, where communication
+infrastructure fails precisely when needed most, rapid deployment with minimal
+configuration becomes essential, and autonomous operation transitions from
+desirable to indispensable.
 
-These limitations are accentuated in disaster response and awareness scenarios,
-where real-time data collection and dissemination are crucial. During
-earthquakes, floods, and other emergencies, traditional communication
-infrastructure often fails first, yet the need for sensor data (structural
-integrity, air quality, evacuation routes) and bidirectional communication
-(threats alerts, user feedback) becomes critical.
+During earthquakes, floods, and other emergencies, the need for real-time
+sensor data (structural integrity, air quality, evacuation routes) and
+bidirectional communication (threat alerts, user feedback) becomes critical,
+yet traditional infrastructure often fails first, eliminating both cloud
+connectivity and local network access points that deployed devices rely on.
 
 A pragmatic issue in the context of smart homes is that without cloud
 connectivity, users cannot interact with their appliances, such that during a
@@ -101,7 +100,7 @@ critical implications in other contexts and \textbf{MicroBabel} addresses such
 scenarios across scales: from residential systems requiring local control, to
 building monitoring infrastructures that must operate during emergencies, to
 disaster response networks where autonomous operation becomes essential when
-traditional infrastructure fails.\\
+traditional infrastructure fails.
 
 While cloud platforms like Amazon Alexa, Google Home, and Microsoft Azure IoT
 Hub offer convenience for data processing and remote device control, their
@@ -162,11 +161,12 @@ bridges between a remote deployment and traditional network infrastructure (if
 desired), while simpler devices focus on sensing and actuation, creating a
 resilient multi-tier architecture.
 
-\paragraph{How can we achieve (near-)zero-configuration deployment, suitable for emergency scenarios and hazardous location monitoring where manual setup is impractical or even impossible?}
+\paragraph{How can we achieve (near-)zero-configuration deployment for emergency scenarios?}
+% \paragraph{How can we achieve (near-)zero-configuration deployment, suitable for emergency scenarios and hazardous location monitoring where manual setup is impractical or even impossible?}
 
 Emergency response and hazardous environment monitoring demand systems that 
 can be deployed rapidly without extensive configuration. \textbf{MicroBabel} 
-provides automatic peer discovery across multiple channels, self-organizing 
+provides automatic peer discovery across multiple protocols, self-organizing 
 network formation, and decentralized coordination mechanisms that eliminate the 
 need for pre-configured master nodes or manual network planning.
 
