@@ -217,7 +217,7 @@ implementations.
 
 Nevertheless, the evaluation methodology provides valuable insight into the
 energy expenditure of these different approaches, and grants useful
-foundations for sophisticated multi-protocol approaches, in particular with the
+foundations for more complex multi-protocol approaches, in particular with the
 multi-criteria decision framework and hysteresis control mechanism, but the
 actual system cannot operate when infrastructure fails.\\
 
@@ -265,6 +265,192 @@ coordinator intervention.
 
 \section{Peer-to-Peer Mesh Networking and Topology Management}
 \label{sec:p2p_mesh}
+
+Infrastructure-dependent star topologies in which devices communicate via a
+central coordinator or gateway suffer from a similar fate to single-protocol
+communication: when that coordinator becomes unavailable or unreachable, the
+entire network loses connectivity.
+
+This pattern pervades current IoT deployments, from Wi-Fi access point
+dependencies to LoRaWAN gateway requirements, and becomes catastrophic in
+disaster scenarios where central coordinators are most likely to fail first.
+
+Peer-to-peer (P2P) mesh architectures address this limitation by distributing
+coordination across all participating nodes, thus eliminating single points of
+failure. Nonetheless, achieving robust mesh operation requires solving three
+interconnected challenges: neighbor discovery and establishment of initial
+connectivity, topology maintenance as nodes join/leave a network, and efficient
+data routing through multi-hop paths when direct communication becomes
+impossible or inefficient.
+
+\subsection{Peer Discovery and Topology Maintenance}
+\label{subsec:peer_disc}
+
+As discussed in Section~\ref{subsec:proto-het}, the Multi-Protocol IoT Gateway
+implementation~\cite{multiproto_gateway} demonstrates BLE-based neighbor
+discovery with RSSI measurements for proximity estimation.
+
+While that work focuses on multi-protocol integration, its topology management
+reveals a limitation of its tree-based approach: the system implements
+automatic parent reselection when coordinators fail, but the underlying tree
+structure imposes that nodes can only communicate through their parent-child
+relationships rather than arbitrary peer connections.
+
+This restriction limits route diversity and resilience, creating dependency
+chains where a single intermediate node failure can disconnect entire subtrees.\\
+
+A more sophisticated approach to membership management is presented in
+HyParView~\cite{hyparview2007}, in which each node maintains two distinct
+partial views for scalability: a small active view (size = fanout + 1)
+containing nodes with which symmetric links are actively maintained, and a
+larger passive view serving as a backup pool of potential neighbors that may be
+promoted to the active view if one of its nodes fails.
+
+The active view is managed reactively, such that nodes are added during join
+operations and removed upon failure detection, while the passive view is
+maintained cyclically through periodic shuffle operations that exchange node
+identifiers between peers.
+
+This hybrid strategy enables remarkable resilience, with the system recovering
+from 80\% node failures with minimal reliability loss (maintaining ~95\%
+reliability) and from 50\% failures in just 1-2 membership cycles, compared to
+60+ cycles required by purely cyclic protocols like Cyclon~\cite{cyclon2005}.
+
+HyParView's deterministic flooding approach, by broadcasting messages along the
+entire active view graph rather than probabilistic neighbor selection, enables
+fast failure detection since every active link is tested at each broadcast. The
+symmetric link requirement ensures bidirectionality: if node A can reach node
+B, then B can reach A, preventing the formation of one-way communication paths
+that complicate routing.
+
+However, HyParView assumes TCP availability for maintaining persistent
+connections and using connection failures as implicit failure detectors. This
+dependency on full network stack functionality makes direct application to
+resource-constrained embedded platforms challenging, though the architectural
+principles of hybrid views and shuffle-based passive view maintenance remain
+valuable.\\
+
+The heterogeneous disaster IoT architecture discussed in
+Section~\ref{subsec:multi-channel} employs RPL for its WSN layer, demonstrating
+practical routing in resource-constrained disaster scenarios. 
+
+Their performance analysis reveals considerable trade-offs: convergence time
+scales linearly from 7 seconds for 20 nodes to 14.5 seconds for 100 nodes,
+while packet loss ratio (PLR) at 10 hops reaches 80\% with a 10-second sending
+interval but becomes acceptable at 20-second intervals.
+
+These measurements highlight the throughput limitations imposed by tree
+topologies, in that their Instance 1 traffic (human data) must be restricted to
+1-hop from the root node to ensure the least possible delay in its delivery,
+defeating the purpose of multi-hop mesh for critical communications.
+
+The DTN component using mobile drones as data mules provides an alternative
+path for partitioned networks, with a maximum of 20 nodes per DODAG
+(destination-oriented directed acyclic graph) to maintain acceptable
+convergence times during emergency situations, but this approach trades latency
+for eventual delivery rather than real-time mesh routing.
+
+\subsection{Routing in Partitioned and Intermittently Connected Networks}
+\label{subsec:routing_parts}
+
+When network partitions prevent end-to-end paths, store-and-forward mechanisms
+enable eventual data delivery. The Bundle Protocol~\cite{rfc5050} addresses
+delay-tolerant networking through custody-based retransmission and
+opportunistic connectivity exploitation. While the protocol specification
+predates modern IoT deployments and was not designed specifically for
+resource-constrained devices, its core principles inform contemporary DTN
+approaches.\\
+
+The framework presented in~\cite{fast2018} implements elastic bandwidth
+utilization by dynamically adjusting transmission rates based on available
+connectivity, and supports scheduled, predicted, and opportunistic transmission
+windows, taking inspiration from the Bundle Protocol. 
+
+Data parcels are compressed, encrypted, and bundled before transmission, with a
+load balancer managing concurrent transfer threads to optimize bandwidth usage
+during brief connectivity windows.
+
+While their HTTP-based implementation targets cloud-backed IoT deployments, the
+core concepts of parceling data, maintaining transmission queues, and
+opportunistic forwarding during connectivity windows translate to peer-to-peer
+scenarios where aggregation nodes become neighbors in a mesh network.
+
+\subsection{Limitations of Centralized Coordination}
+\label{subsec:limitations_centralized}
+
+The work on Resilient Edge-enable IoT~\cite{resilient2019} addresses coordinator
+failures through dynamic leader election and backup mechanisms within their
+framework.
+
+Their coordination model divides environments into collaboration areas, with
+resource-rich edge devices serving as coordinators that allocate tasks to
+workers under their supervision when problems arise. Workers, in turn, are
+\emph{active agents} such as robots and IoT devices that reside in a
+particular environment, detect problems, and notify their coordinators.
+
+When coordinators fail, the system automatically elects backups through
+adaptive decentralized consensus, providing "gentle degradation" during
+failures with restoration after recovery. Multiple coordinators operate
+independently, eliminating single points of failure within the coordination
+model itself.
+
+This architecture depends fundamentally on edge servers running JVM-based SCAFI
+middleware (a Scala library) to execute the aggregate programs that specify
+coordination behavior, and these heavyweight infrastructure requirements --
+both the Java runtime environment and resource-rich edge computing nodes --
+conflict with embedded platform constraints and infrastructure-failure
+scenarios.\todo{queremos mingle com o Babel... se calhar não entrar por aqui ou tudo bem porque não vamos usar os big-babeis para coordination?}
+
+While the aggregate computing paradigm separates concerns (sensing, actuation,
+communication, coordination), the implementation assumptions make it unsuitable
+for disaster-resilient systems where edge servers may be the infrastructure
+that fails. The formal guarantees of self-stabilization and compositional
+properties come at the cost of persistent computational infrastructure that an
+embedded-focused deployment cannot provide.
+
+\subsection{MicroBabel's Approach}
+\label{subsec:microbabel_approach_2}
+
+\textbf{MicroBabel} intends to address these limitations through a fully
+distributed peer-to-peer mesh architecture without coordinator dependencies.
+The system adapts HyParView's hybrid view concept (maintaining small active
+neighbor sets for actual communication and larger passive backup lists for
+failure recovery) but implements discovery and maintenance using
+\inlinetodo{BLE, LoRa...?} rather than TCP connections, accommodating the
+connectionless nature of embedded radio/wireless communication.
+
+Neighbor discovery combines \inlinetodo{BLE, LoRa...?} advertising beacons
+(carrying node identity, capabilities, and current neighbor counts, \inlinetodo{mais coisas?}) with
+periodic gossip exchanges that propagate topology information beyond single-hop
+radio range.
+
+This multi-mechanism approach mitigates potential range limitations: while BLE
+typically provides 10-50m coverage depending on environment and antenna
+configuration, gossip-based propagation enables nodes to learn about distant
+neighbors through multi-hop dissemination, supporting informed routing
+decisions and topology adaptation.
+
+Unlike the tree topology of Multi-Protocol Gateway or the RPL DODAG structure
+of heterogeneous disaster architecture, \textbf{MicroBabel} will implement true
+peer-to-peer mesh networking where any node can communicate with any other node
+through dynamically selected multi-hop paths.
+
+Route selection considers multiple factors gathered through local observation
+and gossip: link quality metrics (RSSI, packet success rates), neighbor
+availability across different protocols, and current energy budgets.
+
+Store-and-forward mechanisms inspired by Bundle Protocol will enable operation
+during network partitions, but will be adapted for peer-to-peer rather than
+cloud-centric operation: data parcels are compressed (using techniques from
+Section~\ref{sec:data_compression}), queued in local storage (flash, MicroSD
+cards) when no forward path exists, and opportunistically transmitted when
+connectivity windows emerge, be it through topology changes or protocol
+switching creating new communication opportunities.
+
+Coordination emerges from local interactions via gossip-based information
+propagation, decentralized time synchronization
+(Section~\ref{sec:decentr_sync}), and adaptive protocol selection
+(Section~\ref{sec:multi-proto}), rather than centralized allocation of roles.
 
 \section{Decentralized Synchronization and Time Coordination}
 \label{sec:decentr_sync}
