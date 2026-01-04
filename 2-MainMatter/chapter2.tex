@@ -13,6 +13,8 @@
 
 \glsresetall
 
+\todo{mencionar MQTT, CoAP em detalhe somewhere}
+
 Internet of Things (IoT) and home automation (domotics) systems share the same
 technological building blocks (wireless sensors, embedded devices, network
 communication) but diverge significantly in their operational focus and
@@ -51,7 +53,7 @@ The challenges faced by disaster-resilient IoT systems span multiple dimensions:
         mechanisms in embedded platforms.
 \end{description}
 
-\textbf{MicroBabel} addresses these challenges through a decentralized approach
+\textbf{MicroBabel} addresses these concerns through a decentralized approach
 that aims to eliminate the dependency on centralized coordination, continuous
 connectivity and cloud infrastructure.
 
@@ -130,10 +132,10 @@ A more comprehensive heterogeneous approach is presented
 in~\cite{heterogeneous-disaster}, which integrates HF radio (NVIS), satellite
 links, wireless sensor networks (WSNs), and delay-tolerant networking (DTN)
 with mobile drones for disaster monitoring. Their system uses RPL (Routing
-Protocol for Low-Power and Lossy Networks) with three separate instances to
-differentiate traffic by priority: human data (voice/text via Bluetooth)
-receives the highest priority, followed by drone-collected data and finally
-sensor data.
+Protocol for Low-Power and Lossy Networks)~\cite{rfc6550} with three separate
+instances to differentiate traffic by priority: human data (voice/text via
+Bluetooth) receives the highest priority, followed by drone-collected data and
+finally sensor data.
 
 The NVIS backhaul provides 250 km coverage radius without line-of-sight
 requirements, offering a cost-effective alternative to satellite
@@ -158,6 +160,108 @@ However, the system depends on a master node broadcasting synchronization
 signals and uses an initial PRNG seed shared among all nodes, raising questions
 about scalability and seed distribution mechanisms -- particularly how new
 nodes can acquire seeds if deployed to a network at a later time.
+
+\subsection{Protocol Heterogeneity on Embedded Platforms}
+\label{subsec:proto-het}
+
+The work presented in~\cite{multiproto_gateway} shows the technical feasibility
+of multi-protocol operation on commodity Wi-Fi/BLE modules by integrating
+ESP-NOW, ZigBee, and Modbus protocols on devices from the ESP32 family to
+construct multi-hop, tree-based wireless networks.
+
+Their implementation uses BLE advertising beacons for neighbor discovery with
+RSSI measurements (for distance estimation), computing parent selection
+priorities based on weighted combinations of child count, RSSI values, and hop
+count in the network tree of a given node. The system also supports automatic
+parent reselection when the current parent becomes uncreachable, making it
+somewhat resilient to single node failures.
+
+Testing demonstrated successful multi-hop operation up to 5 hops in office
+environments, but evaluation was limited to linear network topologies.
+Additionally, this architecture relies on a tree topology with master-slave
+communication that is centered around a gateway (coordinator) rather than being
+a peer-to-peer mesh, creating a single point of failure at the coordinator
+node.\\
+
+\todo{encontrar outro paper para inserir aqui}
+
+\subsection{Runtime Adaptive Protocol Selection}
+\label{subsec:runtime-adaptive}
+
+A recent approach to protocol adaptation is presented
+in~\cite{adaptive2025}, which introduces a closed-loop control system with
+four integrated components: a context monitor sampling runtime metrics at 1 Hz,
+a decision engine using multi-criteria weighted scoring across six dimensions
+(message frequency, payload size, network conditions, packet loss rate, energy
+budget, QoS requirements), protocol adapters encapsulating protocol-specific
+libraries, and a learning component that adjusts thresholds using EWMA
+(Exponentially Weighted Moving Average) for deployment-specific patterns.
+
+Some key aspects of this work include hysteresis control with a threshold band
+to prevent oscillation between protocols, and switching cost awareness
+requiring benefits to exceed costs by a certain threshold before transitioning.
+
+Their evaluation comparing MQTT, CoAP, and HTTP revealed a significant
+discovery: receivers consistently consume 15-20\% more energy than senders
+across all protocols, shifting the energy bottleneck from endpoint sensors to
+intermediary nodes like gateways. This receiver energy asymmetry has direct
+implications for gateway power management in disaster scenarios where battery
+replacement becomes impossible. The framework achieved 34\% energy reduction
+versus static HTTP, 23\% versus static MQTT, and 18\% versus static CoAP, while
+requiring 85\% less computation than machine learning approaches.
+
+However, this framework assumes infrastructure availability for protocol
+endpoints (MQTT brokers, HTTP servers, CoAP endpoints) and was evaluated only
+on laptop platforms using Python libraries rather than embedded C
+implementations.
+
+Nevertheless, the evaluation methodology provides valuable insight into the
+energy expenditure of these different approaches, and grants useful
+foundations for sophisticated multi-protocol approaches, in particular with the
+multi-criteria decision framework and hysteresis control mechanism, but the
+actual system cannot operate when infrastructure fails.\\
+
+The MINOS platform~\cite{minos2019} exemplifies the limitations of centralized
+multi-protocol approaches. While providing sophisticated multi-protocol support
+(CORAL-SDN and Adaptable-RPL) with dynamic protocol deployment and real-time
+parameter tuning, the system depends fundamentally on a centralized SDN
+controller, MQTT broker, and web server infrastructure. The architecture's
+single point of failure means that when the controller becomes unreachable the
+entire system loses its adaptive capabilities and reverts to static operation
+at best, or complete failure at worst.
+
+\subsection{MicroBabel's Approach}
+\label{subsec:microbabel_approach_1}
+
+These limitations are addressed through opportunistic multi-protocol operation
+(BLE + Wi-Fi + LoRa + ESP-NOW) wherein devices adaptively select communication
+mediums based on factors like message priority, neighbor availability, energy
+budget, network conditions and device capabilities.\todo{nail down a
+arquitetura primeiro maybe}
+
+The system employs decentralized protocol selection without requiring SDN
+controllers or infrastructure coordination, instead using local decision-making
+informed by neighborhood information gathered through gossip protocols. 
+
+Hysteresis control mechanisms adapted from the Adaptive Protocol Selection
+Framework prevent oscillations in these decisions while allowing rapid
+response to changing conditions.
+
+Protocol-specific compression strategies account for the different
+energy/bandwidth trade-offs across the proposed stack (e.g. aggressive
+compression for (relatively) energy-expensive LoRa, lighter compression for
+short-range BLE), integrating the receiver energy asymmetry observations into
+power management decisions.
+
+Unlike AWCT's LoRaWAN gateway dependency, Heterogeneous IoT's NVIS centralized
+backhaul, MCSC-WoT's master-based synchronization, or MINOS's SDN controller
+requirement, \textbf{MicroBabel} operates autonomously in a peer-to-peer
+manner with no static coordinator dependencies.\todo{again discutir arquitetura}
+
+The multi-protocol capability provides resilience through diversity rather than
+optimization through centralized selection: when conditions render one medium
+unsuitable, devices autonomously transition to alternatives without requiring
+coordinator intervention.
 
 \section{Peer-to-Peer Mesh Networking and Topology Management}
 \label{sec:p2p_mesh}
