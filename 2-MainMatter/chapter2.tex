@@ -455,6 +455,56 @@ propagation, decentralized time synchronization
 \section{Decentralized Synchronization and Time Coordination}
 \label{sec:decentr_sync}
 
+Multi-channel communication strategies, particularly those that employ
+coordinated channel hopping for security or efficiency reasons, require nodes
+to maintain synchronized clocks. Without time synchronization, devices cannot
+agree on when to switch channels, rendering coordinated multi-protocol
+operation impossible.
+
+Traditional master-based synchronization approaches -- where a designated
+coordinator is responsible for communicating timing signals -- once more fall
+into the trap of having a single point of failure in that same master node:
+should it fail, the entire network becomes susceptible to losing accurate
+temporal reference, leading to the collapse of any coordination efforts.
+
+This is a notorious challenge to overcome when designing distributed systems,
+and it becomes more prominent in the disaster scenarios discussed thus far,
+where infrastructure failures are likely to eliminate the nodes responsible for
+time synchronization in a given system.
+
+Achieving robust time synchronization in such situations requires fully
+decentralized approaches that eliminate central coordinator dependencies while
+still remaining sufficiently lightweight to be executed on resource-constrained
+platforms.
+
+\subsection{Master-Based Synchronization as Counterexample}
+\label{subsec:master_sync}
+
+As discussed in Section~\ref{subsec:multi-channel}, the MCSC-WoT
+framework~\cite{mcsc-wot} demonstrates a security-focused multi-channel hopping
+approach aimed at embedded platforms, but with a fundamental dependency on a
+master node broadcasting synchronization signals.
+
+This approach uses a shared PRNG seed to generate channel-hopping sequences,
+with the master node broadcasting periodic synchronization beacons that slave
+nodes use to compensate for clock drift. Nodes that lose synchronization
+altogether can rejoin by hopping to a random channel and waiting for the next
+master beacon.
+
+While the proposed goals were achieved in terms of minimizing energy
+expenditure and maintaining FHSS patterns, it inherits the fundamental
+limitation of all master-based approaches mentioned at the start of
+Section~\ref{sec:decentr_sync}. If the master fails or becomes unreachable,
+participating nodes gradually drift out of synchronization until coordinated
+channel hopping is no longer possible.
+
+The system's clock drift compensation algorithm demonstrates the feasibility of
+synchronization on ESP32 platforms, and their measured AES encryption
+performance validates that lightweight security can coexist with time
+synchronization on resource-constrained devices. However, the architectural
+dependency on a central coordinator fundamentally conflicts with
+infrastructure-independent operation requirements we aim to fulfill.
+
 \section{Lightweight Data Compression and Energy Efficiency}
 \label{sec:data_compression}
 
