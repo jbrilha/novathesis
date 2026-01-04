@@ -534,7 +534,7 @@ collision rates drop to near zero compared to 19-23\% for deterministic
 communication protocols, as independent Poisson intervals make simultaneous
 transmissions to the same receiver statistically unlikely.
 
-The proposed RGCS employs a convege-to-max criterion rather than average-value
+The proposed RGCS employs a converge-to-max criterion rather than average-value
 consensus. This maximum-based approach achieves finite time convergence
 significantly faster than average-based protocols that require many iterations
 to converge under significant clock drift. Offset compensation follows suit,
@@ -553,6 +553,86 @@ to the number of neighbors, not network size) thus ensuring scalability. The
 protocol simultaneously compensates both clock rate and offset, unlike
 approaches that handle these separately and thus require additional convergence
 time.
+
+\subsection{Coordination Through Passive View Maintenance}
+\label{subsec:coord_passive}
+
+As discussed in Section~\ref{subsec:peer_disc}, the shuffle-based passive view
+maintenance presented in HyParView~\cite{hyparview2007} provides a
+complementary coordination mechanism. While primarily designed for topology
+management, the periodic shuffle operations in which nodes exchange lists of
+known peers can also serve the purpose of propagating network membership
+information that can inform synchronization decisions.
+
+Nodes performing shuffle exchanges already communicate periodically; these same
+communication windows can opportunistically carry synchronization messages,
+reducing protocol overhead. The passive view serves as a pool of potential sync
+partners, so that when a node's active sync neighbors become unreachable, it
+can initiate sync exchanges with passive view members, providing added
+resilience to topology changes without requiring global network knowledge.
+
+\subsection{MicroBabel's Approach}
+\label{subsec:microbabel_approach_3}
+
+\textbf{MicroBabel} will extend RGCS to heterogeneous multi-protocol networks
+through protocol-specific Poisson processes with distinct activation rates.
+Rather than a single $\lambda$ controlling overall sync frequency, the system
+employs per-protocol gossip rates that take into account the energy required
+for each transmission, and the current network conditions:
+
+\todo{does this make sense para o que queremos?}
+
+\begin{description}
+    \item \textbf{$\lambda$\_BLE} (high frequency): provides rapid local
+        synchronization with nearby neighbors, leveraging BLE's low energy cost
+        for frequent exchanges
+    \item \textbf{$\lambda$\_LoRa} (low frequency): maintains long-range
+        temporal coordination, using LoRa's more expensive transmissions
+        sparingly
+    \item \textbf{$\lambda$\_Wi-Fi} / Others (medium frequency): situational
+        use based on network density, energy budgets and other factors
+\end{description}
+
+Each protocol will have its own Poisson-triggered gossip loop, but all updates
+contribute to a single shared logical clock via the converge-to-max criterion
+explored above. When sync events from different protocols occur
+near-simultaneously, the max operation's associativity ensures correct
+convergence regardless of update order.
+
+This multi-graph gossip approach provides several advantages over homogeneous
+sync:
+\begin{description}
+    \item \textbf{Faster convergence:} High-frequency BLE gossip can achieve
+        tighter local consensus while sparse LoRa exchanges prevent drift
+        between distant clusters. The combination converges faster than either
+        protocol alone.
+    \item \textbf{Resilience through diversity:} If 2.4 GHz interference
+        disrupts BLE/Wi-Fi synchronization, LoRa maintains loose temporal
+        coordination across the network. Conversely, if LoRa experiences poor
+        conditions, local BLE sync keeps nearby nodes coordinated.
+    \item \textbf{Natural energy optimization:} Protocol characteristics
+        directly inform sync frequencies, so that more expensive long-range
+        transmissions occur rarely while cheap short-range exchanges happen
+        frequently, matching energy budgets to communication needs.
+\end{description}
+
+Hysteresis control mechanisms adapted from Section~\ref{sec:multi-proto} will
+prevent oscillations in protocol selection during sync events: sync partner and
+protocol choices stabilize around locally optimal configurations rather than
+continuously switching between equally-viable options.
+
+The approach aims to handle network partitions gracefully: nodes maintain
+synchronization within their reachable partition using available protocols, and
+when partitions merge (through mobility or topology changes), the
+converge-to-max criterion naturally reconciles previously independent temporal
+references without requiring special merge logic.
+
+Unlike MCSC-WoT's master-based approach, this architecture will operate in a
+fully peer-to-peer fashion with no fixed coordinator dependencies. The
+multi-protocol extension goes beyond RGCS's original homogeneous network
+assumptions, since heterogeneous gossip graphs with protocol-specific
+characteristics warrant distinct sync frequencies, enabling simultaneous
+optimization of convergence speed, energy consumption, and range coverage.
 
 \section{Lightweight Data Compression and Energy Efficiency}
 \label{sec:data_compression}
