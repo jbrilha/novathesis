@@ -629,6 +629,131 @@ optimization of convergence speed, energy consumption, and range coverage.
 \section{Lightweight Data Compression and Energy Efficiency}
 \label{sec:data_compression}
 
+Energy constraints present one of the most fundamental limitations in
+battery-powered IoT deployments, particularly in hazardous deployments where
+replacements and recharging are impractical, and during disaster scenarios
+where grid power likely becomes unavailable.
+
+While multi-protocol communication and decentralized coordination efforts
+provide resilience, they also introduce increaed energy costs through frequent
+transmissions, protocol adaptation overhead and forwarding costs.
+
+Data transmission dominates energy consumption across wireless technologies:
+LoRa and SIGFOX can represent up to 99.9\% of power consumption for
+transmission, while even shorter-range technologies like BLE and IEEE 802.15.4
+dedicate 85-90\% of their energy budget to radio
+operations~\cite{ambrosia2021}. This reality makes data reduction techniques
+essential for extending operational lifetime in infrastructure-independent
+scenarios.
+
+\subsection{Prediction-Based Data Reduction}
+\label{subsec:prediction_reduction}
+
+The Ambrosia protocol~\cite{ambrosia2021} demonstrates that lightweight
+prediction can achieve substantial data reductions on resource-constrained
+devices. The core idea is that not all sensor readings need to be transmitted
+if their values can be accurately predicted at the server (within the bounds
+of a specified error threshold), provided that both sender and receiver
+maintain a synchronized "prediction state".
+
+Their approach uses window-based forecasting where the next sample is predicted
+by adding the average differences between recent previous samples, making it
+dramatically lighter than sophisticated time-series forecasting techniques
+like ARIMA~\cite{arima2017} while still achieving comparable data reduction
+performance.
+
+The protocol works by sending the first \emph{w} (window size) true samples
+collected by the sensor node to the server, and for every sample after that
+comparing its true value to the one predicted locally; the true sample value is
+sent to the server only if the absolute difference between it and the prediction
+is greater than a user or application-specified error threshold $\delta$.
+
+The same simple prediction scheme is used on both ends of this communication,
+and the predicted value is the one used for further predictions -- even on the
+sensor node that knows the true value, to ensure consistency between the two
+endpoints.
+
+This design achieves up to 60\% data reduction with appropriate $\delta$
+configuration while maintaining sufficient accuracy for diverse applications:
+for error-tolerant use cases like anomaly detection, $\delta$ values will be
+higher to allow for reasonable fluctuations, thus enabling more significant
+data reductions, while error-sensitive applications requiring higher precision
+will naturally lean towards stricter error thresholds, but still benefitting
+from some amount of data reduction.
+
+The major takeaway from this work is that the window-based prediction executed
+99\% faster than ARIMA forecasting in their evaluation, making it viable for
+streaming sensor data at high rates. The approach achieved 2$\times$ battery
+lifetime improvement in high-traffic scenarios and demonstrated compatibility
+with extremely constrained devices (livestock ear tags with Atmel 8-bit
+microcontrollers).
+
+\subsection{Receiver-Side Energy Considerations}
+\label{subsec:receiver_energy}
+
+An oft-overlooked aspect of IoT energy optimization is the asymmetry between
+sender and receiver energy consumption. The adaptive protocol selection
+framework analysis~\cite{adaptive2025} revealed that receiver nodes
+consistently consume 15-20\% more energy than senders across all evaluated
+protocols (MQTT, CoAP, HTTP).
+
+This asymmetry shifts the energy bottleneck from endpoint sensors to
+intermediary nodes like gateways and has direct implications for gateway power
+management in disaster scenarios where battery replacement becomes impossible.
+The increased receiver cost stems from the added computational work required
+for parsing, processing, and managing incoming messages, particularly at high
+message rates.
+
+For \textbf{MicroBabel}'s proposed two-tier architecture where sensor nodes
+eventually forward data to aggregators/gateways, this finding has direct
+implications in that managing the power consumption of these gateways becomes
+as significant as sensor power optimization, since one gateway might receive
+substantial data from several nodes even if individually they don't perform
+frequent transmissions.
+
+\subsection{MicroBabel's Approach}
+\label{subsec:microbabel_approach_4}
+
+\textbf{MicroBabel} will reduce data transmission through prediction-based
+filtering: nodes transmit sensor readings only when prediction error exceeds
+configurable thresholds (similar to Ambrosia), with protocol-aware tuning to
+balance accuracy against energy constraints across heterogeneous protocols.
+
+Adaptive threshold selection will adjust $\delta$ based on both channel
+characteristics and node state:
+\begin{itemize}
+    \item \textbf{High $\delta$ for LoRa}: Tolerates larger prediction errors
+        to minimize expensive long-range transmissions, sending only when
+        predictions deviate significantly
+    \item \textbf{Low $\delta$ for BLE}: Requires tighter prediction accuracy
+        for cheap local exchanges, allowing for more frequent transmissions to
+        maintain precision
+    \item \textbf{Battery-aware adaptation}: As node energy depletes, 
+        increased $\delta$ across all channels reduces transmission frequency, 
+        extending lifetime for critical messages
+\end{itemize}
+
+\textbf{Application-aware transmission} will distinguish between data types:
+periodic sensor readings (temperature, humidity, light) use window-based
+prediction with configurable $\delta$ thresholds, while discrete events
+(emergency alerts, button presses, motion detection) transmit immediately
+without prediction. For predictable streams, accuracy-critical applications
+maintain low $\delta$, while trend monitoring can accept higher values to
+reduce transmission frequency.
+
+\textbf{Gateway energy management} accounts for the 15-20\% receiver energy
+cost by implementing selective radio shutdown: gateways can disable specific
+protocols during low-activity periods, waking periodically to check for
+incoming sync beacons or when prompted via other protocols.
+\todo{entrar pela coisa de desligar os rádios ainda mais?}
+
+The expectation is that the combination of lightweight prediction, adaptive
+thresholding, and protocol-specific tuning will provide substantial energy
+savings without requiring complex and computationally intensive
+compression algorithms that would themselves consume significant power.
+
+\todo{inserir algo sobre ACTUAL compression}
+
 \section{Security and Privacy for Resource-Constrained Emergency Communication}
 \label{sec:sec_priv}
 
