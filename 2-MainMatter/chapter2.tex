@@ -201,25 +201,17 @@ Some key aspects of this work include hysteresis control with a threshold band
 to prevent oscillation between protocols, and switching cost awareness
 requiring benefits to exceed costs by a certain threshold before transitioning.
 
-Their evaluation comparing MQTT, CoAP, and HTTP revealed a significant
-discovery: receivers consistently consume 15-20\% more energy than senders
-across all protocols, shifting the energy bottleneck from endpoint sensors to
-intermediary nodes like gateways. This receiver energy asymmetry has direct
-implications for gateway power management in disaster scenarios where battery
-replacement becomes impossible. The framework achieved 34\% energy reduction
-versus static HTTP, 23\% versus static MQTT, and 18\% versus static CoAP, while
-requiring 85\% less computation than machine learning approaches.
-
 However, this framework assumes infrastructure availability for protocol
 endpoints (MQTT brokers, HTTP servers, CoAP endpoints) and was evaluated only
 on laptop platforms using Python libraries rather than embedded C
 implementations.
 
 Nevertheless, the evaluation methodology provides valuable insight into the
-energy expenditure of these different approaches, and grants useful
-foundations for more complex multi-protocol approaches, in particular with the
-multi-criteria decision framework and hysteresis control mechanism, but the
-actual system cannot operate when infrastructure fails.\\
+energy expenditure of these different approaches (further explored in
+Section~\cite{subsec:receiver_energy}), and grants useful foundations for more
+complex multi-protocol approaches, in particular with the multi-criteria
+decision framework and hysteresis control mechanism, but the actual system
+cannot operate when infrastructure fails.\\
 
 The MINOS platform~\cite{minos2019} exemplifies the limitations of centralized
 multi-protocol approaches. While providing sophisticated multi-protocol support
