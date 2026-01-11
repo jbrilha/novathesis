@@ -225,15 +225,19 @@ at best, or complete failure at worst.
 \subsection{MicroBabel's Approach}
 \label{subsec:microbabel_approach_1}
 
-These limitations are addressed through opportunistic multi-protocol operation
-(BLE + Wi-Fi + LoRa + ESP-NOW) wherein devices adaptively select communication
-mediums based on factors like message priority, neighbor availability, energy
-budget, network conditions and device capabilities.\todo{nail down a
-arquitetura primeiro maybe}
+While existing multi-channel approaches rely on centralized decision-making for
+channel selection -- whether through master nodes (MCSC-WoT), SDN controllers
+(MINOS), or infrastructure endpoints -- \textbf{MicroBabel} will address these
+limitations through decentralized \emph{protocol} selection, extending beyond
+single-medium channel hopping.
 
-The system employs decentralized protocol selection without requiring SDN
-controllers or infrastructure coordination, instead using local decision-making
-informed by neighborhood information gathered through gossip protocols. 
+\todo{nail down a arquitetura primeiro maybe}
+The system will employ opportunistic multi-protocol operation (BLE + Wi-Fi +
+LoRa + ESP-NOW) wherein devices adaptively select communication mediums based
+on factors like message priority, neighbor availability, energy budget, network
+conditions and device capabilities. This selection will be performed through
+local decision-making informed by information gathered through gossip
+protocols, without requiring SDN controllers or infrastructure coordination.
 
 Hysteresis control mechanisms adapted from the Adaptive Protocol Selection
 Framework prevent oscillations in these decisions while allowing rapid
@@ -403,6 +407,10 @@ embedded-focused deployment cannot provide.
 \subsection{MicroBabel's Approach}
 \label{subsec:microbabel_approach_2}
 
+Tree topologies and coordinator-based approaches limit resilience, and
+heavyweight middleware platforms or HyParView's TCP requirements exceed
+embedded device capabilities.
+
 \textbf{MicroBabel} intends to address these limitations through a fully
 distributed peer-to-peer mesh architecture without coordinator dependencies.
 The system adapts HyParView's hybrid view concept (maintaining small active
@@ -566,6 +574,10 @@ resilience to topology changes without requiring global network knowledge.
 \subsection{MicroBabel's Approach}
 \label{subsec:microbabel_approach_3}
 
+While MCSC-WoT demonstrates master-based synchronization feasibility and RGCS
+provides masterless convergence, both assume homogeneous single-protocol
+networks.
+
 \textbf{MicroBabel} will extend RGCS to heterogeneous multi-protocol networks
 through protocol-specific Poisson processes with distinct activation rates.
 Rather than a single $\lambda$ controlling overall sync frequency, the system
@@ -705,7 +717,7 @@ for parsing, processing, and managing incoming messages, particularly at high
 message rates.
 
 For \textbf{MicroBabel}'s proposed two-tier architecture where sensor nodes
-eventually forward data to aggregators/gateways, this finding has direct
+might eventually forward data to aggregators/gateways, this finding has direct
 implications in that managing the power consumption of these gateways becomes
 as significant as sensor power optimization, since one gateway might receive
 substantial data from several nodes even if individually they don't perform
@@ -714,10 +726,12 @@ frequent transmissions.
 \subsection{MicroBabel's Approach}
 \label{subsec:microbabel_approach_4}
 
-\textbf{MicroBabel} will reduce data transmission through prediction-based
-filtering: nodes transmit sensor readings only when prediction error exceeds
-configurable thresholds (similar to Ambrosia), with protocol-aware tuning to
-balance accuracy against energy constraints across heterogeneous protocols.
+Extending Ambrosia's lightweight prediction approach to multi-protocol
+scenarios, \textbf{MicroBabel} will reduce data transmission through
+prediction-based filtering: nodes transmit sensor readings only when prediction
+error exceeds configurable thresholds (similar to Ambrosia), with
+protocol-aware tuning to balance accuracy against energy constraints across
+heterogeneous protocols.
 
 Adaptive threshold selection will adjust $\delta$ based on both channel
 characteristics and node state:
@@ -878,6 +892,10 @@ of our targeted platforms.
 
 \subsection{MicroBabel's Approach}
 \label{subsec:microbabel_approach_5}
+
+LPKM provides lightweight key management but requires initial KDC provisioning,
+while zero-config approaches face circular authentication dependencies and
+centralized schemes fail when infrastructure collapses.
 
 \textbf{MicroBabel} will adopt a hybrid security model that distinguishes 
 between pre-disaster deployment and post-disaster autonomous operation.
