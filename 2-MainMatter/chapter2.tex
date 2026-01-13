@@ -647,16 +647,20 @@ replacements and recharging are impractical, and during disaster scenarios
 where grid power likely becomes unavailable.
 
 While multi-protocol communication and decentralized coordination efforts
-provide resilience, they also introduce increaed energy costs through frequent
+provide resilience, they also introduce increased energy costs through frequent
 transmissions, protocol adaptation overhead and forwarding costs.
 
 Data transmission dominates energy consumption across wireless technologies:
 LoRa and SIGFOX can represent up to 99.9\% of power consumption for
 transmission, while even shorter-range technologies like BLE and IEEE 802.15.4
 dedicate 85-90\% of their energy budget to radio
-operations~\cite{ambrosia2021}. This reality makes data reduction techniques
-essential for extending operational lifetime in infrastructure-independent
-scenarios.
+operations~\cite{ambrosia2021}.
+
+This reality makes data reduction techniques essential for extending
+operational lifetime in infrastructure-independent scenarios. However,
+compression itself consumes energy through additional computational work, thus
+creating an unavoidable tug-of-war between compression overhead and
+transmission benefits.
 
 \subsection{Prediction-Based Data Reduction}
 \label{subsec:prediction_reduction}
@@ -700,6 +704,91 @@ lifetime improvement in high-traffic scenarios and demonstrated compatibility
 with extremely constrained devices (livestock ear tags with Atmel 8-bit
 microcontrollers).
 
+\subsection{Lightweight Compression}
+\label{subsec:lightweight_compression}
+
+While prediction-based reduction minimizes the number of transmissions,
+compression techniques are essential to reduce the size of the data that
+\emph{must} be transmitted.
+
+A few complementary approaches address different considerations and
+constraints: hybrid schemes balance accuracy with transmission costs through
+lossy/lossless models; lossless time-series compression exploits the natural
+temporal relation in continuous sensor readings; and two-tier architectures
+apply different techniques at both the sensor and gateway level to reduce
+energy costs.
+
+\subsubsection*{Hybrid Lossy/Lossless Compression}
+
+The hybrid compression scheme presented in~\cite{hybrid2017} addresses accuracy
+requirements by separating real-time lossy transmission from on-demand lossless
+reconstruction. The Fan algorithm adaptively sub-samples data maintaining
+bounded error $\varepsilon$, achieving average 7.8$\times$ and 2.1$\times$
+compression ratio (CR) for lossy and lossless compression, respectively.
+
+The approach provides graceful degradation through battery-aware switching, in
+that when battery drops below a certain threshold (e.g., 20\%), the system
+switches to lossy-only transmission instead of lossless, extending lifetime at
+the cost of reconstruction accuracy.
+
+\inlinetodo{add more detail here but need to read it more carefully}
+
+\subsubsection*{Lossless Time-Series Compression}
+
+Sprintz~\cite{sprintz2018} targets lossless compression for multivariate
+integer time-series with extreme resource constraints, achieving 2-10$\times$
+compression ratios with <1KB memory footprint and 8-sample block sizes. The
+four-component algorithm combines forecasting (delta coding or FIRE (Fast
+Integer REgression) online learning), bit packing with zigzag encoding, RLE
+(run-length encoding) for all-zero blocks, and optional Huffman coding.
+
+Delta coding is extremely fast, and when combined with RLE becomes even more
+so, as it yields a run of zero errors if the data is constant, which is likely
+to happen for nominal sensor readings. FIRE forecasting yields better
+compression, but its online learning approach place it beyond the scope of
+this paper.
+
+A \emph{forescaster} is employed to predict each sample based on previous ones,
+and the difference between the next and the predicted sample are encoded. This
+difference is typically closer to zero than the next sample itself.
+
+Any prediction errors from the previous forecasting step are zigzag
+encoded~\inlinetodo{add citation here or not really necessary?} as a "payload",
+and a header is prepended with sufficient information to invert the bit
+packing.
+
+If a block happens to consist only of zeros, this approach waits for a block in
+which there is a non-zero error, and the number of all-zero blocks are written
+out using RLE instead of the (empty) payload.
+
+Finally, the bit packed representation of each block can be \emph{entropy
+coded} using a Huffman coder, applied to the headers and payloads. This is done
+after bit packing because not only is it faster, but it also increases
+compression.
+
+Decompression can achieve up to 3GB/s throughput without Huffman coding
+(>500MB/s with Huffman) in a single thread, enabling high-speed data retrieval
+on gateway-tier devices. Compression maintains >200MB/s on 8-bit data,
+sufficient for real-time operation even on embedded platforms.
+
+\subsubsection*{Two-Tier Compression Architecture}
+
+The two-tier data reduction (TTDR) technique proposed in~\cite{twotier2019}
+applies compression at both sensor nodes (Tier 1) and gateways (Tier 2) to
+reduce energy consumption in the overall system.
+
+Sensor nodes employ Delta encoding followed by RLE, allowing this approach to
+achieve 80-84\% compression by exploiting the temporal correlation in sensor
+data. Gateways perform hierarchical clustering based on the Minimum Description
+Length (MDL) principle, transmitting \emph{hypothesis} data sets and
+difference vectors instead of full data sets.
+
+\todo{falar mais do MDL ou como é gateway side not so important?}
+
+The Delta+RLE implementation -- validated through OMNeT++ simulation -- proves
+to be lightweight enough for resource-constrained nodes, while gateway
+clustering reduces transmission to cloud infrastructure.
+
 \subsection{Receiver-Side Energy Considerations}
 \label{subsec:receiver_energy}
 
@@ -733,18 +822,30 @@ error exceeds configurable thresholds (similar to Ambrosia), with
 protocol-aware tuning to balance accuracy against energy constraints across
 heterogeneous protocols.
 
+Building on prediction-based reduction, the goal is to apply Delta+RLE compression
+to the readings that are transmitted, combining both techniques for added
+energy savings and reduced data volume over the air.
+
+Following the two-tier architecture pattern, compression occurs at sensor nodes
+before transmission, with just the first sample in each window being
+transmitted with no compression applied.
+
 Adaptive threshold selection will adjust $\delta$ based on both channel
 characteristics and node state:
+\todo{estes deltas vinham do ambrosia, fica confuso agora que falo de delta encoding?}
 \begin{itemize}
     \item \textbf{High $\delta$ for LoRa}: Tolerates larger prediction errors
         to minimize expensive long-range transmissions, sending only when
-        predictions deviate significantly
+        predictions deviate significantly. These packets undergo
+        aggressive Delta+RLE compression to minimize airtime costs.
     \item \textbf{Low $\delta$ for BLE}: Requires tighter prediction accuracy
         for cheap local exchanges, allowing for more frequent transmissions to
-        maintain precision
-    \item \textbf{Battery-aware adaptation}: As node energy depletes, 
-        increased $\delta$ across all channels reduces transmission frequency, 
-        extending lifetime for critical messages
+        maintain precision. Lighter compression (delta encoding only) 
+        is applied here for lower latency.
+    \item \textbf{Battery-aware adaptation}: As node energy depletes, increased
+        $\delta$ across all channels reduces transmission frequency, extending
+        lifetime for critical messages. Compression at this point becomes more
+        lossy to further minimize transmitted data volume.
 \end{itemize}
 
 \textbf{Application-aware transmission} will distinguish between data types:
@@ -755,18 +856,24 @@ without prediction. For predictable streams, accuracy-critical applications
 maintain low $\delta$, while trend monitoring can accept higher values to
 reduce transmission frequency.
 
+Compression strategies also vary by data type: environmental sensors can
+tolerate more prominent Delta+RLE compression given their high temporal
+correlation, while critical alerts transmit with minimal (if any) compression
+to reduce latency.
+
 \textbf{Gateway energy management} accounts for the 15-20\% receiver energy
 cost by implementing selective radio shutdown: gateways can disable specific
 protocols during low-activity periods, waking periodically to check for
-incoming sync beacons or when prompted via other protocols.
+incoming sync beacons or when prompted via other protocols. Decompression
+overhead in these nodes is minimal compared to transmission costs at
+the sensor level.
 \todo{entrar pela coisa de desligar os rádios ainda mais?}
 
 The expectation is that the combination of lightweight prediction, adaptive
-thresholding, and protocol-specific tuning will provide substantial energy
-savings without requiring complex and computationally intensive
-compression algorithms that would themselves consume significant power.
-
-\todo{inserir algo sobre ACTUAL compression}
+thresholding, and protocol-specific tuning together with Delta+RLE compression
+will provide substantial energy savings without requiring complex and
+computationally intensive compression algorithms that would themselves consume
+significant power.
 
 \section{Security and Privacy for Resource-Constrained Emergency Communication}
 \label{sec:sec_priv}
@@ -800,13 +907,10 @@ The measured encryption overhead validates that symmetric cryptography remains
 viable on resource-constrained devices, though their approach assumes a shared
 PRNG seed can be distributed during an initial deployment phase.
 
-\todo{queremos fazer algo no angulo de deployments DURING emergencies ou focar
-apenas na sequencia deployment normal -> emergency operation?}
 While suitable for scenarios where controlled deployment precedes operation,
-the seed distribution mechanism can become problematic for nodes joining
-dynamically during emergency scenarios. The master-based synchronization also
-reintroduces coordinator dependencies that conflict with
-infrastructure-independent operation requirements, as previously noted.
+the master-based synchronization also reintroduces coordinator dependencies
+that conflict with infrastructure-independent operation requirements, as
+previously noted.
 
 \subsection{Distributed Key Management}
 \label{subsec:distrib_key_man}
@@ -866,6 +970,11 @@ limiting the potential of this implementation.
 This highlights a fundamental pressure point in zero-config security:
 establishing trust without pre-shared secrets or trusted third parties.
 
+\subsection{Authentication and Privacy}
+\label{subsec:authentication_privacy}
+
+-- TODO TODO TODO TODO --
+
 \subsection{Centralized Security Approaches (Incompatible with Disasters)}
 \label{subsec:centr_sec}
 
@@ -903,11 +1012,7 @@ between pre-disaster deployment and post-disaster autonomous operation.
 \begin{description}
     \item \textbf{Pre-disaster deployment phase:} For planned installations
         (building sensor networks, campus-wide monitoring), polynomial shares
-        will be preloaded via KDC during initial deployment, whereas for rapid
-        emergency deployment, a trusted device will serve as a temporary KDC to
-        distribute shares to newly added nodes.
-
-        \todo{again, queremos lean into mid-disaster deployment?}
+        will be preloaded via KDC during initial deployment.
 
         These are reasonable assumptions for disaster-resilience scenarios, as
         preparation happens before any emergency operation needs to take place.
@@ -952,830 +1057,4 @@ between pre-disaster deployment and post-disaster autonomous operation.
         regardless of security mechanisms.
 \end{description}
 
-% \section{Folder and Files}
-% \label{sec:folders_and_files}
-%
-% The \gls{novathesis} template is organized into many files and folders. At the main level it includes the following files and folders listed in Table~\ref{tab:folders_and_files}.
-%
-% \newcommand{\accessAllowed}{\includegraphics[align=c,width=1.9em]{access_allowed}}
-% \newcommand{\accessForbiden}{\includegraphics[align=c,width=1.9em]{dont_touch}}
-% \newcommand{\File}{\includegraphics[align=c,width=1.9em]{file}}
-% \newcommand{\Folder}{\includegraphics[align=c,width=1.9em]{folder}}
-%
-%
-% \bgroup
-%     \rowcolors{1}{}{GhostWhite}
-%       \begin{xltabular}{\textwidth}{>{\ttfamily}l>{\itshape}lcX}
-%         \caption{The folders and files (top level).}
-%         \label{tab:folders_and_files}\\
-%         \toprule
-%         \rowcolor{Gainsboro}%
-%         Name & Type & Access & Contents \\
-%         \midrule
-% template.tex      & \File    & \accessForbiden &
-% The main template file. You need to \emph{compile} this file with one of \pdfLaTeX, \XeLaTeX, or \LuaLaTeX\ to obtain the PDF file (”\texttt{template.pdf}”).  I recommend the usage of the ”\texttt{latexmk}” command or, if you use a UN*X-like OS, you may use ”\texttt{make}” (and the ggiven ”\texttt{Makefile}”).
-% \\
-% Config          & \Folder  & \accessAllowed &
-% Configuration files.  Please customize your template by changing the files in this folder!
-% \\
-% Chapters          & \Folder  & \accessAllowed &
-% Examples of document contents, including Chapters, Appendices, Annexes, Abstracts, Glossaries, Lists of Symbols, etc. Replace them with your own.
-% \\
-% Bibliography      & \Folder    & \accessAllowed &
-% Where all your bibliography files should be located. You may have has many bibliography files as you want.
-% \\
-% template.pdf      & \File    & \accessAllowed &
-% A possible result of applying \pdfLaTeX\ to the “\texttt{template.tex}” file. The look and feel of the document will depend on the parametriza\-tion/\-con\-fig\-u\-ra\-tion (e.g., School) of this template.
-% \\
-% novathesis.cls     & \File    & \accessForbiden &
-% The main class file.
-% \\
-% NOVAthesisFiles   & \Folder  & \accessForbiden &
-% Additional files for the \gls{novathesis} template.  This is where all the juice is so, unless you are a \TeX magician, don't mess up with the files and folders inside this folder.
-% \\
-%         \bottomrule
-%         \end{xltabular}
-%     % \end{longtblr}
-% \egroup
-%
-% \bgroup
-%     \rowcolors{1}{}{GhostWhite}
-%       \begin{xltabular}{\textwidth}{>{\ttfamily}l>{\itshape}lcX}
-%         \caption{The configuration files (\texttt{Config} folder).}
-%         \label{tab:configuration_files}\\
-%         \toprule
-%         \rowcolor{Gainsboro}%
-%         Name & Type & Access & Contents \\
-%         \midrule
-% \texttt{0\_memoir.tex}      & \File  & \accessForbiden &
-% Options specific for the \texttt{memoir} class. \emph{Don't touch this file unless you know what you are doing!}
-% \\
-% \texttt{1\_novathesis.tex}  & \File  & \accessAllowed &
-% The main configuration file for the template, e.g., select the document type, the school, the used languages, etc.  
-% \\
-% \texttt{2\_biblatex.tex}      & \File  & \accessAllowed &
-% Select how your citations and bibliographic references will be printed.  The default is numbers inside square brackets, e.g. \cite{novathesis-manual}, but you can change it to other formats, such as author-year, e.g., \citeauthor{novathesis-manual}~(\citeyear{novathesis-manual}).
-% \\
-% \texttt{3\_cover.tex}		& \File & \accessAllowed & 
-% Configure cover contents (e.g., author's name, thesis/dissertation title, author, advisers, committee, etc)
-% \\
-% \texttt{4\_files.tex}		& \File & \accessAllowed & 
-% Select which files shall be included in the document as chapters, appendices, annexes, etc…
-% \\
-% \texttt{5\_packages.tex}		& \File & \accessAllowed & 
-% User's customization, such as loading additional packages and declare user defined commands.
-% \\
-% \texttt{6\_list\_of.tex}		& \File & \accessForbiden & 
-% Configure the lists to be printed (table of contents, list of figures, list of tables, list of listings, etc). \emph{Don't touch this file unless you know what you are doing!}
-% \\
-% \texttt{9\_nova\_fct.tex}	& \File & \accessAllowed & 
-% Configurations specific to NOVA FCT. \emph{Otherwise ignored.}
-% \\
-% \texttt{9\_ulisboa\_fmv.tex}	& \File & \accessAllowed & 
-% Configurations specific to ULISBOA FMV. \emph{Otherwise ignored.}
-% \\
-% \texttt{9\_ulisboa\_ist.tex}	& \File & \accessAllowed & 
-% Configurations specific to ULISBOA IST. \emph{Otherwise ignored.}
-% \\
-% \texttt{9\_uminho.tex}		& \File & \accessAllowed & 
-% Configurations specific to UMINHO (all schools). \emph{Otherwise ignored.}
-% \\
-%         \bottomrule
-%         \end{xltabular}
-%     % \end{longtblr}
-% \egroup
-%
-%
-% % section folder_structure (end)
-%
-% % ===================
-% % = Package options =
-% % ===================
-% \section{Customizing the \novathesistxt\ template}
-% \label{sec:package_options}
-%
-% The \novathesistxt\ template can be customized by editing the files in the \texttt{Config} folder.
-%
-% \newcommand{\classoption}[4]{\textbf{#1=OPT}\newline\emph{\small#2}&\textbf{#3}\newline{\small#4}\\}
-% \newcommand{\defaultopt}[1]{\mbox{$\Rightarrow$~\emph{Default: \texttt{#1}}}\newline}
-% \newcommand{\defaultit}[1][default]{($\Leftarrow$~\emph{#1})}
-%
-%
-% \subsection{Options in \texttt{1\_novathesis.tex}} % (fold)
-% \label{sub:_texttt_1__novathesis_tex}
-%
-% \subsubsection{Most Relevant Options (\texttt{1\_novathesis.tex})} % (fold)
-% \label{ssub:most_relevant_options}
-%
-% \bgroup
-% \begin{xltabular}{\linewidth}{>{\hsize=.4\hsize\raggedright\arraybackslash}X>{\hsize=.6\hsize}X}
-%   \toprule
-% %----------------------------------------------------------------------
-%   \classoption{doctype}%
-%     {phd, phdprop, phdplan, msc, mscplan, bsc, plain}%
-%     {The type of the document.}%
-% 	{%
-%     \begin{tabular}{@{}r@{ $\rightarrow$ }l@{}}
-%         phd & PhD thesis \defaultit.\\
-%     phdprop & PhD thesis proposal (for FCT-NOVA).\\
-%     phdplan & PhD thesis plan.\\
-%         msc & MSc thesis.\\
-%     mscplan & MSc thesis plan.\\
-%         bsc & BSc report.\\
-%       plain & Other report.\\
-%     \end{tabular}
-%     }
-% %----------------------------------------------------------------------
-%     \midrule
-%   \classoption{school}%
-%   	{nova/fct, nova/fcsh, nova/ims, nova/ims/mcsig, nova/ims/mgt, nova/ensp, nova/itqb/green, nova/itqb/gray,
-% ulisboa/ist, ulisboa/fcul, ulisboa/fmv,
-% uminho/eaad, uminho/ec, uminho/ed, uminho/eeg, uminho/eeng, uminho/elach, uminho/emed, uminho/epsi, uminho/ese, uminho/i3bs, uminho/ics, uminho/ie, 
-% iscteiul/eta, 
-% ips/ests, 
-% ipl/isel, ipl/isel/meb,
-% ulht/deisi, ulht/mge, 
-% other/esep
-% 	}%
-%     {Selection of the university and of the school (and degree variant).}%
-%     {\defaultopt{school=nova/fct} 
-%      This option changes the typesetting of the de document to some specific School formating and layout, like covers, margins, fonts, paragraph spacing and indentation, etc.}
-% %----------------------------------------------------------------------
-%     \midrule
-%   \classoption{docstatus}%
-%     {draft, provisional, final}%
-%     {The current status of the document.}%
-% 	{%
-%     \begin{tabular}{@{}r@{ $\rightarrow$ }X@{}}
-%          working      & Working version \defaultit.\\
-%          provisional  & Version for submission.\\
-%          final        & Final version.\\
-%     \end{tabular}
-%     }
-% %----------------------------------------------------------------------
-%     \midrule
-%   \classoption{lang}%
-%     {en, pt, de, es, fr, gr, it}%
-%     {The main language for the document.}%
-% 	{%
-%     \begin{tabular}{@{}l@{ $\rightarrow$ }X@{}}
-%          en & Enlgish \defaultit.\\
-%          pt & Portuguese.\\
-%          de & German.\\
-%          es & Spanish.\\
-%          fr & French.\\
-%          gr & Greek.\\
-%          it & Italian.\\
-%     \end{tabular}
-%     }
-% %----------------------------------------------------------------------
-%     \midrule
-%   \classoption{media}%
-%     {screen, paper}%
-%     {The target media for the PDF.}%
-% 	{%
-%     \begin{tabular}{@{}l@{ $\rightarrow$ }X@{}}
-%          screen & No empty/white pages \defaultit.\\
-%          paper  & Empty/white pages are added when necessary.\\
-%     \end{tabular}
-%     }
-% %----------------------------------------------------------------------
-%     \midrule
-%   \classoption{print/webography}%
-%     {User defined title}%
-%     {Generate a separate bibliography for \emph{@online} references.}%
-% 	{%
-% 		\defaultopt{print/webography=undefined} 
-% 		If undefined, the \emph{@online} references are list in the main bibliography.  If defined, the \emph{@online} references will be printed in a separate bibliography titled as given in the option.
-%     }
-% %----------------------------------------------------------------------
-%     \midrule
-%   \classoption{color/links}%
-%     {Color name}%
-%     {The color for the hyperlinks (URLs, cross references, citations).}%
-% 	{%
-% 		\defaultopt{color/links=DarkBlue} 
-% 		The valid color names as listed in “\texttt{xcolor}” manual, the “\texttt{svgname}” color set.
-%     }
-% %----------------------------------------------------------------------
-%     \midrule
-%   \classoption{color/gls}%
-%     {Color name}%
-%     {The color for the glossary managed hyperlinks (glossary, symbols, etc).}%
-% 	{%
-% 		\defaultopt{color/gls=Black} 
-% 		The valid color names as listed in “\texttt{xcolor}” manual, the “\texttt{svgname}” color set.
-%     }
-% %----------------------------------------------------------------------
-%     \midrule
-%   \classoption{print/index}%
-%     {true,\newline false \defaultit}%
-%     {Print the (words) index at the end of the document.}%
-% 	{%
-% 		Print the index (in Portuguese \emph{Índice Remissivo}).
-%     }
-% %----------------------------------------------------------------------
-%     \bottomrule
-% \end{xltabular}
-% \egroup
-%
-%
-% \subsubsection{Less Relevant Options (\texttt{1\_novathesis.tex})} % (fold)
-% \label{ssub:less_relevant_options_1}
-%
-%
-% \bgroup
-% \begin{xltabular}{\linewidth}{>{\hsize=.4\hsize\raggedright\arraybackslash}X>{\hsize=.6\hsize}X}
-%   \toprule
-% %----------------------------------------------------------------------
-% 	  \classoption{abstractorder}%
-% 	    {$L_0 = \{L_1, L_2, …, L_n\}$}%
-% 	    {Forces the abstracts languages and order for documents in language $L_0$.}%
-% 		{%
-% 		\defaultopt{abstractorder=\{en=\{en,pt\}\} for english}
-% 		\defaultopt{abstractorder=\{L=\{L,en\}\} for lang L}
-% 		$L_i$ is a two-letters language code from the set of valid language codes, following ISO 3166-1 (alfa-2).
-% 	    }
-% %----------------------------------------------------------------------
-% 	    \midrule
-% 	  \classoption{lang/extra}%
-% 	    {$\{L_1, L_2, …, L_n\}$}%
-% 	    {List of additional languages are used in the document besides the main laguage and those used in the abstracts (above).}%
-% 		{%
-% 		\defaultopt{lang/extra=\{\}}
-% 		$L_i$ is a two-letters language code from the set of valid language codes, following ISO 3166-1 (alfa-2).
-% 	    }
-% %----------------------------------------------------------------------
-% 	    \midrule
-% 	  \classoption{gnumberlist}%
-%   	  	{true, \defaultit\newline false}%
-% 	    {Shall the glossary entries list the page numbers where those entries are used?  (Like a reverse index!)}%
-% 		{}
-% %----------------------------------------------------------------------
-% 	    \midrule
-% 	  \classoption{numberallpages}%
-%   	  	{true,\newline false \defaultit}%
-% 	    {Shall all the pages (except cover) be numbered?}%
-% 		{}
-% %----------------------------------------------------------------------
-% 	    \midrule
-% 	  \classoption{tocintoc}%
-%   	  	{true,\newline false \defaultit}%
-% 	    {Shall table of contents be listed in the table of contents?}%
-% 		{}
-% %----------------------------------------------------------------------
-% 	    \midrule
-% 	  \classoption{tocintoc}%
-%   	  	{true,\newline false \defaultit}%
-% 	    {Shall a second cover page be forced?}%
-% 		{If the contents for the second page are not defined, the second cover will be a replica of the first cover.}
-% %----------------------------------------------------------------------
-% 	    \midrule
-% 	  \classoption{print/committee}%
-%   	  	{true,\newline false}%
-% 	    {Shall the evaluation committee be printed?}%
-% 		{%
-% 		\defaultopt{print/committee=true if docstatus=final}
-% 		\defaultopt{print/committee=false otherwise}
-% 	    }
-% %----------------------------------------------------------------------
-% 	    \midrule
-% 	  \classoption{print/frontmatter}%
-%   	  	{true, \defaultit\newline false}%
-% 	    {Shall the front matter be printed?}%
-% 		{Set to false to generate a PDF with only the cover and the book chapters.}
-% %----------------------------------------------------------------------
-% 	    \midrule
-% 	  \classoption{print/statement}%
-%   	  	{true,\newline false \defaultit}%
-% 	    {Shall the honor/originality statement be printed?}%
-% 		{}
-% %----------------------------------------------------------------------
-% 	    \midrule
-% 	  \classoption{print/copyright}%
-%   	  	{true, \defaultit\newline false}%
-% 	    {Shall the copyright message be printed?}%
-% 		{}
-% %----------------------------------------------------------------------
-% 	    \midrule
-% 	  \classoption{print/timestamp}%
-%   	  	{true,\newline false}%
-% 	    {Shall a timestamp (with the PDF generation date/time) be printed in the cover?}%
-% 		{%
-% 		\defaultopt{print/timestamp=true if docstatus=working}
-% 		\defaultopt{print/timestamp=false otherwise}
-% 		}
-% %----------------------------------------------------------------------
-% 	    \midrule
-% 	  \classoption{style/url}%
-%   	  	{default, \defaultit\newline same}%
-% 	    {Use the same (main) font in URLs?}%
-% 		{}
-% %----------------------------------------------------------------------
-%     \midrule
-%   \classoption{style/font}%
-%     {arial, bookman, calibri, erewhon, kieranhealy, kpfonts, libertine, newpx, newsgott, scholax}%
-%     {Which font set to use in the document?}%
-% 	{%
-%     \begin{tabular}{@{}l@{ $\rightarrow$ }X@{}}
-% 		arial 		& Use `arial' font. Requires Xe\LaTeX\ or Lua\LaTeX.\\
-% 		bookman 	& Use `bookman' font.\\
-% 		calibri 	& Use `calibri' font. Requires Xe\LaTeX\ or Lua\LaTeX.\\
-% 		erewhon 	& Use `erewhon' font.\\
-% 		kieranhealy & Use `kieranhealy' font.\\
-% 		kpfonts 	& Use `palatino' font.\\
-% 		libertine 	& Use `libertine' font.\\
-% 		newpx 		& Use `palatino' font. \defaultit\\
-% 		newsgott 	& Use `newsgott' font. Requires Xe\LaTeX\ or Lua\LaTeX.\\
-% 		scholax 	& Use `scholax' font.\\
-%     \end{tabular}
-%     }
-% %----------------------------------------------------------------------
-% 	    \midrule
-% 	  \classoption{style/chapter}%
-% 	    {\emph{See list on the side!}}%
-% 	    {Which chapter style to use in the document?}%
-% 	{%
-% 	Besides the standard \href{https://tug.ctan.org/info/MemoirChapStyles/MemoirChapStyles.pdf}{\texttt{memoir} chapter styles} (\texttt{default}, \texttt{section}, \texttt{article}, \texttt{reparticle}, \texttt{hangnum}, \texttt{companion}, \texttt{demo}, \texttt{bianchi}, \texttt{bringhurst}, \texttt{brotherton}, \texttt{chappell}, \texttt{culver}, \texttt{dash}, \texttt{demodemoell}, \texttt{ger}, \texttt{lyhne}, \texttt{madsen}, \texttt{pedersen}, \texttt{southall}, \texttt{thatcher}, \texttt{veelo}, \texttt{verville}, \texttt{crosshead}, \texttt{dowding}, \texttt{komalike}, \texttt{ntglike}, \texttt{tandh}, \texttt{wilsondob}), the customized list of chapter styles below is also available.
-% 	    \begin{tabular}{@{}l@{ $\rightarrow$ }X@{}}
-% 		bar 		& Use `bar' chapter style. \defaultit\\
-% 		bar-compact	& Use `bar-compact' chapter style.\\
-% 		bluebox 	& Use `bluebox' chapter style.\\
-% 		compact 	& Use `compact' chapter style.\\
-% 		elegant 	& Use `elegant' chapter style.\\
-% 		fmv 		& Use `fmv' chapter style.\\
-% 		hansen 		& Use `hansen' chapter style.\\
-% 		ist 		& Use `ist' chapter style.\\
-% 		ist2 		& Use `ist2' chapter style.\\
-% 		pedersen 	& Use `pedersen' chapter style.\\
-% 	    \end{tabular}
-% 	    }
-% %----------------------------------------------------------------------
-%     \midrule
-%   \classoption{lang/cover}%
-%     {en, pt, de, es, fr, gr, it}%
-%     {The main language for the cover.}%
-% 	{%
-% 	\defaultopt{The same as the main language.}
-%     }
-% %----------------------------------------------------------------------
-%     \midrule
-%   \classoption{lang/copyright}%
-%     {en, pt, de, es, fr, gr, it}%
-%     {The main language for the copyright message.}%
-% 	{%
-% 	\defaultopt{The same as the main language.}
-%     }
-% %----------------------------------------------------------------------
-%     \midrule
-%   \classoption{spine/layout}%
-%     {no, full, trim}%
-%     {Print the “book spine” at the end of the document?}%
-% 	{%
-% 		\defaultopt{`trim' if docstatus=final}
-% 		\defaultopt{`no' otherwise}
-% 	    \begin{tabular}{@{}l@{ $\rightarrow$ }X@{}}
-% 		no 		& do not print the book spine.\\
-% 		full	& print the book spine in a full page.\\
-% 		trim 	& print and trim the page to the width of the book spine.\\
-% 	    \end{tabular}
-%     }
-% %----------------------------------------------------------------------
-%     \midrule
-%   \classoption{spine/width}%
-%     {\emph{\LaTeX\ dimension}}%
-%     {Force the width of the “book spine”.}%
-% 	{%
-% 		\defaultopt{The “natural width”.}
-% 		 The defailt width for the book spine will be the width of the number of pages of the document if printed in standard paper ($80g/m^2$).
-%     }
-% %----------------------------------------------------------------------
-%     \midrule
-%   \classoption{debug}%
-%     {cover, spine}%
-%     {Activate debug mode for cover and/or book spine.}%
-% 	{%
-% 		\defaultopt{debug=\{\}}
-%     }
-% % %----------------------------------------------------------------------
-% 	  %   \midrule
-% 	  % \classoption{linkscolor}%
-% 	  %   {A color of your choice.}%
-% 	  %   {The color for all the hyperlinks in the PDF file.}%
-% 	  %   {\defaultopt{darkblue}
-% 	  %    The “\texttt{media=paper}” option (see below) will override this option to “\texttt{black}”}
-% % %----------------------------------------------------------------------
-% %     \midrule
-% %   \classoption{media}%
-% %     {screen, paper}%
-% %     {The target of the PDF.}%
-% %     {\defaultopt{screen}
-% %      By default, PDF for screen has colored links and identical left and right margins, while PDF for paper (to print) has black links and may have different left and right margins.}
-% %     \midrule
-% % %----------------------------------------------------------------------
-% %   \classoption{print/index}%
-% %     {true, false}%
-% %     {Produce the document index.}%
-% %     {\defaultopt{false}
-% %      The index (\emph{índice remissivo}) is a keyword index typeset an the end of the document. WARNING: Should not be confused with the table of contents.}
-% %     \midrule
-% %
-% %
-% %
-% %
-% % %----------------------------------------------------------------------
-% %   \classoption{fontstyle}%
-% %     {bookman, charter, fourier, kpfonts(*), mathpazo1, mathpazo2, newcent}%
-% %     {The font set to be used in the document.}{Please note that a font set include definitions for the main text, headings, maths, etc.}
-% %     \midrule
-% % %----------------------------------------------------------------------
-% %   \classoption{chapstyle}%
-% %     {bianchi, bluebox, brotherton, dash, default, elegant(*), ell, ger, hansen, ist, jenor, lyhne, madsen, pedersen, veelo, vz14, vz34, vz43}%
-% %     {The chapter style}{The look of the chapter beginning.}
-% %     \midrule
-% % %----------------------------------------------------------------------
-% %   \classoption{converlang}%
-% %     {en, pt(*)}%
-% %     {The language to be used when typesetting the cover page.}{}
-% %     \midrule
-% % %----------------------------------------------------------------------
-% %   \classoption{otherlistsat}%
-% %     {front(*), back}%
-% %     {Where to put the other lists besides the table of contents.}{The default is (\texttt{front}) before the main text.  But some scientific areas prefer them at the end of the document (\texttt{back}), just before the Appendixes.}
-% %     \midrule
-% % %----------------------------------------------------------------------
-% %   \classoption{statement}%
-% %     {true, false(*)}%
-% %     {Include or don't include the contents of the “\texttt{statement}” file.}{The default is for this file to be ignored (if it exists).}
-% %     \midrule
-% % %----------------------------------------------------------------------
-% %   \classoption{spine}%
-% %     {true, false(*)}%
-% %     {Generate the book spine and the last page in the PDF.}{}
-% %     \midrule
-% % %----------------------------------------------------------------------
-% %   \classoption{biblatex}%
-% %     {OPT=\{list of options for \texttt{biblatex}\}}%
-% %     {Customize \texttt{biblatex}, the bibliography management system used in this class.}{Probably you will want to change the value of the \texttt{biblatex} “\texttt{style}” option. For other customizations of \texttt{biblatex} check its manual.}
-% %     \midrule
-% % %----------------------------------------------------------------------
-% %   \classoption{memoir}%
-% %     {OPT=\{list of options for \texttt{memoir}\}}%
-% %     {Customize the base class \texttt{memoir}.}{The \texttt{memoir} manual should be the first document to be consulted when looking for “\textbf{how can I do this?}” You may what to change the base font size from 11pt to a smaller (10pt) or larger (12pt) size.  Also, remember to change the “\texttt{draft}” to final when your document is finished.}
-% %     \midrule
-%     \bottomrule
-% \end{xltabular}
-% \egroup
-% % \end{ctabular}
-%
-%
-% \section{How to Write Using \LaTeX}
-% \label{sec:how_to_write_using_latex}
-%
-% Please have a look at Chapter~\ref{cha:a_short_latex_tutorial_with_examples}, where you may find many examples of \LaTeX constructs, such as Sectioning, inserting Figures and Tables, writing Equations, Theorems and algorithms, exhibit code listings, etc.
-%
-% % section how_to_write_using_latex (end)
-%
-%
-%
-% \section{Example glossary, acronyms, and symbols}
-% %
-% % \todo[inline]{A a note in a line by itself.}
-% %
-% This is the first occurrence of an abbreviation: \gls{abbrev}. And now the second occurrence of the same abbreviation: \gls{abbrev}. And a new acronym with capital letter: \Gls{xpt} and reused \gls{xpt}.  Let's also use a few other acronyms such as \gls{aaa}, \gls{aab}, \gls{aba}, \gls{bbb} and \gls{xpt}.
-% In geometry, the area enclosed by a circle of radius \gls{r} is $\pi r^2$. Here the Greek letter \gls{pi} is equal to the ratio of the circumference of any circle to its diameter.
-% Lets add ``\gls{computer}'' to the glossary! Be carefull with mathematical symbols in acronyms, please see the definition of \gls{mu}.
-%
-% % Reference to Potassium \gls{chem:potassio} and Sodium \gls{chem:sodio} as well.
-%
-% %
-% % Please note that
-% % \begin{center}
-% %   \textbf{\large this package and template are not official for FCT/NOVA}.
-% % \end{center}
-%
-%
-%
-% % \printbibliography[heading=subbibliography, segment=\therefsegment, title={\bibname\ for chapter~\thechapter}]
-%
-%
-% \endinput
-%
-% %!TEX root = ../template.tex
-% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% %% chapter2.tex
-% %% NOVA thesis document file
-% %%
-% %% Chapter with the template manual
-% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%
-% \typeout{NT FILE chapter2.tex}%
-%
-% \chapter{NOVAthesis Template \emph{User's Manual}}
-% \label{cha:users_manual}
-%
-% \glsresetall
-%
-% \begin{center}
-%   \fbox{\LARGE
-%     This manual is outdated and must be revised!}
-% \end{center}
-%
-% Referência ao Potássio é \gls{chem:potassio} e Sódio também \gls{chem:sodio}.
-%
-% \section{Introduction}
-% \label{sec:introduction}
-%
-% This chapter describes how to use the \gls{novathesis}\ Template and the \gls{novathesisclass} file.  I will assume you have a working installation of \LaTeX, wither local (in your own computer) or remote (in Overleaf), and that it compiled successfully the default configuration (PhD for \gls{FCT}).
-%
-%
-% \section{Folder Structure}
-% \label{sec:folder_structure}
-%
-% The \gls{novathesis} template is organized into many files and folders. At the main level it includes the following files and folders:
-%
-% \noindent
-% \bgroup
-% \rowcolors{1}{GhostWhite}{}
-% \begin{xltabular}{\linewidth}{>{\ttfamily}l>{\itshape}l>{\upshape}X}
-% novathesis.cls     & file    &
-% The main class file. It will include additional files from \texttt{NOVAthesisFiles} folder and its sub-folders.
-% \\
-% template.tex      & file    &
-% The main template file. You need to \emph{compile} this file with one of pdf\LaTeX, \XeLaTeX, or \LuaLaTeX\ to obtain the \texttt{template.pdf} file.
-% \\
-% bibliography.bib  & file    &
-% An example of a bibliography file. You may have has many as you want. \\
-% template.pdf      & file    &
-% A possible result of applying pdf\LaTeX\ to the \texttt{template.tex} file. The template supports multiple types of documents (e.g., MSc dissertation, PhD thesis, …) and multiple Schools (e.g., FCT-NOVA, FCSH-NOVA, IST-UL, FC-UL, …) and each will produce different results.
-% \\
-% Chapters          & folder  & Examples of thesis chapters. Replace them with your own chapters.
-% \\
-% Examples          & folder  & Some more examples of the use of the template for different document types and Schools.
-% \\
-% Scripts           & folder  & Some (possibly useful) scripts for Unix-based systems (Linux, Mac OSx). If you are a windows user, ignore this folder (you may safely delete it if you want).
-% \\
-% NOVAthesisFiles   & folder  &
-% Additional files for the \gls{novathesisclass}\ file.  Unless you know what you are doing, avoid messing up with the files and folders inside this folder (except for deleting the unused Schools, see below).
-% \\
-% \end{xltabular}
-% \egroup
-%
-% The \texttt{NOVAthesisFiles} folder contains additional files and folders that complement the main \gls{novathesisclass}\ file.  These are:
-%
-% \noindent
-% \bgroup
-% \rowcolors{1}{GhostWhite}{}
-% \begin{tabularx}{\linewidth}{>{\ttfamily}l>{\itshape}l>{\upshape}X}
-% README.txt      & file    &
-% A file that should be read!  :)
-% \\
-% fix-babel.tex   & file    &
-% Simple fixes to the \texttt{babel} package.
-% \\
-% lang-text.ldf   & file    &
-% Translations of important strings used in the template.  Currently fully supported are Portuguese and English, but French is on the way.  If you add translations for your own language, please be so kind and send them to me. Thank you!
-% \\
-% options.tex     & file    &
-% Processing of \gls{novathesisclass}\ options.  \emph{Don't mess with this!}
-% \\
-% packages.tex    & file    &
-% Additional packages to be loaded into the \gls{novathesis}\ template. \emph{You should not mess with this!}
-% \\
-% spine.tex       & file    &
-% This file is loaded only if the option \texttt{spine=full} or \texttt{spine=trim}, and includes the typesetting of the book spine.
-% \\
-% ChapStyles      & folder  &
-% Contains a lot of files, one for each chapter style.  If you really know what you are doing, you may add your own chapter style here.
-% \\
-% FontStyles      & folder  &
-% Contains a few files, one for each set of fonts (main text font, chapter font, section font, subsection font, etc).  If you really know what you are doing, you may add your own set here.
-% \\
-% Schools         & folder  &
-% Configuration files for each school.  This folder is organized into subfolders, one for each university.  \emph{You may safely delete all the subfolders except the one for your University.}  Then open the subfolder of your University and \emph{you may safely delete all the subfolders except the one for your School/Faculty}.
-% \\
-% \end{tabularx}
-% \egroup
-%
-% As stated above, the \texttt{Schools} folder contains per-university folders and per-school (faculty) subfolders.  Currently these are the available folders:
-%
-% \noindent
-% \bgroup
-% \rowcolors{1}{GhostWhite}{}
-% \begin{tabularx}{\linewidth}{>{\ttfamily}r@{~/~}>{\ttfamily}l>{\itshape}l>{\upshape}X}
-% ul     & ist    & folder  &
-% The folder for the \href{http://www.tecnico.ulisboa.pt}{\emph{Instituto Superior Técnico}} of the \emph{University of Lisbon}.
-% \\
-% nova    & fcsh   & folder  &
-% The folder for the \href{http:www.fcsh.unl.pt}{\emph{Faculty of Human and Social Sciences}}  of the \emph{NOVA University of Lisbon}.
-% \\
-% nova    & fct    & folder  &
-% The folder for the \href{http:www.fct.unl.pt}{\emph{Faculty of Sciences and Technology}} of the \emph{NOVA University of Lisbon}.
-% \\
-% nova    & novaims    & folder  &
-% The folder for the \href{http:www.novaims.unl.pt}{\emph{Information and Management School}} of the \emph{NOVA University of Lisbon}.
-% \\
-% \end{tabularx}
-% \egroup
-%
-% % section folder_structure (end)
-%
-% % ===================
-% % = Package options =
-% % ===================
-% \section{\glsfmtshort{novathesisclass}\ Class Options}
-% \label{sec:package_options}
-%
-% The \gls{novathesisclass}\ can be customized with the options listed below.
-%
-% \newcommand{\classoption}[3]{\textbf{#1=OPT}\qquad #2\\\qquad\emph{#3}\\}
-%
-% \noindent
-% \begin{ctabular}{@{}p{\linewidth}@{}}
-%   \toprule
-% %----------------------------------------------------------------------
-%   \classoption{doctype}%
-%     {phd(*), phdplan, phdprop, msc, mscplan, bsc}%
-%     {The type of the document: PhD Thesis (---~Default~---), PhD Plan, PhD Proposal, MSc Dissertation, MSc Plan, BSc Report}
-%     \midrule
-% %----------------------------------------------------------------------
-%   \classoption{school}%
-%     {nova/fct(*), nova/fcsh, nova/ims, ul/ist, ul/fc}%
-%     {The name of the school. This option changes the typesetting of the cover and some School specific formating, like margins, fonts, paragraph spacing and indentation, etc…}
-%     \midrule
-% %----------------------------------------------------------------------
-%   \classoption{lang}%
-%     {en(*), pt}%
-%     {The main language for the document.  Currently only Portuguese and English are supported.  Other languages are expected to be support in forthcoming versions.}
-%     \midrule
-% %----------------------------------------------------------------------
-%   \classoption{fontstyle}%
-%     {bookman, charter, fourier, kpfonts(*), mathpazo1, mathpazo2, newcent}%
-%     {The font set to be used in the document.  Please note that a font set include definitions for the main text, headings, maths, etc.}
-%     \midrule
-% %----------------------------------------------------------------------
-% %----------------------------------------------------------------------
-%   \classoption{chapstyle}%
-%     {bianchi, bluebox, brotherton, dash, default, elegant(*), ell, ger, hansen, ist, jenor, lyhne, madsen, pedersen, veelo, vz14, vz34, vz43}%
-%     {The chapter style, i.e., the look of the chapter beginning.}
-%     \midrule
-% %----------------------------------------------------------------------
-%   \classoption{converlang}%
-%     {en, pt(*)}%
-%     {The language to be used when typesetting the cover page.}
-%     \midrule
-% %----------------------------------------------------------------------
-%   \classoption{otherlistsat}%
-%     {front(*), back}%
-%     {Where to put the other lists besides the table of contents. The default is (\texttt{front}) before the main text.  But some scientific areas prefer them at the end of the document (\texttt{back}), just before the Appendixes.}
-%     \midrule
-% %----------------------------------------------------------------------
-%   \classoption{statement}%
-%     {true, false(*)}%
-%     {Include or don't include the contents of the “\texttt{statement}” file. The default is for this file to be ignored (if it exists).}
-%     \midrule
-% %----------------------------------------------------------------------
-%   \classoption{linkscolor}%
-%     {darkblue(*), black}%
-%     {The color for all the hyperlinks in the PDF file.  The “\texttt{media=paper}” option (see below) will override this option to “\texttt{black}”}
-%     \midrule
-% %----------------------------------------------------------------------
-%   \classoption{spine}%
-%     {true, false(*)}%
-%     {Generate the book spine and the last page in the PDF.}
-%     \midrule
-% %----------------------------------------------------------------------
-%   \classoption{biblatex}%
-%     {OPT=\{list of options for \texttt{biblatex}\}}%
-%     {Customize \texttt{biblatex}, the bibliography management system used in this class. Probably you will want to change the value of the \texttt{biblatex} “\texttt{style}” option. For other customizations of \texttt{biblatex} check its manual.}
-%     \midrule
-% %----------------------------------------------------------------------
-%   \classoption{memoir}%
-%     {OPT=\{list of options for \texttt{memoir}\}}%
-%     {Customize the base class \texttt{memoir}. The \texttt{memoir} manual should be the first document to be consulted when looking for “\textbf{how can I do this?}” You may what to change the base font size from 11pt to a smaller (10pt) or larger (12pt) size.  Also, remember to change the “\texttt{draft}” to final when your document is finished.}
-%     \midrule
-% %----------------------------------------------------------------------
-%   \classoption{media}%
-%     {screen(*), paper}%
-%     {Behavior to be customized in the school options/configuration. Expected definitions for screen are: left and right margins are equal and use colored links. Expected definitions for paper are: left and right margins are different and use black links.}
-%     \bottomrule
-% \end{ctabular}
-%
-% \section{Additional considerations about the class options}
-% \label{sec:additional_considerations}
-%
-% In this section we will provide some additional considerations about some of the customizations available as class options.
-%
-% \subsection{The main language}
-% \label{sub:the_main_language}
-%
-% The choice of the main language with the option “\texttt{lang=OPT}” affects:
-%
-% \begin{itemize}
-%   \item \textbf{The order of the summaries.} First is printed the abstract in the main language and then in the foreign language. This means that if your main language for the document in English, you will see first the “abstract” (in English) and then the “resumo” (in Portuguese). If you switch the main language for the document for Portuguese, it will also automatically switch the order of the summaries to “resumo” and then “abstract”.
-%   \item \textbf{The names for document sectioning.} E.g., ``Chapter'' vs.\ ``Capítulo'', ``Table of Contents'' vs.\ ``Índice'', ``Figure'' vs.\ ``Figura'', etc.
-%   \item \textbf{The type of documents in the bibliography.} E.g., ``Technical Report'' vs.\ ``Relatório Técnico'', ``PhD Thesis'' vs.\ ``Tese de Doutoramento'', etc.
-% \end{itemize}
-%
-% No mater which language you chose, you will always have the appropriate hyphenation rules according to the language at that point. You always get Portuguese hyphenation rules in the ``Resumo'', English hyphenation rules in the ``Abstract'', and then the main language hyphenation rules for the rest of the document.
-%
-% % subsection the_main_language (end).
-%
-% % section additional_consideration (end)
-%
-%
-% \subsection{Class of Text}
-% \label{sub:class_of_text}
-%
-% You must choose the class of text for the document. The available options are:
-%
-% \begin{enumerate}
-%   \item \textbf{bsc} --- BSc graduation report.
-%   \item \textbf{*mscplan} --- Preparation of MSc dissertation. This is a preliminary report graduate students at DI-FCT-NOVA must prepare to conclude the first semester of the two-semesters MSc work. The files specified by \verb!\ntdedicatoryfile! and \verb!\acknowledgmentsfile! are ignored, even if present, for this class of document.
-%   \item \textbf{msc} --- MSc dissertation.
-%   \item \textbf{phdprop} ---  Proposal for a PhD work. The files specified by \verb!\ntdedicatoryfile! and \verb!\acknowledgmentsfile! are ignored, even if present, for this class of document.
-%   \item \textbf{prepphd} ---  Preparation of a PhD thesis. This is a preliminary report PhD students at DI-FCT-NOVA must prepare before the end of the third semester of PhD work. The files specified by \verb!\ntdedicatoryfile! and \verb!\acknowledgmentsfile! are ignored, even if present, for this class of document.
-%   \item \textbf{phd} --- PhD dissertation.
-% \end{enumerate}
-% % subsection class_of_text (end)
-%
-% % ============
-% % = Printing =
-% % ============
-% \subsection{Printing}
-% \label{sub:printing}
-%
-% You must choose how your document will be printed. The available options are:
-% \begin{enumerate}
-%   \item \textbf{oneside} --- Single side page printing.
-%   \item \textbf{*twoside} --- Double sided page printing.
-% \end{enumerate}
-% % subsection printing (end)
-%
-% % =============
-% % = Font Size =
-% % =============
-% \subsection{Font Size}
-% \label{ssec:font_size}
-%
-% You must select the encoding for your text. The available options are:
-% \begin{enumerate}
-%   \item \textbf{11pt} --- Eleven (11) points font size.
-%   \item \textbf{*12pt} --- Twelve (12) points font size. You should really stick to 12pt\ldots
-% \end{enumerate}
-% % subsection font_size (end)
-%
-% % =================
-% % = Text encoding =
-% % =================
-% \subsection{Text Encoding}
-% \label{ssec:text_encoding}
-%
-% You must choose the font size for your document. The available options are:
-% \begin{enumerate}
-%   \item \textbf{latin1} --- Use Latin-1 (\href{http://en.wikipedia.org/wiki/ISO/IEC_8859-1}{ISO 8859-1}) encoding.  Most probably you should use this option if you use Windows;
-%   \item \textbf{utf8} --- Use \href{http://en.wikipedia.org/wiki/UTF-8}{UTF8} encoding.    Most probably you should use this option if you are not using Windows.
-% \end{enumerate}
-% % subsection font_size (end)
-%
-% % ============
-% % = Examples =
-% % ============
-% \subsection{Examples}
-% \label{ssec:examples}
-%
-% Let's have a look at a couple of examples:
-%
-% \begin{itemize}
-%   \item Preparation of PhD thesis, in portuguese, with 11pt size and to be printed single sided (I wonder why one would do this!)\\
-%   \verb!\documentclass[prepphd,pt,11pt,oneside,latin1]{thesisdifct-nova}!
-%   \item MSc dissertation, in English, with 12pt size and to be printed double sided\\
-%   \verb!\documentclass[msc,en,12pt,twoside,utf8]{thesisdifct-nova}!
-% \end{itemize}
-% % subsection examples (end)
-%
-% \section{How to Write Using \LaTeX}
-% \label{sec:how_to_write_using_latex}
-%
-% Please have a look at Chapter~\ref{cha:a_short_latex_tutorial_with_examples}, where you may find many examples of \LaTeX constructs, such as Sectioning, inserting Figures and Tables, writing Equations, Theorems and algorithms, exhibit code listings, etc.
-%
-% % section how_to_write_using_latex (end)
-%
-%
-%
-% \section{Example glossary, acronyms, and symbols}
-% %
-% % \todo[inline]{A a note in a line by itself.}
-% %
-% This is the first occurrence of an abbreviation: \gls{abbrev}. And now the second occurrence of the same abbreviation: \gls{abbrev}. And a new acronym with capital letter: \Gls{xpt} and reused \gls{xpt}.  Let's also use a few other acronyms such as \gls{aaa}, \gls{aab}, \gls{aba}, \gls{bbb} and \gls{xpt}.
-% In geometry, the area enclosed by a circle of radius \gls{r} is $\pi r^2$. Here the Greek letter \gls{pi} is equal to the ratio of the circumference of any circle to its diameter.
-% Lets add ``\gls{computer}'' to the glossary! Be carefull with mathematical symbols in acronyms, please see the definition of \gls{mu}.
-% %
-% % Please note that
-% % \begin{center}
-% %   \textbf{\large this package and template are not official for FCT/NOVA}.
-% % \end{center}
-%
-%
-%
-% % \printbibliography[heading=subbibliography, segment=\therefsegment, title={\bibname\ for chapter~\thechapter}]
+\todo{ainda me falta a tabela mas só no final caso tenha de cortar algum paper}
