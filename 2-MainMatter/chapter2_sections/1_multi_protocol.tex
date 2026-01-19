@@ -1,0 +1,201 @@
+\section{Multi-Protocol Communication and Adaptive Protocol Selection}
+\label{sec:multi_protocol}
+
+Single-protocol (i.e. Wi-Fi only, \gls{BLE} only, \gls{LoRa} only, etc.) communication
+architectures are susceptible to a fundamental vulnerability: if their chosen
+medium becomes unavailable or inefficient due to interference, range
+limitations, or infrastructure failures, the entire system loses connectivity
+and most times ceases to function altogether.
+
+This becomes especially grave in disaster scenarios where communication
+conditions change unpredictably due to factors such as \gls{RF} interference
+from debris, obstacles blocking line-of-sight propagation, or damage to access
+points.
+
+Existing approaches to multi-protocol \gls{iot} systems can be placed in three
+categories: multi-channel resilience architectures that orchestrate
+communication technologies for emergency scenarios; implementations that show
+the feasibility of protocol heterogeneity on embedded platforms; and adaptive
+selection frameworks that switch protocols based on runtime conditions.
+
+\subsection{Multi-Channel Resilience Architectures}
+\label{subsec:multi-channel}
+
+Several disaster-focused systems explicitly address infrastructure failures
+through protocol diversity.
+
+The AWCT (Always Connected Things) framework~\cite{awct} orchestrates \gls{LPWAN}
+on top of \gls{LoRaWAN} with ad-hoc networks (Bluetooth and Wi-Fi) specifically for
+standby emergency communication. Their architecture adds three modules to
+standard \gls{iot} devices (Raspberry Pi boards, in their test case): a battery module
+for power management, a power interrupt handler that triggers emergency mode
+when the power grid fails, and an ad-hoc bridge that forwards packets between
+the Bluetooth, Wi-Fi and \gls{LPWAN} interfaces.
+
+The system leverages dense \gls{iot} device deployment to provide emergency coverage,
+demonstrating that existing infrastructure can still serve a purpose during
+scenarios where the main power grid suffers issues.
+
+However, AWCT's reliance on centralized \gls{LoRaWAN} gateways for Internet
+connectivity creates a single point of failure when those gateways become
+unreachable.\\
+
+A more comprehensive heterogeneous approach is presented
+in~\cite{heterogeneous-disaster}, which integrates \gls{HF} radio with
+\gls{NVIS}, satellite links, \glspl{WSN}, and \gls{DTN} with mobile drones for
+disaster monitoring. Their system uses \gls{RPL}~\cite{rfc6550} with three
+separate instances to differentiate traffic by priority: human data (voice/text
+via Bluetooth) receives the highest priority, followed by drone-collected data
+and finally sensor data.
+
+The \gls{NVIS} backhaul provides 250 km coverage radius without line-of-sight
+requirements, offering a cost-effective alternative to satellite
+communications.
+
+While demonstrating successful real-world validation in Antarctica and urban
+deployments, the architecture's core \gls{NVIS} topology with centralized coordination
+contrasts fully distributed operational requirements. Furthermore, their \gls{WSN}
+layer requires a minimum 20-second sending interval to maintain acceptable
+packet loss rates at 10 hops, which highlights throughput limitations of
+single-channel tree topologies.\\
+
+Security-focused multi-channel approaches like MCSC-WoT~\cite{mcsc-wot} combine
+\gls{AES} encryption with dynamic channel hopping across 2.4 GHz Wi-Fi channels
+to defend against jamming and eavesdropping attacks. Their lightweight
+synchronization mechanism minimizes energy consumption while maintaining
+security through \gls{FHSS} patterns generated via \gls{PRNG}. Nodes that lose
+synchronization can rejoin by hopping to random channels and waiting for the
+next synchronization signal.
+
+However, the system depends on a master node broadcasting synchronization
+signals and uses an initial \gls{PRNG} seed shared among all nodes, raising
+questions about scalability and seed distribution mechanisms -- particularly
+how new nodes can acquire seeds if deployed to a network at a later time.
+
+\subsection{Protocol Heterogeneity on Embedded Platforms}
+\label{subsec:proto-het}
+
+The work presented in~\cite{multiproto_gateway} shows the technical feasibility
+of multi-protocol operation on commodity Wi-Fi/\gls{BLE} modules by integrating
+ESP-NOW, ZigBee, and Modbus protocols on devices from the ESP32 family to
+construct multi-hop, tree-based wireless networks.
+
+Their implementation uses \gls{BLE} advertising beacons for neighbor discovery with
+\gls{RSSI} measurements (for distance estimation), computing parent selection
+priorities based on weighted combinations of child count, \gls{RSSI} values, and hop
+count in the network tree of a given node. The system also supports automatic
+parent reselection when the current parent becomes unreachable, making it
+somewhat resilient to single node failures.
+
+Testing demonstrated successful multi-hop operation up to 5 hops in office
+environments, but evaluation was limited to linear network topologies.
+Additionally, this architecture relies on a tree topology with master-slave
+communication that is centered around a gateway (coordinator) rather than being
+a \gls{P2P} mesh, creating a single point of failure at the coordinator
+node.\\
+
+\subsection{Runtime Adaptive Protocol Selection}
+\label{subsec:runtime-adaptive}
+
+\todo{este é o paper do MDPI, removo?}
+A recent approach to protocol adaptation is presented in~\cite{adaptive2025},
+which introduces a closed-loop control system with four integrated components:
+a context monitor sampling runtime metrics at 1 Hz, a decision engine using
+multi-criteria weighted scoring across six dimensions (message frequency,
+payload size, network conditions, packet loss rate, energy budget, \gls{QoS}
+requirements), protocol adapters encapsulating protocol-specific libraries, and
+a learning component that adjusts thresholds using \gls{EWMA} for
+deployment-specific patterns.
+
+Some key aspects of this work include \gls{hysteresis} control with a threshold
+band to prevent oscillation between protocols, and switching cost awareness
+requiring benefits to exceed costs by a certain threshold before transitioning.
+
+However, this framework assumes infrastructure availability for protocol
+endpoints (\gls{MQTT} brokers, \gls{HTTP} servers, \gls{CoAP} endpoints) and was
+evaluated only on laptop platforms using Python libraries rather than embedded
+C implementations.
+
+Nevertheless, the evaluation methodology provides valuable insight into the
+energy expenditure of these different approaches (further explored in
+Section~\ref{subsec:receiver_energy}), and grants useful foundations for more
+complex multi-protocol approaches, in particular with the multi-criteria
+decision framework and \gls{hysteresis} control mechanism, but the actual
+system cannot operate when infrastructure fails.\\
+
+The MINOS platform~\cite{minos2019} exemplifies the limitations of centralized
+multi-protocol approaches. While providing sophisticated multi-protocol support
+(CORAL-SDN and Adaptable-RPL) with dynamic protocol deployment and real-time
+parameter tuning, the system depends fundamentally on a centralized \gls{SDN}
+controller, \gls{MQTT} broker, and web server infrastructure. The architecture's
+single point of failure means that when the controller becomes unreachable the
+entire system loses its adaptive capabilities and reverts to static operation
+at best, or complete failure at worst.
+
+\subsection{Implications for \textbf{\gls{ubabel}}}
+\label{subsec:microbabel_implications_1}
+
+Existing frameworks demonstrate the technical feasibility of heterogeneous
+channel/protocol coordination but rely on centralized control mechanisms
+incompatible with disaster scenarios. AWCT~\cite{awct} depends on centralized
+\gls{LoRaWAN} gateways for Internet connectivity, the heterogeneous disaster
+architecture~\cite{heterogeneous-disaster} uses centralized \gls{NVIS} coordination
+with minimum 20-second send intervals at 10 hops, MCSC-WoT~\cite{mcsc-wot}
+requires master nodes broadcasting synchronization signals, the multi-protocol
+gateway~\cite{multiproto_gateway} uses tree topologies with gateway
+coordinators as single points of failure, and MINOS~\cite{minos2019} assumes
+SDN controllers with persistent MQTT/web infrastructure.
+
+While adaptive protocol selection frameworks~\cite{adaptive2025} provide
+runtime switching strategies, they assume infrastructure availability
+(\gls{MQTT} brokers, \gls{HTTP} servers, \gls{CoAP} endpoints) and have not
+been validated on embedded platforms.\\
+
+\todo{se calhar "no existing work" é too much? posso não ter encontrado um mega óbvio}
+No existing work addresses fully distributed multi-protocol coordination where
+nodes can autonomously select and switch protocols without persistent
+infrastructure. \textbf{\gls{ubabel}}'s approach to decentralized protocol
+selection is detailed in Section \ref{subsec:microbabel_approach_1}, with
+masterless synchronization mechanisms addressed in
+\ref{sec:decentralized_sync}.
+
+\inlinetodo{acho que faz mais sentido passar todas as "microbabel approaches" para 
+o próximo capítulo em vez de as ter aqui, então adicionei o parágrafo anterior para
+esclarecer quais são as gaps dos related works em cada área --- yay or nay?
+de qualquer forma deixo aqui as approaches caso contenham disparates imediatamente corrigíveis}
+
+\subsection{MicroBabel's Approach}
+\label{subsec:microbabel_approach_1}
+
+While existing multi-channel approaches rely on centralized decision-making for
+channel selection -- whether through master nodes (MCSC-WoT), \gls{SDN} controllers
+(MINOS), or infrastructure endpoints -- \textbf{\gls{ubabel}} will address these
+limitations through decentralized \emph{protocol} selection, extending beyond
+single-medium channel hopping.
+
+The system will employ opportunistic multi-protocol operation (\gls{BLE} + Wi-Fi +
+\gls{LoRa} + ESP-NOW) wherein devices adaptively select communication mediums based
+on factors like message priority, neighbor availability, energy budget, network
+conditions and device capabilities. This selection will be performed through
+local decision-making informed by information gathered through gossip
+protocols, without requiring \gls{SDN} controllers or infrastructure coordination.
+
+\Gls{hysteresis} control mechanisms adapted from the Adaptive Protocol Selection
+Framework prevent oscillations in these decisions while allowing rapid
+response to changing conditions.
+
+Protocol-specific compression strategies account for the different
+energy/bandwidth trade-offs across the proposed stack (e.g. aggressive
+compression for (relatively) energy-expensive \gls{LoRa}, lighter compression for
+short-range \gls{BLE}), integrating the receiver energy asymmetry observations into
+power management decisions.
+
+Unlike AWCT's \gls{LoRaWAN} gateway dependency, Heterogeneous \gls{iot}'s \gls{NVIS} centralized
+backhaul, MCSC-WoT's master-based synchronization, or MINOS's \gls{SDN} controller
+requirement, \textbf{\gls{ubabel}} operates autonomously in a \gls{P2P}
+manner with no static coordinator dependencies.
+
+The multi-protocol capability provides resilience through diversity rather than
+optimization through centralized selection: when conditions render one medium
+unsuitable, devices autonomously transition to alternatives without requiring
+coordinator intervention.

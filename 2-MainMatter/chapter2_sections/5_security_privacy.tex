@@ -1,0 +1,318 @@
+\section{Security and Privacy for Resource-Constrained Emergency Communication}
+\label{sec:security_privacy}
+
+Disaster scenarios inherently involve sensitive data, such as location tracking
+for search-and-rescue operations, environmental conditions for risk assessment,
+among many others.
+
+Unlike conventional \gls{iot} deployments where security infrastructure can be
+carefully provisioned, emergency-focused deployments must balance security
+guarantees against the possibility of infrastructure failure.
+
+Traditional security approaches that assume persistent connectivity to
+\glspl{CA}, \glspl{KDC}, or even
+blockchain networks cannot fully function, if at all, when those very
+structures collapse. Embedded platforms further exacerbate this issue by ruling
+out computationally expensive cryptographic approaches that could more easily
+provide a given network with a certain degree of independence from those
+structures.
+
+\subsection{Authentication and Privacy}
+\label{subsec:authentication_privacy}
+
+Authentication protocols are necessary to establish device identity and enable
+secure communications. In disaster scenarios, authentication mechanisms must
+operate without centralized coordinators while maintaining privacy guarantees
+that prevent device tracking and activity correlation.
+
+\subsubsection*{Lightweight Group Authentication}
+
+The \gls{GASE}~\cite{gase2023} demonstrates lightweight group authentication
+suitable for resource-constrained devices through a combination of \gls{SSS}
+and aggregated \gls{MAC} usage. It operates within a three-tier cloud-edge-IoT
+architecture, focusing on asynchronous mass authentication of the low-end
+\gls{iot} nodes therein.
+
+There are several phases to this protocol, summarily:
+\begin{enumerate}
+    \item \textbf{Initialization:} The \gls{AS} generates $2N$ secret-shadows,
+        and distributes them to each \gls{iot} node (two per node). Nodes are
+        then divided into $L$ groups, each with a unique $(t-1)$-degree
+        polynomial along with a random value $r$ used to compute share tokens;
+    \item \textbf{Hashed-shares reveal:} Within a given time window $w$,
+        $(t-1)$ nodes reveal \emph{one} of their secret shares to the \gls{GL};
+    \item \textbf{Group leader authentication:} The \gls{GL} uses Lagrange
+        interpolation to recover the polynomial secret from the revealed
+        shares, verifies authenticity, and all remaining participants derive
+        sessions keys from the recovered secret;
+    \item \textbf{Server authentication:} The \gls{GL} combines all node tags
+        (\glspl{MAC} derived from session key) and sends them to the edge
+        entity, which collects all \glspl{GL} tags and aggregates them into a
+        single one via XOR operations, the \gls{AS} receives this
+        \emph{Agg-MAC} and verifies the tag.
+\end{enumerate}
+
+The protocol's computational efficiency stems from requiring only hash
+operations and modular arithmetic, avoiding expensive elliptic curve
+operations.
+
+For key updates the \gls{AS} randomly generates a new $r$, a new \gls{GL}, and
+a new polynomial parameter for each group, which are published to allow nodes
+to compute fresh shares from their stored secret without needing a secure
+channel for updates or redistribution.
+
+The main issue with this approach is that it assumes persistent availability of
+its centralized infrastructure components: the \gls{AS}, \glspl{GL} and edge
+entities for aggregation. If the \gls{GL} becomes inactive, the authentication
+process cannot proceed. While \gls{RPi} gateways could assume the role of an
+\gls{AS} for initial provisioning, the \gls{GL} dependency persists among
+sensor nodes themselves and isn't trivially solvable within the proposed
+architecture.
+
+Nevertheless, the individual mechanisms are still quite valuable: the
+\emph{Agg-MAC} pattern efficiently aggregates multiple authentications, the
+threshold approach ($t$-out-of-$n$ nodes must participate for group
+authentication) provides fault tolerance against partial node failures, and the
+session key derivation combining group secrets and device-specific keys
+prevents node impersonation.
+
+\subsubsection*{Privacy-Preserving Authentication}
+
+\glspl{PUF} provide a distinctive hardware fingerprint to devices by taking
+advantage of natural random variations present in integrated circuits, thus
+allowing for the derivation of pseudonyms which are a common approach to
+privacy in the context of \gls{iot} deployments.
+
+Existing privacy-preserving authentication protocols based on \glspl{PUF} --
+whether using challenge-response pairs~\cite{twofa2019,plgakd2021} or pseudonym
+systems~\cite{healthcare2023} -- assume either specialized hardware unavailable
+on ESP32/Raspberry Pico platforms  to leverage \glspl{PUF}, or centralized
+verification infrastructure (pseudonym servers, credential authorities). Both
+assumptions are incompatible with \textbf{\gls{ubabel}}'s commodity hardware
+and infrastructure-less deployment model.
+
+
+\subsection{Distributed Key Management}
+\label{subsec:distrib_key_man}
+
+The challenge of establishing shared cryptographic keys across resource-
+constrained devices without central coordination has received substantial
+attention, though most approaches make assumptions incompatible with disaster
+scenarios.
+
+\subsubsection*{Polynomial-Based Key Management}
+
+The \gls{LPKM} protocol~\cite{lpkm2013}
+provides a compelling foundation for embedded key distribution. Using
+polynomial evaluation on 8MHz ATmega128L microcontrollers, this approach
+generates 128-bit group keys in 2-16 milliseconds with storage requirements of
+only 496-1616 bytes (depending on security parameter $k$).
+
+The proposed scheme supports multiple key types within a unified framework:
+pairwise keys between (non-)neighboring nodes, cluster keys for local groups,
+and group keys for larger networks. Storage complexity is O($k+1$) coefficients
+per node, independent of network or group size, ensuring scalability.
+
+No less critical for disaster scenarios -- where the possibility of malicious
+agents must still be taken into account -- \gls{LPKM} enables distributed revocation
+without central coordination. When a node is compromised, legitimate nodes can
+independently compute updated keys that exclude the revoked member, with no
+re-keying delay or coordinator involvement. Periodic share updating provides
+backward secrecy through timer-based refresh operations that require no
+coordination.
+
+This approach does assume secure bootstrapping via a \gls{KDC} that preloads
+polynomial shares into devices before deployment. For planned
+disaster-resilience installations (campus sensor networks, building monitoring
+systems), this physical preloading is acceptable, and a trusted device (laptop,
+\gls{PDA}, etc.) can serve as a \gls{KDC}, keeping in line with our zero-config
+efforts.
+
+\subsubsection*{Zero-Preloading Approaches}
+
+Alternative schemes attempt to eliminate pre-distributed keys entirely. The
+lightweight distributed key agreement protocol presented in
+~\cite{lightweight2008} achieves a considerable speedup compared to
+Diffie-Hellman by employing hash functions and bit-wise comparisons rather
+than modular exponentiation.
+
+The approach generates temporal key pairs on-demand through random secret
+number generation, with nodes deriving shared keys via hash-based operations
+and bit-wise comparisons of prefix bit-strings, thus eliminating the need for
+pre-distributed keys.
+
+However, it requires an inter-sensor authentication protocol to secure the
+initial public key exchange, creating a circular dependency: authentication
+requires keys, but key establishment requires authentication. Furthermore,
+revocation mechanisms are only briefly mentioned without any concrete details,
+limiting the potential of this implementation.
+
+This highlights a fundamental limitation in zero-config security: establishing
+trust without pre-shared secrets or trusted third parties is theoretically
+impossible\todo{too harsh? posso tar errado}. We accept this limitation and opt
+for provisioning during deployment.
+
+\subsection{Lightweight Encryption on Embedded Platforms}
+\label{subsec:lightweight_enc}
+
+The MCSC-WoT framework~\cite{mcsc-wot} demonstrates that \gls{AES} encryption
+can operate efficiently on ESP32 platforms while maintaining multi-channel
+communication. Their implementation measures encryption overhead on actual
+hardware and  validates that symmetric cryptography remains viable on
+resource-constrained devices without prohibitive energy or computational
+costs.
+
+This confirms that \textbf{\gls{ubabel}} can employ \gls{AES}-based encryption
+for confidentiality without posing a significant compromise to battery lifetime
+or real-time performance required for disaster scenarios. The coordination
+and synchronization challenges associated with their master-based approach have been discussed separately in Section~\ref{subsec:multi-channel}.
+
+\subsection{Centralized Security Approaches (Incompatible with Disasters)}
+\label{subsec:centr_sec}
+
+Several recent approaches leverage blockchain or centralized infrastructure to
+solve \gls{iot} security challenges, but their dependencies render them
+unsuitable for disaster scenarios.
+
+The blockchain-based access control system in~\cite{towards2019} moves Policy
+Decision Points onto distributed ledgers, eliminating single points of failure
+in access control. However, it assumes continuous connectivity to blockchain
+nodes and cloud storage for off-chain data, failing precisely when
+infrastructure collapses.
+
+Similarly, the decentralized \gls{PKI} approach using blockchain-based
+Name/Value Storage presented in~\cite{decentralized2018pki} replaces \glspl{CA}
+with distributed blockchain nodes. While removing central \gls{CA}
+dependencies, it still requires Internet connectivity for NVS queries and
+assumes blockchain nodes remain reachable, which invalidates their usage during
+disasters.
+
+Decentralized \gls{ABE} schemes such as the one in~\cite{privacy2012} eliminate
+central authorities through multi-authority cryptography but rely on bilinear
+pairings with computational costs far exceeding the capabilities of our
+targeted platforms.
+
+\subsection{Implications for \textbf{\gls{ubabel}}}
+\label{subsec:microbabel_implications_5}
+
+Existing lightweight security mechanisms demonstrate feasibility on
+resource-constrained platforms but assume infrastructure availability
+incompatible with disaster scenarios.
+
+\gls{GASE}~\cite{gase2023} provides efficient group authentication using only
+hash operations and modular arithmetic with valuable mechanisms (MAC
+aggregation, threshold $(t-1)$-of-$n$ fault tolerance, session key derivation
+preventing impersonation), but depends on persistent availability of
+centralized components (\gls{AS}, gls{GL}, edge entities for aggregation).
+
+\gls{LPKM}~\cite{lpkm2013} enables distributed key management with fast key
+generation on 8MHz microcontrollers, O($k+1$) storage complexity independent of
+network size, and distributed revocation without coordinator involvement, but
+requires secure \gls{KDC} bootstrapping during pre-deployment, which is a
+reasonable requirement.
+
+Privacy-preserving authentication protocols based on
+\glspl{PUF}~\cite{twofa2019,plgakd2021} and/or pseudonym
+systems~\cite{healthcare2023} assume either specialized hardware (unavailable
+on ESP32/Pico) or centralized verification infrastructure (pseudonym servers,
+credential authorities).
+
+Zero-preloading key agreement approaches~\cite{lightweight2008} face circular
+dependencies (authentication requires keys, key establishment requires
+authentication) without concrete revocation mechanisms.
+
+AES encryption operates efficiently on ESP32 (validated by
+MCSC-WoT~\cite{mcsc-wot}) without prohibitive energy costs.
+
+Blockchain-based approaches (access control~\cite{towards2019}, decentralized
+\gls{PKI}~\cite{decentralized2018pki}) eliminate single points of failure but
+require continuous connectivity to distributed ledgers; decentralized ABE
+schemes~\cite{privacy2012} rely on bilinear pairings exceeding embedded
+platform capabilities.\\
+
+No existing work integrates distributed authentication, key management, and
+encryption for fully autonomous post-disaster operation while accepting
+pre-disaster physical provisioning as a pragmatic bootstrapping mechanism.
+
+\textbf{\gls{ubabel}}'s hybrid security model (Section
+\ref{subsec:microbabel_approach_5}) distinguishes pre-disaster provisioning
+(\gls{LPKM} shares, \gls{GASE} secret-shadows via \gls{KDC}) from post-disaster
+autonomous operation (adapted threshold authentication with local \gls{GL}
+election, gossip-based revocation, \gls{AES} encryption with
+compress-then-encrypt).
+
+\subsection{MicroBabel's Approach}
+\label{subsec:microbabel_approach_5}
+
+While zero-config approaches face circular authentication dependencies and
+centralized schemes fail when infrastructure collapses, \textbf{\gls{ubabel}}
+will adopt a hybrid security model that distinguishes between pre-disaster
+deployment and post-disaster autonomous operation.
+
+\begin{description}
+    \item \textbf{Pre-disaster deployment phase:} For planned installations
+        (building sensor networks, campus-wide monitoring), devices are
+        provisioned during initial deployment:
+
+        \begin{itemize}
+            \item \textbf{LPKM polynomial shares:} Preloaded via \gls{KDC} for
+                distributed key management
+            \item \textbf{GASE secret-shadows:} Two per node for threshold
+                authentication ($(t-1)$-of-$n$ reveal protocol)
+        \end{itemize}
+
+        These are reasonable assumptions for disaster-resilience scenarios, as
+        preparation happens before any emergency operation needs to take place.
+
+	\item \textbf{Post-disaster autonomous operation:} Once a disaster occurs
+	      and infrastructure fails, the network operates autonomously using
+	      mechanisms that require no central coordination:
+
+	      \begin{itemize}
+              \item \textbf{Threshold-based authentication} (adapted from
+                  \gls{GASE}): Nodes form ad-hoc authentication groups where
+                  $(t-1)$-of-$n$ members reveal secret shares (pre-distributed)
+                  to derive session keys via Lagrange interpolation. Local
+                  coordinator election replaces GASE's centralized \glspl{GL}
+                  Session key derivation combines group secrets with
+                  device-specific keys to prevent impersonation, while
+                  aggregated \gls{MAC} tags enable efficient multi-node
+                  verification without individual authentication overhead.
+                  \todo{too dense?}
+              \item \textbf{Distributed revocation} (adapted from \gls{LPKM}):
+                  nodes independently compute updated keys excluding
+                  compromised peers, with revocation decisions propagated via
+                  gossip
+              \item \textbf{Periodic share updating} (adapted from \gls{LPKM}):
+                  timer-based key refresh for backward secrecy, no coordinator
+                  needed
+              \item \textbf{Lightweight encryption}: \gls{AES} encryption
+                  (demonstrated by MCSC-WoT on ESP32) with
+                  compress-then-encrypt strategies
+                  (Section~\ref{sec:data_compression}) to minimize ciphertext
+                  size and transmission energy
+              \item \textbf{Channel hopping/protocol switching for security}:
+                  multi-channel/multi-protocol operation complicates
+                  eavesdropping and uses masterless synchronization
+                  (\gls{RGCS}) rather than master-based beacons
+	      \end{itemize}
+
+	\item \textbf{Threat model:} The system will prioritize availability and
+	      resilience over complete compromise resistance. Assumptions include:
+
+	      \begin{itemize}
+		      \item \textbf{Honest majority}: most nodes behave correctly;
+		            adversaries cannot compromise majority simultaneously
+		      \item \textbf{Local adversary}: attackers can monitor/disrupt local
+		            regions but not entire network simultaneously
+		      \item \textbf{Physical security during deployment}: devices can be
+		            provisioned securely before disaster strikes
+	      \end{itemize}
+
+	      This threat model reflects emergency priorities where maintaining
+	      communication capability matters more than preventing all possible
+	      attacks. If an adversary with sophisticated capabilities attacks during
+	      a disaster, communication infrastructure would already be their target
+	      regardless of security mechanisms.
+\end{description}
+
