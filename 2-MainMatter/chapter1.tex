@@ -13,15 +13,17 @@
 
 \prependtographicspath{{5-Figures/Covers/}}
 
-The proliferation of Internet of Things (IoT) devices has changed how we
+\glsresetall
+
+The proliferation of \gls{iot} devices has changed how we
 monitor and interact with physical spaces -- from smart homes to industrial
-facilities -- with the global IoT market reaching 18.5 billion connected
+facilities -- with the global \gls{iot} market reaching 18.5 billion connected
 devices in 2024, and projected to reach 39 billion by
-2030\cite{sinha2025stateofiot}, with industry analysts estimating that IoT
+2030\cite{sinha2025stateofiot}, with industry analysts estimating that \gls{iot}
 technologies could unlock between \$5.5 and \$12.6 trillion in economic value
 by the same year\cite{mckinsey2021iot}.
 
-However, current IoT systems remain fundamentally dependent on continuous
+However, current \gls{iot} systems remain fundamentally dependent on continuous
 Internet connectivity and centralized cloud
 infrastructures\cite{8123913,s20226441}. The dominant architectural pattern
 across the industry involves edge devices collecting data and transmitting it
@@ -36,17 +38,17 @@ arise when sensitive information must travel to and reside on external
 infrastructure, and system resilience becomes fundamentally tied to the
 availability of these remote services.
 
-While cloud platforms can benefit IoT deployments through additional
+While cloud platforms can benefit \gls{iot} deployments through additional
 computational resources and storage capacity, systems that \emph{depend} on
 constant cloud connectivity sacrifice local autonomy and introduce single
-points of failure. This cloud-centric model has enabled rapid IoT adoption, but
+points of failure. This cloud-centric model has enabled rapid \gls{iot} adoption, but
 introduces critical vulnerabilities across scenarios where continuous
 connectivity cannot be guaranteed.
 
 Recent infrastructure failures illustrate the fragility of cloud-dependent
 architectures: the AWS US-EAST-1 outage in October
 2025\cite{thousandeyes2025aws} disrupted services from banking to smart homes
-worldwide, demonstrating how a DNS configuration error in a \emph{single
+worldwide, demonstrating how a \gls{DNS} configuration error in a \emph{single
 region} can cascade into global disruptions\cite{aws2025summary}.
 
 Attempts have been made to address these challenges through incremental
@@ -68,7 +70,7 @@ more fundamental architectural reconsideration:
         intervention or stable network infrastructure;
     \item \textbf{Lack of autonomous operation}\\
         Device deployment and operation en masse can be brittle, with little
-        tolerance for individual node failures in the IoT infrastructure, which
+        tolerance for individual node failures in the \gls{iot} infrastructure, which
         is naturally susceptible to network failures and intermittent
         connectivity;
     \item \textbf{Privacy and data sovereignty concerns}\\
@@ -77,8 +79,8 @@ more fundamental architectural reconsideration:
         data processing and control.
 \end{description}
 
-\todo{fazer distinção maior entre iot e domotics?}
-While these challenges affect both IoT and domotics systems alike -- from
+\todo{fazer distinção maior entre iot e domotics? fiz no related work, devia mudar para aqui?}
+While these challenges affect both \gls{iot} and domotics systems alike -- from
 industrial monitoring to residential automation -- they become particularly
 acute in disaster response and emergency scenarios, where communication
 infrastructure fails precisely when needed most, rapid deployment with minimal
@@ -96,13 +98,14 @@ connectivity, users cannot interact with their appliances, such that during a
 Wi-Fi outage smart lights become uncontrollable despite all hardware being
 physically present.
 While merely inconvenient domestically, this architectural dependency has
-critical implications in other contexts and \textbf{MicroBabel} addresses such
-scenarios across scales: from residential systems requiring local control, to
-building monitoring infrastructures that must operate during emergencies, to
-disaster response networks where autonomous operation becomes essential when
-traditional infrastructure fails.
+critical implications in other contexts and
+\todo{o que achamos do rebrand MicroBabel -> $\mu$Babel?}
+\textbf{\gls{ubabel}} addresses such scenarios across scales: from residential
+systems requiring local control, to building monitoring infrastructures that
+must operate during emergencies, to disaster response networks where
+autonomous operation becomes essential when traditional infrastructure fails.
 
-While cloud platforms like Amazon Alexa, Google Home, and Microsoft Azure IoT
+While cloud platforms like Amazon Alexa, Google Home, and Microsoft Azure \gls{iot}
 Hub offer convenience for data processing and remote device control, their
 inherent dependence on continuous Internet connectivity introduces some
 critical limitations: increased latency from round-trip communication to
@@ -118,14 +121,24 @@ The Babel Ecosystem~\cite{fouto2022babel} addresses these limitations by
 enabling devices to operate autonomously without cloud infrastructure, while
 still supporting cloud integration when connectivity is available and desired.
 
-In this document we introduce \textbf{MicroBabel}, a lightweight framework
+In this document we introduce \textbf{\gls{ubabel}}, a lightweight framework
 targeting embedded platforms (ESP32, Raspberry Pi Pico) aimed at developing
-resilient, multi-protocol and decentralized IoT systems that can operate
-autonomously during infrastructure failures. \textbf{MicroBabel} integrates
-with the broader Babel Ecosystem, which runs hardware with greater resources
-such as full Raspberry Pi boards or computers, enabling a tiered architecture
-where resource-constrained edge devices can seamlessly interoperate with
-computational nodes for data aggregation, processing, and coordination.
+resilient, multi-protocol and decentralized \gls{iot} systems that can operate
+autonomously during infrastructure failures. \textbf{\gls{ubabel}} integrates
+with the broader Babel Ecosystem, which runs on hardware with greater resources
+such as full Raspberry Pi boards or computers, enabling a class-based
+architecture where resource-constrained edge devices can seamlessly
+interoperate with computational nodes for data aggregation, processing, and
+coordination.
+
+\paragraph{Note on terminology:} Throughout this work the term
+\emph{multi-protocol} is used to refer to heterogeneity in communication
+technologies (\gls{BLE}, \gls{LoRa}, Wi-Fi, etc.) that have distinct physical
+layers, while \emph{multi-channel} refers to frequency diversity within a
+single protocol (e.g., 2.4GHz Wi-Fi channels 1-13, \gls{LoRa} frequency
+hopping). Multi-protocol operation provides technology diversity for
+resilience; multi-channel operation provides frequency diversity for
+anti-jamming and throughput.
 
 \section*{Research Topics}
 \label{sec:research_topics}
@@ -135,13 +148,14 @@ We focus on three main research questions:
 \paragraph{How can these systems maintain communication when traditional
 infrastructure fails?}
 
-Traditional IoT deployments rely heavily on Wi-Fi access points, cellular
+Traditional \gls{iot} deployments rely heavily on Wi-Fi access points, cellular
 towers, or other centralized infrastructure that often becomes unavailable
 during disasters, or is altogether unreliable in remote locations.
-\textbf{MicroBabel} addresses this by leveraging a multi-protocol communication
+\textbf{\gls{ubabel}} addresses this by leveraging a multi-protocol communication
 approach, supporting a diverse protocol stack (Bluetooth Low Energy (BLE),
-LoRa, ESP-NOW, ZigBee, infrared) that can operate independently of
+\gls{LoRa}, ESP-NOW, ZigBee, \gls{IR}) that can operate independently of
 infrastructure.
+\todo{add glossary entries for esp-now, zigbee, etc?}
 
 By enabling adaptive protocol selection and peer-to-peer mesh formation,
 devices can establish alternative communication paths when primary channels
@@ -150,10 +164,10 @@ fail.
 \paragraph{How can device heterogeneity be leveraged to create and orchestrate
 these networks?}
 
-IoT deployments naturally comprise devices with varying capabilities, from
+\gls{iot} deployments naturally comprise devices with varying capabilities, from
 resource-constrained sensors, to gateway nodes with greater processing power
 and storage. Rather than treating this heterogeneity as a limitation,
-\textbf{MicroBabel} exploits it through capability-aware protocols that allow
+\textbf{\gls{ubabel}} exploits it through capability-aware protocols that allow
 devices to negotiate roles dynamically via discovery.
 
 Resource-rich nodes can serve as data aggregation and processing points, or
@@ -165,15 +179,15 @@ resilient multi-tier architecture.
 % \paragraph{How can we achieve (near-)zero-configuration deployment, suitable for emergency scenarios and hazardous location monitoring where manual setup is impractical or even impossible?}
 
 Emergency response and hazardous environment monitoring demand systems that 
-can be deployed rapidly without extensive configuration. \textbf{MicroBabel} 
+can be deployed rapidly without extensive configuration. \textbf{\gls{ubabel}} 
 provides automatic peer discovery across multiple protocols, self-organizing 
 network formation, and decentralized coordination mechanisms that eliminate the 
 need for pre-configured master nodes or manual network planning.
 
 Devices autonomously establish connectivity with each other, negotiate protocols,
 and begin operation upon being activated, enabling deployment by non-technical
-personnel or in hard-to-reach locations.
 \todo{fico na dúvida se devia reword this para não "prometer too much"?}
+personnel or in hard-to-reach locations.
 
 % \todo{move to immediately before amazon azure etc, use as motivation like:
 % "to motivate this consider these relevant examples of use cases: imagine that etc etc; that suffer from x y and z with cloud infra etc dependencies"}
@@ -198,7 +212,7 @@ personnel or in hard-to-reach locations.
 % (smoke/flame detection, temperature monitoring), and adapt evacuation guidance
 % based on blocked or presumed-dangerous routes.
 %
-% This dual-mode operation demonstrates how \textbf{MicroBabel} systems can
+% This dual-mode operation demonstrates how \textbf{\gls{ubabel}} systems can
 % provide everyday utility while maintaining resilience and usefulness for
 % emergency scenarios, without requiring infrastructure reconfiguration or manual
 % intervention.
@@ -208,8 +222,8 @@ personnel or in hard-to-reach locations.
 We plan to make the following contributions:
 \begin{itemize}
 	\item A decentralized architecture supporting multiple communication
-	      channels (BLE, LoRa, ZigBee, ESP-NOW, IR) with
-	      adaptive protocol switching based on Quality of Service (QoS)
+          channels (BLE, \gls{LoRa}, ZigBee, ESP-NOW, \gls{IR}) with
+          adaptive protocol switching based on \gls{QoS}
 	      requirements, resource availability and device capabilities;
 	\item A resource-efficient programming framework for embedded platforms 
 	      that enables autonomous operation without central coordination, 
