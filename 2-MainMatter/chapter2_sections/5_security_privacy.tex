@@ -97,18 +97,18 @@ and infrastructure-less deployment model.
 \subsection{Distributed Key Management}
 \label{subsec:distrib_key_man}
 
-The challenge of establishing shared cryptographic keys across resource-
-constrained devices without central coordination has received substantial
-attention, though most approaches make assumptions incompatible with disaster
-scenarios.
+The challenge of establishing shared cryptographic keys across
+resource-constrained devices without central coordination has received
+substantial attention, though most approaches make assumptions incompatible
+with disaster scenarios.
 
 \subsubsection*{Polynomial-Based Key Management}
 
-The \gls{LPKM} protocol~\cite{lpkm2013}
-provides a compelling foundation for embedded key distribution. Using
-polynomial evaluation on 8MHz ATmega128L microcontrollers, this approach
-generates 128-bit group keys in 2-16 milliseconds with storage requirements of
-only 496-1616 bytes (depending on security parameter $k$).
+The \gls{LPKM} protocol~\cite{lpkm2013} provides a compelling foundation for
+embedded key distribution. Using polynomial evaluation on 8MHz ATmega128L
+microcontrollers, this approach generates 128-bit group keys in 2-16
+milliseconds with storage requirements of only 496-1616 bytes (depending on
+security parameter $k$).
 
 The proposed scheme supports multiple key types within a unified framework:
 pairwise keys between (non-)neighboring nodes, cluster keys for local groups,
@@ -116,12 +116,12 @@ and group keys for larger networks. Storage complexity is O($k+1$) coefficients
 per node, independent of network or group size, ensuring scalability.
 
 No less critical for disaster scenarios -- where the possibility of malicious
-agents must still be taken into account -- \gls{LPKM} enables distributed revocation
-without central coordination. When a node is compromised, legitimate nodes can
-independently compute updated keys that exclude the revoked member, with no
-re-keying delay or coordinator involvement. Periodic share updating provides
-backward secrecy through timer-based refresh operations that require no
-coordination.
+agents must still be taken into account -- \gls{LPKM} enables distributed
+revocation without central coordination. When a node is compromised, legitimate
+nodes can independently compute updated keys that exclude the revoked member,
+with no re-keying delay or coordinator involvement. Periodic share updating
+provides backward secrecy through timer-based refresh operations that require
+no coordination.
 
 This approach does assume secure bootstrapping via a \gls{KDC} that preloads
 polynomial shares into devices before deployment. For planned
@@ -166,8 +166,9 @@ costs.
 
 This confirms that \textbf{\gls{ubabel}} can employ \gls{AES}-based encryption
 for confidentiality without posing a significant compromise to battery lifetime
-or real-time performance required for disaster scenarios. The coordination
-and synchronization challenges associated with their master-based approach have been discussed separately in Section~\ref{subsec:multi-channel}.
+or real-time performance required for disaster scenarios. The coordination and
+synchronization challenges associated with their master-based approach have
+been discussed separately in Section~\ref{subsec:multi-channel}.
 
 \subsection{Centralized Security Approaches (Incompatible with Disasters)}
 \label{subsec:centr_sec}
@@ -305,16 +306,16 @@ deployment and post-disaster autonomous operation.
 	      \begin{itemize}
 		      \item \textbf{Honest majority}: most nodes behave correctly;
 		            adversaries cannot compromise majority simultaneously
-		      \item \textbf{Local adversary}: attackers can monitor/disrupt local
-		            regions but not entire network simultaneously
+              \item \textbf{Local adversary}: attackers can monitor/disrupt
+                  local regions but not entire network simultaneously
 		      \item \textbf{Physical security during deployment}: devices can be
 		            provisioned securely before disaster strikes
 	      \end{itemize}
 
-	      This threat model reflects emergency priorities where maintaining
-	      communication capability matters more than preventing all possible
-	      attacks. If an adversary with sophisticated capabilities attacks during
-	      a disaster, communication infrastructure would already be their target
-	      regardless of security mechanisms.
+          This threat model reflects emergency priorities where maintaining
+          communication capability matters more than preventing all possible
+          attacks. If an adversary with sophisticated capabilities attacks
+          during a disaster, communication infrastructure would already be
+          their target regardless of security mechanisms.
 \end{description}
 
