@@ -1,33 +1,56 @@
 %!TEX root = ../../template.tex
 
-\section{Summary of Related Work}
-\label{sec:summary_related_work}
+\section{Summary}
+\label{sec:rw_summary}
 
-This section summarizes the key limitations identified in related work and how
-\textbf{\gls{ubabel}} will address them across different technical domains.
+Table~\ref{tab:rw_summary} summarizes the key architectural differences
+between existing work and \textbf{\gls{ubabel}} across the technical domains
+examined in this chapter.
 
-\todo{meter a tabela só depois de explicar a arquitetura?}
-
+\rowcolors{1}{}{GhostWhite}
 \begin{table}[htbp]
 \centering
-\caption{Related work comparison summary}
-\label{tab:comparison_communication}
+\caption{Related work summary}
+\label{tab:rw_summary}
 \small
 \begin{tabular}{@{}lp{5.5cm}p{5.5cm}@{}}
 \toprule
-\textbf{Aspect} & \textbf{Related Work Limitations} & \textbf{\gls{ubabel} Approach} \\
+\rowcolor{Gainsboro}%
+\textbf{Domain} & \textbf{Related Work Limitations} & \textbf{\gls{ubabel} Approach} \\
 \midrule
-Protocol coordination & Master nodes (MCSC-WoT), SDN controllers (MINOS), gateway coordinators (multi-protocol gateway) & Fully distributed selection with hysteresis control \\
+Protocol coordination & Master nodes (MCSC-WoT), SDN controllers (MINOS),
+gateway coordinators (multi-protocol gateway) & Fully distributed selection
+with hysteresis control \\
 \midrule
-Mesh topology & Tree-based restrictions, TCP-dependent links (HyParView), centralized coordination & Connectionless BLE/LoRa discovery, hybrid views, true P2P routing \\
+Mesh topology & Tree-based restrictions, TCP-dependent links (HyParView),
+centralized coordination & Connectionless BLE/LoRa discovery, hybrid views,
+true P2P routing \\
 \midrule
-Time sync & Master beacons (MCSC-WoT), single-protocol gossip (RGCS) & Protocol-specific Poisson rates, multi-graph converge-to-max \\
+Time sync & Master beacons (MCSC-WoT), single-protocol gossip (RGCS) &
+Protocol-specific Poisson rates, multi-graph converge-to-max \\
 \midrule
-Compression & Single-protocol optimization (Ambrosia, Sprintz), sender-focused & Protocol-aware adaptive thresholds, gateway receiver energy management \\
+Compression & Single-protocol optimization (Ambrosia, Sprintz), sender-focused
+& Protocol-aware adaptive thresholds, gateway receiver energy management \\
 \midrule
-Authentication & Centralized components (GASE AS/GLs), specialized hardware (PUFs) & Two-phase: pre-disaster provisioning, post-disaster local GL election \\
+Authentication & Centralized components (GASE AS/GLs), specialized hardware
+(PUFs) & Two-phase: pre-disaster provisioning, post-disaster local GL election \\
 \midrule
-Key management & KDC bootstrapping (LPKM), circular dependencies (zero-preloading) & Pre-deployment shares distribution, gossip-based revocation \\
+Key management & KDC bootstrapping (LPKM), circular dependencies
+(zero-preloading) & Pre-deployment shares distribution, gossip-based revocation \\
 \bottomrule
 \end{tabular}
 \end{table}
+
+A common pattern is present across these domains: existing approaches rely on
+centralized coordination mechanisms that become single points of failure during
+infrastructure collapse.
+
+Protocol coordination depends on master nodes or \gls{SDN} controllers, mesh
+topologies assume consistent connectivity or gateway coordinators, time
+synchronization requires master beacons, and authentication protocols depend on
+centralized servers or group leaders.
+
+Even distributed approaches like HyParView and \gls{RGCS} make assumptions
+(persistent \gls{TCP} connections, single-protocol homogeneity) incompatible
+with resource-constrained multi-protocol disaster scenarios.
+
