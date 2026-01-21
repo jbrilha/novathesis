@@ -15,80 +15,101 @@
 
 \todo{mencionar MQTT, CoAP em detalhe somewhere?}
 
-\gls{iot} and home automation (domotics) systems share the same
-technological building blocks (wireless sensors, embedded devices, network
-communication) but diverge significantly in their operational focus and
-architectures:
+\gls{iot} and home automation (domotics) systems share the same technological
+building blocks (wireless sensors, embedded devices, network communication) but
+diverge significantly in their operational focus and architectures:
 
 \begin{description}
-	\item \textbf{\gls{iot} systems} typically focus on \textbf{data collection and
-		      monitoring}, by streaming sensor readings to centralized platforms for
-	      analysis and processing, with control functions often being a secondary
-	      concern.
-	\item \textbf{Domotics systems} instead prioritize \textbf{real-time
-		      control and actuation} over physical spaces, where responsiveness and
-	      local autonomy are paramount for end user experience and privacy.
+    \item \textbf{\gls{iot} systems} typically focus on \textbf{data collection
+        and monitoring}, by streaming sensor readings to centralized platforms
+        for analysis and processing, with control functions often being a
+        secondary concern.
+    \item \textbf{Domotics systems} instead prioritize \textbf{real-time
+        control and actuation} over physical spaces, where responsiveness and
+        local autonomy are paramount for end user experience and privacy.
 \end{description}
 
 This distinction gains additional relevance when focusing on resilience
 requirements: while \gls{iot} deployments may tolerate delayed data aggregation
 and/or temporary connectivity issues in monitoring scenarios, domotics
-applications (such as emergency lighting control or \gls{HVAC} management) demand
-immediate local response regardless of network conditions.
+applications (such as emergency lighting control or \gls{HVAC} management)
+demand immediate local response regardless of network conditions.
 
 Both domains, however, suffer from a common vulnerability when confronted with
 infrastructure failures during disasters: their predominantly cloud-centric
 architectures collapse precisely when autonomous operation becomes
 indispensable.\\
 
-The challenges faced by disaster-resilient \gls{iot} systems span multiple dimensions:
+The challenges faced by disaster-resilient \gls{iot} systems span multiple
+dimensions:
 \begin{description}
-	\item \textbf{Infrastructure failures} eliminate access points that devices
-	      depend on for coordination;
-	\item \textbf{Intermittent connectivity} creates network partitions where
-	      subgroups of devices must operate autonomously without global state
-	      synchronization;
-	\item \textbf{Resource constraints} limit the computational, memory and
-	      energy budgets available for implementing sophisticated resilience
-	      mechanisms in embedded platforms.
+    \item \textbf{Infrastructure failures} eliminate access points that devices
+        depend on for coordination;
+    \item \textbf{Intermittent connectivity} creates network partitions where
+        subgroups of devices must operate autonomously without global state
+        synchronization;
+    \item \textbf{Resource constraints} limit the computational, memory and
+        energy budgets available for implementing sophisticated resilience
+        mechanisms in embedded platforms.
 \end{description}
 
-\textbf{\gls{ubabel}} addresses these concerns through a decentralized approach
-that aims to eliminate the dependency on centralized coordination, continuous
-connectivity and cloud infrastructure.
+\todo{FIXED: "suavizar" o parágrafo: mais sobre o problema menos sobre o uBabel}
+These challenges are fundamentally architectural: existing \gls{iot} and
+domotics systems are designed around the assumption of stable infrastructure,
+treating network partitions and coordinator failures as transient anomalies
+rather than the norm.
 
-Rather than treating infrastructure failures as an exceptional condition
-requiring failover mechanisms, our architecture focuses on autonomous
-\gls{P2P} connectivity as the baseline mode of operation, with
-infrastructure integration as an added benefit when available, rather than a
-hard dependency.
+Cloud-centric architectures place control decisions in remote servers, creating
+dependencies that cannot be satisfied when connectivity fails.
+Coordinator-based topologies (whether using dedicated gateways, master nodes,
+\gls{SDN} controllers, ...) concentrate the risk of failure in single points
+that can paralyze entire networks if compromised or disconnected. Even
+ostensibly distributed systems often rely on persistent connections (i.e.,
+\gls{TCP}) over a single medium, or heavy middleware platforms that exceed the
+capabilities of embedded devices and, once more, assume some form of
+infrastructure availability.
 
-This approach means rethinking multiple aspects of traditional \gls{iot} systems
-design: from multi-protocol communication strategies that adapt to the
-available mediums and device resources without centralized control, to
-gossip-based synchronization mechanisms that achieve coordination through local
-interactions, to lightweight data compression techniques to make the most out
-of the limited storage and battery available in each device.
+The fundamental point of contention is between resilience requirements
+(autonomy during infrastructure collapse) and resource constraints (limited
+computation, memory, and energy). Traditional approaches address one at the
+cost of the other: cloud platforms provide sophisticated coordination but fail
+during outages; purely local systems avoid external dependencies but struggle
+with inter-device coordination and protocol heterogeneity with low resource
+usage.
+
+Disaster-resilient systems require architectural choices that prioritize
+autonomous \gls{P2P} connectivity as the baseline mode of operation rather than
+having it as a secondary -- even exceptional -- fallback mechanism.
+
+Naturally, this requires a fundamental rethinking of \gls{iot} systems design:
+how devices discover and communicate with each other using diverse protocol
+stacks (without depending on centralized cotnrol), how they achieve temporal
+synchronization and coordination without master beacons, how to optimize the
+usage limited available resources, and how to maintain secure operation
+throughout without persistent access to \glspl{CA} or \glspl{KDC}.\\
+
+\todo{parágrafo antigo movido para chap 3, WIP ainda}
 
 The following sections briefly cover related work across five areas that
 collectively enable autonomous operation: (Section \ref{sec:multi_protocol})
-multi-protocol communication and adaptive selection based on \gls{QoS} and device
-capabilities; (Section~\ref{sec:p2p_mesh}) \gls{P2P} mesh networking and
+multi-protocol communication and adaptive selection based on \gls{QoS} and
+device capabilities; (Section~\ref{sec:p2p_mesh}) \gls{P2P} mesh networking and
 topology management for autonomous network formation without coordinator
-dependencies; (Section~\ref{sec:decentralized_sync}) decentralized synchronization
-mechanisms for coordinating multi-protocol communication without master nodes;
-(Section~\ref{sec:data_compression}) lightweight data compression and energy
-optimization techniques to extend autonomous operation duration and device
-lifetime; and (Section~\ref{sec:security_privacy}) security and privacy mechanisms that
-enable systems to maintain secure communication after infrastructure failures.
+dependencies; (Section~\ref{sec:decentralized_sync}) decentralized
+synchronization mechanisms for coordinating multi-protocol communication
+without master nodes; (Section~\ref{sec:data_compression}) lightweight data
+compression and energy optimization techniques to extend autonomous operation
+duration and device lifetime; and (Section~\ref{sec:security_privacy}) security
+and privacy mechanisms that enable systems to maintain secure communication
+after infrastructure failures.
 
 For each area, we examine how existing approaches handle (or fail to handle)
 infrastructure failure scenarios, identify architectural assumptions that
 conflict with disaster-resilient requirements, and position
 \textbf{\gls{ubabel}}'s contributions relative to the current state of the art.
 
-\input{2-MainMatter/chapter2_sections/1_multi_protocol.tex}
-\input{2-MainMatter/chapter2_sections/2_p2p_mesh.tex}
+\input{2-MainMatter/chapter2_sections/1_p2p_mesh.tex}
+\input{2-MainMatter/chapter2_sections/2_multi_protocol.tex}
 \input{2-MainMatter/chapter2_sections/3_decentralized_sync.tex}
 \input{2-MainMatter/chapter2_sections/4_data_compression.tex}
 \input{2-MainMatter/chapter2_sections/5_security_privacy.tex}
