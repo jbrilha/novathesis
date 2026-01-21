@@ -109,8 +109,13 @@ As discussed in Section~\ref{subsec:peer_disc}, the shuffle-based passive view
 maintenance presented in HyParView~\cite{hyparview2007} provides a
 complementary coordination mechanism. While primarily designed for topology
 management, the periodic shuffle operations in which nodes exchange lists of
-known peers can also serve the purpose of propagating network membership
-information that can inform synchronization decisions.
+known peers also provide a \emph{catalog} with potential synchronization
+partners beyond their immediate active neighbors. When a node receives a
+shuffle message containing peer descriptors (IDs and capabilities), it can
+evaluate these peers as candidates for time synchronization based on their
+advertised characteristics -- for instance, prioritizing peers with \gls{NTP}
+access or those maintaining more reliable clock sources.
+\todo{FIXED: quantum leap? mencionar aqui GPS clock sync como possibilidade?}
 
 Nodes performing shuffle exchanges already communicate periodically; these same
 communication windows can opportunistically carry synchronization messages
@@ -120,8 +125,8 @@ unreachable, it can initiate sync exchanges with passive view members,
 providing added resilience to topology changes without requiring global network
 knowledge.
 
-\subsection{Implications for \textbf{\gls{ubabel}}}
-\label{subsec:microbabel_implications_3}
+\subsection{Discussion}
+\label{subsec:rw_discussion_3}
 
 Master-based synchronization approaches like MCSC-WoT~\cite{mcsc-wot}
 demonstrate feasibility on ESP32 platforms with measured AES encryption
@@ -149,69 +154,3 @@ and reliability properties that warrant protocol-specific gossip rates.
 must extend \gls{RGCS} to multi-protocol scenarios with per-protocol Poisson
 processes while guaranteeing and preventing protocol selection oscillations
 during sync events.
-
-\subsection{MicroBabel's Approach}
-\label{subsec:microbabel_approach_3}
-
-While MCSC-WoT demonstrates master-based synchronization feasibility and
-\gls{RGCS} provides masterless convergence, both assume homogeneous
-single-protocol networks.
-
-\textbf{\gls{ubabel}} will extend \gls{RGCS} to heterogeneous multi-protocol
-networks through protocol-specific Poisson processes with distinct activation
-rates. Rather than a single $\lambda$ controlling overall sync frequency, the
-system employs per-protocol gossip rates that take into account the energy
-required for each transmission, and the current network conditions:
-
-\begin{description}
-	\item \textbf{$\lambda$\_\gls{BLE}} (high frequency): provides rapid local
-	      synchronization with nearby neighbors, leveraging \gls{BLE}'s low energy cost
-	      for frequent exchanges
-	\item \textbf{$\lambda$\_\gls{LoRa}} (low frequency): maintains long-range
-	      temporal coordination, using \gls{LoRa}'s more expensive transmissions
-	      sparingly
-	\item \textbf{$\lambda$\_Wi-Fi} / Others (medium frequency): situational
-	      use based on network density, energy budgets and other factors
-\end{description}
-
-Each protocol will have its own Poisson-triggered gossip loop, but all updates
-contribute to a single shared logical clock via the converge-to-max criterion
-explored above. When sync events from different protocols occur
-near-simultaneously, the max operation's associativity ensures correct
-convergence regardless of update order.
-
-This multi-graph gossip approach provides several advantages over homogeneous
-sync:
-\begin{description}
-	\item \textbf{Faster convergence:} High-frequency \gls{BLE} gossip can achieve
-	      tighter local consensus while sparse \gls{LoRa} exchanges prevent drift
-	      between distant clusters. The combination converges faster than either
-	      protocol alone.
-	\item \textbf{Resilience through diversity:} If 2.4 GHz interference
-	      disrupts \gls{BLE}/Wi-Fi synchronization, \gls{LoRa} maintains loose temporal
-	      coordination across the network. Conversely, if \gls{LoRa} experiences poor
-	      conditions, local \gls{BLE} sync keeps nearby nodes coordinated.
-	\item \textbf{Natural energy optimization:} Protocol characteristics
-	      directly inform sync frequencies, so that more expensive long-range
-	      transmissions occur rarely while cheap short-range exchanges happen
-	      frequently, matching energy budgets to communication needs.
-\end{description}
-
-The \gls{hysteresis} control mechanisms adapted from
-Section~\ref{sec:multi_protocol} will prevent oscillations in protocol
-selection during sync events: sync partner and protocol choices stabilize
-around locally optimal configurations rather than continuously switching
-between equally-viable options.
-
-The approach aims to handle network partitions gracefully: nodes maintain
-synchronization within their reachable partition using available protocols, and
-when partitions merge (through mobility or topology changes), the
-converge-to-max criterion naturally reconciles previously independent temporal
-references without requiring special merge logic.
-
-Unlike MCSC-WoT's master-based approach, this architecture will operate in a
-fully \gls{P2P} fashion with no fixed coordinator dependencies. The
-multi-protocol extension goes beyond \gls{RGCS}'s original homogeneous network
-assumptions, since heterogeneous gossip graphs with protocol-specific
-characteristics warrant distinct sync frequencies, enabling simultaneous
-optimization of convergence speed, energy consumption, and range coverage.
