@@ -93,7 +93,7 @@ that when battery drops below a certain threshold (e.g., 20\%), the system
 switches to lossy-only transmission instead of lossless, extending lifetime at
 the cost of reconstruction accuracy.
 
-\todo{FIXED:. é bom? é mau? é adequado?}
+\todo{FIXED: ""é bom? é mau? é adequado?""}
 
 This trade-off aligns with disaster-scenario requirements where sustained
 operation during prolonged periods of network outages often takes higher
@@ -110,9 +110,8 @@ Sprintz~\cite{sprintz2018} targets lossless compression for multivariate
 integer time-series with extreme resource constraints, achieving 2-10$\times$
 compression ratios with <1KB memory footprint and 8-sample block sizes. The
 four-component algorithm combines forecasting (delta coding or \gls{FIRE}
-online learning), bit packing with zigzag encoding~\inlinetodo{add citation
-	here for zigzag or not really necessary?}, \gls{RLE} for all-zero blocks, and
-optional Huffman coding.
+online learning), bit-packing with zigzag encoding, \gls{RLE} for all-zero
+blocks, and optional Huffman coding.
 
 Delta coding is extremely fast, and when combined with \gls{RLE} becomes even
 more so, as it yields a run of zero errors if the data is constant, which is
