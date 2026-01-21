@@ -134,8 +134,8 @@ single point of failure means that when the controller becomes unreachable the
 entire system loses its adaptive capabilities and reverts to static operation
 at best, or complete failure at worst.
 
-\subsection{Implications for \textbf{\gls{ubabel}}}
-\label{subsec:microbabel_implications_1}
+\subsection{Discussion}
+\label{subsec:rw_discussion_2}
 
 Existing frameworks demonstrate the technical feasibility of heterogeneous
 channel/protocol coordination but rely on centralized control mechanisms
@@ -157,47 +157,6 @@ been validated on embedded platforms.\\
 No existing work addresses fully distributed multi-protocol coordination where
 nodes can autonomously select and switch protocols without persistent
 infrastructure. \textbf{\gls{ubabel}}'s approach to decentralized protocol
-selection is detailed in Section \ref{subsec:microbabel_approach_1}, with
+selection is detailed in Section \ref{subsec:microbabel_approach_2}, with
 masterless synchronization mechanisms addressed in
 \ref{sec:decentralized_sync}.
-
-\inlinetodo{acho que faz mais sentido passar todas as "microbabel approaches" para 
-o próximo capítulo em vez de as ter aqui, então adicionei o parágrafo anterior para
-esclarecer quais são as gaps dos related works em cada área --- yay or nay?
-de qualquer forma deixo aqui as approaches caso contenham disparates imediatamente corrigíveis}
-
-\subsection{MicroBabel's Approach}
-\label{subsec:microbabel_approach_1}
-
-While existing multi-channel approaches rely on centralized decision-making for
-channel selection -- whether through master nodes (MCSC-WoT), \gls{SDN} controllers
-(MINOS), or infrastructure endpoints -- \textbf{\gls{ubabel}} will address these
-limitations through decentralized \emph{protocol} selection, extending beyond
-single-medium channel hopping.
-
-The system will employ opportunistic multi-protocol operation (\gls{BLE} + Wi-Fi +
-\gls{LoRa} + ESP-NOW) wherein devices adaptively select communication mediums based
-on factors like message priority, neighbor availability, energy budget, network
-conditions and device capabilities. This selection will be performed through
-local decision-making informed by information gathered through gossip
-protocols, without requiring \gls{SDN} controllers or infrastructure coordination.
-
-\Gls{hysteresis} control mechanisms adapted from the Adaptive Protocol Selection
-Framework prevent oscillations in these decisions while allowing rapid
-response to changing conditions.
-
-Protocol-specific compression strategies account for the different
-energy/bandwidth trade-offs across the proposed stack (e.g. aggressive
-compression for (relatively) energy-expensive \gls{LoRa}, lighter compression for
-short-range \gls{BLE}), integrating the receiver energy asymmetry observations into
-power management decisions.
-
-Unlike AWCT's \gls{LoRaWAN} gateway dependency, Heterogeneous \gls{iot}'s \gls{NVIS} centralized
-backhaul, MCSC-WoT's master-based synchronization, or MINOS's \gls{SDN} controller
-requirement, \textbf{\gls{ubabel}} operates autonomously in a \gls{P2P}
-manner with no static coordinator dependencies.
-
-The multi-protocol capability provides resilience through diversity rather than
-optimization through centralized selection: when conditions render one medium
-unsuitable, devices autonomously transition to alternatives without requiring
-coordinator intervention.

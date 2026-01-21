@@ -146,8 +146,8 @@ that fails. The formal guarantees of self-stabilization and compositional
 properties come at the cost of persistent computational infrastructure that an
 embedded-focused deployment cannot provide.
 
-\subsection{Implications for \textbf{\gls{ubabel}}}
-\label{subsec:microbabel_implications_2}
+\subsection{Discussion}
+\label{subsec:rw_discussion_1}
 
 Existing peer discovery and topology mainteance approaches demonstrate
 mechanisms appropriate for distributed operation but not without their
@@ -181,56 +181,7 @@ No existing work integrates connectionless neighbor discovery, hybrid view
 maintenance, true P2P routing (not tree-based), and partition-tolerant
 store-and-forward on resource-constrained embedded platforms.
 
-\textbf{\gls{ubabel}}'s approach (Section \ref{subsec:microbabel_approach_2})
+\textbf{\gls{ubabel}}'s approach (Section \ref{subsec:microbabel_approach_1})
 must adapt HyParView's architectural principles to \gls{BLE}/\gls{LoRa}
 connectionless communication while supporting multi-hop routing without
 coordinator dependencies.
-
-\subsection{MicroBabel's Approach}
-\label{subsec:microbabel_approach_2}
-
-Tree topologies and coordinator-based approaches limit resilience, and
-heavyweight middleware platforms or HyParView's \gls{TCP} requirements exceed
-embedded device capabilities.
-
-\textbf{\gls{ubabel}} intends to address these limitations through a fully
-distributed \gls{P2P} mesh architecture without coordinator dependencies. The
-system adapts HyParView's hybrid view concept (maintaining small active
-neighbor sets for actual communication and larger passive backup lists for
-failure recovery) but implements discovery and maintenance using
-\inlinetodo{\gls{BLE}, \gls{LoRa}...?} rather than \gls{TCP} connections,
-accommodating the connectionless nature of embedded radio/wireless
-communication.
-
-Neighbor discovery combines \inlinetodo{\gls{BLE}, LoRa...?} advertising beacons
-(carrying node identity, capabilities, and current neighbor counts, \inlinetodo{mais coisas?}) with
-periodic gossip exchanges that propagate topology information beyond single-hop
-radio range.
-
-This multi-mechanism approach mitigates potential range limitations: while \gls{BLE}
-typically provides 10-50m coverage depending on environment and antenna
-configuration, gossip-based propagation enables nodes to learn about distant
-neighbors through multi-hop dissemination, supporting informed routing
-decisions and topology adaptation.
-
-Unlike the tree topology of Multi-Protocol Gateway or the \gls{RPL} \gls{DODAG} structure
-of heterogeneous disaster architecture, \textbf{\gls{ubabel}} will implement true
-\gls{P2P} mesh networking where any node can communicate with any other node
-through dynamically selected multi-hop paths.
-
-Route selection considers multiple factors gathered through local observation
-and gossip: link quality metrics (\gls{RSSI}, \gls{PLR}), neighbor
-availability across different protocols, and current energy budgets.
-
-Store-and-forward mechanisms inspired by Bundle Protocol will enable operation
-during network partitions, but will be adapted for \gls{P2P} rather than
-cloud-centric operation: data parcels are compressed (using techniques from
-Section~\ref{sec:data_compression}), queued in local storage (flash, MicroSD
-cards) when no forward path exists, and opportunistically transmitted when
-connectivity windows emerge, be it through topology changes or protocol
-switching creating new communication opportunities.
-
-Coordination emerges from local interactions via gossip-based information
-propagation, decentralized time synchronization
-(Section~\ref{sec:decentralized_sync}), and adaptive protocol selection
-(Section~\ref{sec:multi_protocol}), rather than centralized allocation of roles.
