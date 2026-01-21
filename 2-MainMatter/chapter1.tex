@@ -124,24 +124,24 @@ still supporting cloud integration when connectivity is available and desired.
 In this document we introduce \textbf{\gls{ubabel}}, a lightweight framework
 targeting embedded platforms (ESP32, Raspberry Pi Pico) aimed at developing
 resilient, multi-protocol and decentralized \gls{iot} systems that can operate
-autonomously during infrastructure failures. \textbf{\gls{ubabel}} integrates
-with the broader Babel Ecosystem, which runs on hardware with greater resources
-such as full Raspberry Pi boards or computers, enabling a class-based
+autonomously during infrastructure failures. \textbf{\gls{ubabel}} will
+integrate with the broader Babel Ecosystem, which runs on hardware with greater
+resources such as full Raspberry Pi boards or computers, enabling a class-based
 architecture where resource-constrained edge devices can seamlessly
 interoperate with computational nodes for data aggregation, processing, and
 coordination.
 
 \paragraph{Note on terminology:} Throughout this work the term
 \emph{multi-protocol} is used to refer to heterogeneity in communication
-technologies (\gls{BLE}, \gls{LoRa}, Wi-Fi, etc.) that have distinct physical
-layers, while \emph{multi-channel} refers to frequency diversity within a
-single protocol (e.g., 2.4GHz Wi-Fi channels 1-13, \gls{LoRa} frequency
-hopping). Multi-protocol operation provides technology diversity for
+technologies (\gls{BLE}, \gls{LoRa}, Wi-Fi, etc.) that have distinct
+link/physical layers, while \emph{multi-channel} refers to frequency diversity
+within a single protocol (e.g., 2.4GHz Wi-Fi channels 1-13, \gls{LoRa}
+frequency hopping). Multi-protocol operation provides technology diversity for
 resilience; multi-channel operation provides frequency diversity for
 anti-jamming and throughput.
 
-\section*{Research Topics}
-\label{sec:research_topics}
+\section*{Main Research Questions}
+\label{sec:research_questions}
 
 We focus on three main research questions:
 
@@ -151,10 +151,9 @@ infrastructure fails?}
 Traditional \gls{iot} deployments rely heavily on Wi-Fi access points, cellular
 towers, or other centralized infrastructure that often becomes unavailable
 during disasters, or is altogether unreliable in remote locations.
-\textbf{\gls{ubabel}} addresses this by leveraging a multi-protocol communication
-approach, supporting a diverse protocol stack (Bluetooth Low Energy (BLE),
-\gls{LoRa}, ESP-NOW, ZigBee, \gls{IR}) that can operate independently of
-infrastructure.
+\textbf{\gls{ubabel}} addresses this by leveraging a multi-protocol
+communication approach, supporting a diverse protocol stack (\gls{BLE},
+\gls{LoRa}, ESP-NOW, ZigBee) that can operate independently of infrastructure.
 \todo{add glossary entries for esp-now, zigbee, etc?}
 
 By enabling adaptive protocol selection and peer-to-peer mesh formation,
@@ -176,7 +175,6 @@ desired), while simpler devices focus on sensing and actuation, creating a
 resilient multi-tier architecture.
 
 \paragraph{How can we achieve (near-)zero-configuration deployment for emergency scenarios?}
-% \paragraph{How can we achieve (near-)zero-configuration deployment, suitable for emergency scenarios and hazardous location monitoring where manual setup is impractical or even impossible?}
 
 Emergency response and hazardous environment monitoring demand systems that 
 can be deployed rapidly without extensive configuration. \textbf{\gls{ubabel}} 
@@ -184,10 +182,10 @@ provides automatic peer discovery across multiple protocols, self-organizing
 network formation, and decentralized coordination mechanisms that eliminate the 
 need for pre-configured master nodes or manual network planning.
 
-Devices autonomously establish connectivity with each other, negotiate protocols,
-and begin operation upon being activated, enabling deployment by non-technical
-\todo{fico na dúvida se devia reword this para não "prometer too much"?}
-personnel or in hard-to-reach locations.
+Devices will autonomously establish connectivity with each other, negotiate
+protocols, and begin operation upon being activated, with minimal configuration
+effort to enable rapid deployment even in hard-to-reach locations.
+\todo{FIXED: overpromising}
 
 % \todo{move to immediately before amazon azure etc, use as motivation like:
 % "to motivate this consider these relevant examples of use cases: imagine that etc etc; that suffer from x y and z with cloud infra etc dependencies"}
@@ -217,19 +215,23 @@ personnel or in hard-to-reach locations.
 % emergency scenarios, without requiring infrastructure reconfiguration or manual
 % intervention.
 
-\section*{Contributions}
+\section*{Expected Contributions}
 
-We plan to make the following contributions:
+We plan to make the following
+\todo{"main" aqui implica outras contributions secundárias, if that's the case
+não devia inclui-las também?}
+contributions:
+
 \begin{itemize}
-	\item A decentralized architecture supporting multiple communication
-          channels (BLE, \gls{LoRa}, ZigBee, ESP-NOW, \gls{IR}) with
-          adaptive protocol switching based on \gls{QoS}
-	      requirements, resource availability and device capabilities;
-	\item A resource-efficient programming framework for embedded platforms 
-	      that enables autonomous operation without central coordination, 
-	      providing abstractions for multi-protocol communication, peer 
-	      discovery, and opportunistic data forwarding;
-	\item A proof-of-concept implementation demonstrating infrastructure-
-	      independent operation and automatic disaster-mode failover in a 
-	      real-world deployment.
+    \item A decentralized architecture supporting multiple communication
+        protocols (\gls{BLE}, \gls{LoRa}, ZigBee, ESP-NOW) with adaptive
+        switching based on \gls{QoS} requirements, resource availability and
+        device capabilities;
+    \item A resource-efficient programming framework for embedded platforms
+        that enables autonomous operation without central coordination,
+        providing abstractions for multi-protocol communication, peer
+        discovery, and opportunistic data forwarding;
+    \item A proof-of-concept implementation demonstrating infrastructure-
+        independent operation and automatic disaster-mode failover in a
+        real-world deployment.
 \end{itemize}
