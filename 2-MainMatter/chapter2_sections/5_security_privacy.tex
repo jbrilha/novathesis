@@ -195,12 +195,20 @@ central authorities through multi-authority cryptography but rely on bilinear
 pairings with computational costs far exceeding the capabilities of our
 targeted platforms.
 
-\subsection{Implications for \textbf{\gls{ubabel}}}
-\label{subsec:microbabel_implications_5}
+\subsection{Discussion}
+\label{subsec:rw_discussion_5}
 
 Existing lightweight security mechanisms demonstrate feasibility on
 resource-constrained platforms but assume infrastructure availability
 incompatible with disaster scenarios.
+
+
+The minimal viable set of mechanisms 
+\todo{FIXED: identificar o minimal set of mechanisms}
+to adopt comprises: (1) efficient authentication primitives using hash
+operations and secret-sharing, (2) polynomial-based key management minimal
+storage complexity, (3) distributed revocation without coordinator involvement,
+(4) AES encryption validated on embedded platforms.
 
 \gls{GASE}~\cite{gase2023} provides efficient group authentication using only
 hash operations and modular arithmetic with valuable mechanisms (MAC
@@ -243,79 +251,3 @@ pre-disaster physical provisioning as a pragmatic bootstrapping mechanism.
 autonomous operation (adapted threshold authentication with local \gls{GL}
 election, gossip-based revocation, \gls{AES} encryption with
 compress-then-encrypt).
-
-\subsection{MicroBabel's Approach}
-\label{subsec:microbabel_approach_5}
-
-While zero-config approaches face circular authentication dependencies and
-centralized schemes fail when infrastructure collapses, \textbf{\gls{ubabel}}
-will adopt a hybrid security model that distinguishes between pre-disaster
-deployment and post-disaster autonomous operation.
-
-\begin{description}
-    \item \textbf{Pre-disaster deployment phase:} For planned installations
-        (building sensor networks, campus-wide monitoring), devices are
-        provisioned during initial deployment:
-
-        \begin{itemize}
-            \item \textbf{LPKM polynomial shares:} Preloaded via \gls{KDC} for
-                distributed key management
-            \item \textbf{GASE secret-shadows:} Two per node for threshold
-                authentication ($(t-1)$-of-$n$ reveal protocol)
-        \end{itemize}
-
-        These are reasonable assumptions for disaster-resilience scenarios, as
-        preparation happens before any emergency operation needs to take place.
-
-	\item \textbf{Post-disaster autonomous operation:} Once a disaster occurs
-	      and infrastructure fails, the network operates autonomously using
-	      mechanisms that require no central coordination:
-
-	      \begin{itemize}
-              \item \textbf{Threshold-based authentication} (adapted from
-                  \gls{GASE}): Nodes form ad-hoc authentication groups where
-                  $(t-1)$-of-$n$ members reveal secret shares (pre-distributed)
-                  to derive session keys via Lagrange interpolation. Local
-                  coordinator election replaces GASE's centralized \glspl{GL}
-                  Session key derivation combines group secrets with
-                  device-specific keys to prevent impersonation, while
-                  aggregated \gls{MAC} tags enable efficient multi-node
-                  verification without individual authentication overhead.
-                  \todo{too dense?}
-              \item \textbf{Distributed revocation} (adapted from \gls{LPKM}):
-                  nodes independently compute updated keys excluding
-                  compromised peers, with revocation decisions propagated via
-                  gossip
-              \item \textbf{Periodic share updating} (adapted from \gls{LPKM}):
-                  timer-based key refresh for backward secrecy, no coordinator
-                  needed
-              \item \textbf{Lightweight encryption}: \gls{AES} encryption
-                  (demonstrated by MCSC-WoT on ESP32) with
-                  compress-then-encrypt strategies
-                  (Section~\ref{sec:data_compression}) to minimize ciphertext
-                  size and transmission energy
-              \item \textbf{Channel hopping/protocol switching for security}:
-                  multi-channel/multi-protocol operation complicates
-                  eavesdropping and uses masterless synchronization
-                  (\gls{RGCS}) rather than master-based beacons
-	      \end{itemize}
-
-	\item \textbf{Threat model:} The system will prioritize availability and
-	      resilience over complete compromise resistance. Assumptions include:
-
-	      \begin{itemize}
-		      \item \textbf{Honest majority}: most nodes behave correctly;
-		            adversaries cannot compromise majority simultaneously
-              \item \textbf{Local adversary}: attackers can monitor/disrupt
-                  local regions but not entire network simultaneously
-		      \item \textbf{Physical security during deployment}: devices can be
-		            provisioned securely before disaster strikes
-	      \end{itemize}
-
-          This threat model reflects emergency priorities where maintaining
-          communication capability matters more than preventing all possible
-          attacks. If an adversary with sophisticated capabilities attacks
-          during a disaster, communication infrastructure would already be
-          their target regardless of security mechanisms.
-\end{description}
-
