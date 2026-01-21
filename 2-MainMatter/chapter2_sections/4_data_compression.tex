@@ -93,7 +93,16 @@ that when battery drops below a certain threshold (e.g., 20\%), the system
 switches to lossy-only transmission instead of lossless, extending lifetime at
 the cost of reconstruction accuracy.
 
-\inlinetodo{could add more detail here but need to read it more carefully}
+\todo{FIXED:. é bom? é mau? é adequado?}
+
+This trade-off aligns with disaster-scenario requirements where sustained
+operation during prolonged periods of network outages often takes higher
+priority over perfect data-fidelity, as approximate sensor readings over
+extended periods of time provide greater situational awareness than
+high-precision measurements from devices that quickly deplete their batteries.
+However, safety-critical sensors (e.g., structural integrity sensors, hazardous
+gas detectors) may require different thresholds (if any) or other policies to
+balance longevity with accuracy requirements.
 
 \subsubsection*{Lossless Time-Series Compression}
 
@@ -174,8 +183,8 @@ becomes as significant as sensor power optimization, since one gateway might
 receive substantial data from several nodes even if individually they don't
 perform frequent transmissions.
 
-\subsection{Implications for \textbf{\gls{ubabel}}}
-\label{subsec:microbabel_implications_4}
+\subsection{Discussion}
+\label{subsec:rw_discussion_4}
 
 Existing data reduction techniques demonstrate substantial energy savings on 
 resource-constrained platforms but assume single-protocol 
@@ -208,66 +217,3 @@ networks.
 must extend lightweight prediction and compression to multi-protocol scenarios
 with per-protocol threshold and compression strategy selection while accounting
 for gateway receiver energy costs.
-
-\subsection{MicroBabel's Approach}
-\label{subsec:microbabel_approach_4}
-
-Extending Ambrosia's lightweight prediction approach to multi-protocol
-scenarios, \textbf{\gls{ubabel}} will reduce data transmission through
-prediction-based filtering: nodes transmit sensor readings only when prediction
-error exceeds configurable thresholds (similar to Ambrosia), with
-protocol-aware tuning to balance accuracy against energy constraints across
-heterogeneous protocols.
-
-Building on prediction-based reduction, the goal is to apply Delta+\gls{RLE} compression
-to the readings that are transmitted, combining both techniques for added
-energy savings and reduced data volume over the air.
-
-Following the two-tier architecture pattern, compression occurs at sensor nodes
-before transmission, with just the first sample in each window being
-transmitted with no compression applied.
-
-Adaptive threshold selection will adjust $\delta$ based on both channel
-characteristics and node state:
-\todo{estes deltas vinham do ambrosia, fica confuso agora que falo de delta encoding?}
-\begin{itemize}
-	\item \textbf{High $\delta$ for \gls{LoRa}}: Tolerates larger prediction errors
-	      to minimize expensive long-range transmissions, sending only when
-	      predictions deviate significantly. These packets undergo
-	      aggressive Delta+\gls{RLE} compression to minimize airtime costs.
-	\item \textbf{Low $\delta$ for \gls{BLE}}: Requires tighter prediction accuracy
-	      for cheap local exchanges, allowing for more frequent transmissions to
-	      maintain precision. Lighter compression (delta encoding only)
-	      is applied here for lower latency.
-	\item \textbf{Battery-aware adaptation}: As node energy depletes, increased
-	      $\delta$ across all channels reduces transmission frequency, extending
-	      lifetime for critical messages. Compression at this point becomes more
-	      lossy to further minimize transmitted data volume.
-\end{itemize}
-
-\textbf{Application-aware transmission} will distinguish between data types:
-periodic sensor readings (temperature, humidity, light) use window-based
-prediction with configurable $\delta$ thresholds, while discrete events
-(emergency alerts, button presses, motion detection) transmit immediately
-without prediction. For predictable streams, accuracy-critical applications
-maintain low $\delta$, while trend monitoring can accept higher values to
-reduce transmission frequency.
-
-Compression strategies also vary by data type: environmental sensors can
-tolerate more prominent Delta+\gls{RLE} compression given their high temporal
-correlation, while critical alerts transmit with minimal (if any) compression
-to reduce latency.
-
-\textbf{Gateway energy management} accounts for the 15-20\% receiver energy
-cost by implementing selective radio shutdown: gateways can disable specific
-protocols during low-activity periods, waking periodically to check for
-incoming sync beacons or when prompted via other protocols. Decompression
-overhead in these nodes is minimal compared to transmission costs at
-the sensor level.
-\todo{entrar pela coisa de desligar os rádios ainda mais?}
-
-The expectation is that the combination of lightweight prediction, adaptive
-thresholding, and protocol-specific tuning together with Delta+\gls{RLE} compression
-will provide substantial energy savings without requiring complex and
-computationally intensive compression algorithms that would themselves consume
-significant power.
