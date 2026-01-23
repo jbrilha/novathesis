@@ -1,0 +1,57 @@
+%!TEX root = ../../template.tex
+
+\section{Recap}
+\label{sec:cha3_recap}
+
+\subsection{The Problem}
+
+Current \gls{iot} and domotics systems assume continuous infrastructure
+availability, an assumption that proves rather catastrophic during
+disasters, in hazardous environments, or when privacy requirements demand
+local autonomy (Chapter~\ref{cha:introduction}).
+
+The widely-adopted, cloud-centric architectural model creates single points of
+failure in myriad ways: devices depend on remote servers for
+control logic, local access points for Internet connectivity, and designated
+coordinators for synchronization.
+
+When infrastructure fails, whether due to large-scale
+outages~\cite{thousandeyes2025aws} or disaster-related network collapse,
+coordinated operation becomes impossible despite the local availability of
+physical computational resources.
+
+\subsection{Technical Challenges}
+
+Throughout Chapter~\ref{cha:related_work} we identified the core challenges
+that prevent existing approaches from fully addressing the overarching problem
+of reliable autonomous operation:
+
+\paragraph{Centralized coordination.} Protocol selection requires master nodes
+or SDN controllers. Topology management depends on gateway coordinators. Time
+synchronization relies on master beacons. Authentication requires persistent
+servers or group leaders. When these central elements fail or become
+unreachable, coordination collapses despite local devices remaining
+operational.
+
+\paragraph{Single-protocol operation.} Gossip-based synchronization assumes
+homogeneous networks where all nodes share identical communication
+characteristics. Compression techniques optimize for single technologies
+without considering protocol-specific energy costs. Topology maintenance
+protocols assume either persistent connections or uniform radio properties
+ill-suited for multi-protocol embedded platforms.
+
+\paragraph{Infrastructure dependencies.} Blockchain-based security requires
+connectivity to distributed ledgers. Edge computing assumes eventual cloud
+access. Hybrid architectures distribute processing but remain dependent on
+infrastructure for coordination. Systems designed with "infrastructure as
+fallback" still fail when that fallback becomes unavailable indefinitely.
+
+\paragraph{Resource constraints.} Sophisticated coordination mechanisms exceed
+embedded platform capabilities. Security schemes require specialized hardware
+(\glspl{PUF}) or computationally expensive operations (bilinear pairings). The
+tension between autonomous operation demands and limited computational, memory,
+and energy budgets remains unresolved in existing approaches.
+
+No existing work integrates solutions to these challenges into a unified
+framework for resource-constrained devices targeting autonomous operation
+during infrastructure failures.
