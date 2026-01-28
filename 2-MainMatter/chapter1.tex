@@ -19,17 +19,17 @@ The proliferation of \gls{iot} devices has changed how we
 monitor and interact with physical spaces -- from smart homes to industrial
 facilities -- with the global \gls{iot} market reaching 18.5 billion connected
 devices in 2024, and projected to reach 39 billion by
-2030\cite{sinha2025stateofiot}, with industry analysts estimating that \gls{iot}
+2030~\cite{sinha2025stateofiot}, with industry analysts estimating that \gls{iot}
 technologies could unlock between \$5.5 and \$12.6 trillion in economic value
-by the same year\cite{mckinsey2021iot}.
+by the same year~\cite{mckinsey2021iot}.
 
 However, current \gls{iot} systems remain fundamentally dependent on continuous
 Internet connectivity and centralized cloud
-infrastructures\cite{8123913,s20226441}. The dominant architectural pattern
-across the industry involves edge devices collecting data and transmitting it
-to remote cloud servers for processing, storage, and other control logic. This
-approach delivers scalability and ease of management but creates a fundamental
-dependency on network availability.
+infrastructures~\cite{8123913,s20226441}. The dominant architectural pattern
+across the industry relies on edge devices collecting data and transmitting it
+to remote cloud servers for processing, storage, and execution of other control
+logic. This approach delivers scalability and ease of management but creates a
+fundamental dependency on network availability.
 
 This centralized model introduces several concerns beyond just connectivity:
 operational costs for cloud services create economic dependencies on
@@ -38,7 +38,7 @@ arise when sensitive information must travel to and reside on external
 infrastructure, and system resilience becomes fundamentally tied to the
 availability of these remote services.
 
-While cloud platforms can benefit \gls{iot} deployments through additional
+While cloud platforms can benefit \gls{iot} deployments by providing additional
 computational resources and storage capacity, systems that \emph{depend} on
 constant cloud connectivity sacrifice local autonomy and introduce single
 points of failure. This cloud-centric model has enabled rapid \gls{iot} adoption, but
@@ -47,16 +47,17 @@ connectivity cannot be guaranteed.
 
 Recent infrastructure failures illustrate the fragility of cloud-dependent
 architectures: the AWS US-EAST-1 outage in October
-2025\cite{thousandeyes2025aws} disrupted services from banking to smart homes
+2025~\cite{thousandeyes2025aws} disrupted services from banking to smart homes
 worldwide, demonstrating how a \gls{DNS} configuration error in a \emph{single
-region} can cascade into global disruptions\cite{aws2025summary}.
+	region} can have cascading effects, leading to global
+disruptions~\cite{aws2025summary}.
 
 Attempts have been made to address these challenges through incremental
 improvements, such as shifting focus to edge computing in order to reduce
-latency\cite{s20226441,8123913,8664595}, redundant cloud regions for
-availability\cite{mesbahi2018reliability,maciel2022survey}, and hybrid
+latency~\cite{s20226441,8123913,8664595}, redundant cloud regions for
+availability~\cite{mesbahi2018reliability,maciel2022survey}, and hybrid
 architectures that combine local and remote
-processing\cite{9846938,s24165320,KREKOVIC2025101553}.
+processing~\cite{9846938,s24165320,KREKOVIC2025101553}.
 
 However, these solutions remain fundamentally tied to the assumption of
 eventual connectivity, and often increase system complexity without eliminating
@@ -64,126 +65,133 @@ the core dependency. This leads to shortcomings in key areas that demand
 more fundamental architectural reconsideration:
 
 \begin{description}
-    \item \textbf{Limited suitability for hazardous environments}\\
+    \item[\textbf{Limited suitability for hazardous environments:}]
+    \todo{tive de meter as labels inline para o final do chapter não passar para a próxima página... se ficar feio assim mudo algo elsewhere}
         Remote or dangerous locations (industrial sites, disaster-prone areas)
         require systems that can operate reliably without constant human
         intervention or stable network infrastructure;
-    \item \textbf{Lack of autonomous operation}\\
-        Device deployment and operation en masse can be brittle, with little
-        tolerance for individual node failures in the \gls{iot} infrastructure, which
-        is naturally susceptible to network failures and intermittent
-        connectivity;
-    \item \textbf{Privacy and data sovereignty concerns}\\
-        Cloud platforms and other third-parties are oftentimes an unavoidable
-        middle layer between end devices and end users, raising questions about
-        data processing and control.
+    \item[\textbf{Lack of autonomous operation:}] Device deployment and
+        operation en masse can be brittle, with little tolerance for individual
+        node failures in the \gls{iot} infrastructure, which is naturally
+        susceptible to network failures and intermittent connectivity;
+    \item[\textbf{Privacy and data sovereignty concerns:}] Cloud platforms and
+        other third-parties are oftentimes an unavoidable middle layer between
+        end devices and end users, raising questions about data processing and
+        control.
 \end{description}
 
-\todo{fazer distinção maior entre iot e domotics? fiz no related work, devia mudar para aqui?}
-While these challenges affect both \gls{iot} and domotics systems alike -- from
-industrial monitoring to residential automation -- they become particularly
-acute in disaster response and emergency scenarios, where communication
-infrastructure fails precisely when needed most, rapid deployment with minimal
-configuration becomes essential, and autonomous operation transitions from
-desirable to indispensable.
+While these challenges affect both \gls{iot} and domotics systems alike --
+from industrial monitoring to residential automation -- they become
+particularly acute in disaster response and emergency scenarios, where
+communication infrastructure might become completely unavailable precisely
+when needed most, rapid deployment with minimal configuration becomes
+essential, and autonomous operation transitions from desirable to
+indispensable.
 
-During earthquakes, floods, and other emergencies, the need for real-time
-sensor data (structural integrity, air quality, evacuation routes) and
-bidirectional communication (threat alerts, user feedback) becomes critical,
-yet traditional infrastructure often fails first, eliminating both cloud
-connectivity and local network access points that deployed devices rely on.
+During earthquakes, floods, and natural or human-driven disasters, the need for
+real-time sensor data (structural integrity, air quality, evacuation routes)
+and bidirectional communication (threat alerts, user feedback) becomes
+critical, yet traditional infrastructure often fails first, eliminating both
+cloud connectivity and local network access points that deployed devices rely
+on, making support systems for these scenarios unavailable or non-operational.
 
 A pragmatic issue in the context of smart homes is that without cloud
 connectivity, users cannot interact with their appliances, such that during a
 Wi-Fi outage smart lights become uncontrollable despite all hardware being
-physically present.
-While merely inconvenient domestically, this architectural dependency has
-critical implications in other contexts and
-\textbf{\gls{ubabel}} addresses such scenarios across scales: from residential
-systems requiring local control, to building monitoring infrastructures that
-must operate during emergencies, to disaster response networks where
-autonomous operation becomes essential when traditional infrastructure fails.
+physically present. While merely inconvenient domestically, this architectural
+dependency has critical implications in other contexts and \gls{ubabel}
+addresses such scenarios across scales: from residential systems requiring
+local control, to building monitoring infrastructures that must operate during
+emergencies, to disaster response networks where autonomous operation becomes
+essential when traditional infrastructure fails.
 
 While cloud platforms like Amazon Alexa, Google Home, and Microsoft Azure \gls{iot}
 Hub offer convenience for data processing and remote device control, their
 inherent dependence on continuous Internet connectivity introduces some
 critical limitations: increased latency from round-trip communication to
-distant servers\cite{8664595,8089336}, reduced availability during network
-disruptions or cloud outages\cite{9089244,maciel2022survey}, and poor
-fault-tolerance when infrastructure fails\cite{amiri2023resilient}.
+distant servers~\cite{8664595,8089336}, reduced availability during network
+disruptions or cloud outages~\cite{9089244,maciel2022survey}, and poor
+fault-tolerance when infrastructure fails~\cite{amiri2023resilient}.
 
 These characteristics make cloud-centric architectures fundamentally unsuitable
 for scenarios that require or prioritize local operation, autonomous behavior,
 or guaranteed responsiveness during emergencies.
 
-The Babel Ecosystem~\cite{fouto2022babel} addresses these limitations by
-enabling devices to operate autonomously without cloud infrastructure, while
+The Babel Ecosystem~\cite{fouto2022babel} partially addresses these limitations
+by enabling devices to operate autonomously without cloud infrastructure, while
 still supporting cloud integration when connectivity is available and desired.
 
-In this document we introduce \textbf{\gls{ubabel}}, a lightweight framework
-targeting embedded platforms (ESP32, Raspberry Pi Pico) aimed at developing
-resilient, multi-protocol and decentralized \gls{iot} systems that can operate
-autonomously during infrastructure failures. \textbf{\gls{ubabel}} will
-integrate with the broader Babel Ecosystem, which runs on hardware with greater
-resources such as full Raspberry Pi boards or computers, enabling a class-based
-architecture where resource-constrained edge devices can seamlessly
-interoperate with computational nodes for data aggregation, processing, and
-coordination.
+In this document we propose \gls{ubabel}, a lightweight framework targeting
+embedded platforms (e.g., ESP32, Raspberry Pi Pico) aimed at developing
+resilient, multi-protocol, and decentralized \gls{iot} systems that can operate
+autonomously during infrastructure failures.
+
+\gls{ubabel} will integrate with the broader Babel Ecosystem, which runs on
+hardware with greater resources such as full Raspberry Pi boards,
+desktops/laptops, or servers. This enables a heterogeneous architecture
+\todo{FIXED: "class-based"} where resource-constrained edge devices can
+seamlessly interoperate with computational nodes for additional data
+aggregation, processing, and large-scale coordination.
 
 \paragraph{Note on terminology:} Throughout this work the term
 \emph{multi-protocol} is used to refer to heterogeneity in communication
-technologies (\gls{BLE}, \gls{LoRa}, Wi-Fi, etc.) that have distinct
+technologies (i.e., \gls{BLE}, \gls{LoRa}, Wi-Fi, etc.) that have distinct
 link/physical layers, while \emph{multi-channel} refers to frequency diversity
 within a single protocol (e.g., 2.4GHz Wi-Fi channels 1-13, \gls{LoRa}
 frequency hopping). Multi-protocol operation provides technology diversity for
-resilience; multi-channel operation provides frequency diversity for
-anti-jamming and throughput.
+resilience; multi-channel operation provides frequency diversity for both
+anti-jamming and additional throughput.
 
 \section*{Main Research Questions}
 \label{sec:research_questions}
 
-We focus on three main research questions:
+In this work, we focus on three main research questions:
 
-\paragraph{How can these systems maintain communication when traditional
-infrastructure fails?}
+\paragraph{How can these systems maintain communication and full operation when
+	traditional infrastructure fails?}
 
-Traditional \gls{iot} deployments rely heavily on Wi-Fi access points, cellular
-towers, or other centralized infrastructure that often becomes unavailable
-during disasters, or is altogether unreliable in remote locations.
-\textbf{\gls{ubabel}} addresses this by leveraging a multi-protocol
-communication approach, supporting a diverse protocol stack (\gls{BLE},
-\gls{LoRa}, \gls{ESP-NOW}, \gls{ZigBee}) that can operate independently of infrastructure.
+Conventional deployments of networked devices often heavily rely on Wi-Fi
+access points, cellular towers, or other centralized infrastructure that can
+easily become unavailable during disasters, or is altogether unreliable in
+remote locations. \gls{ubabel} will address this by leveraging a
+multi-protocol communication approach, supporting a diverse set of wireless
+protocols that can operate independently of infrastructure.
 
-By enabling adaptive protocol selection and peer-to-peer mesh formation,
-devices can establish alternative communication paths when primary channels
-fail.
+By enabling adaptive protocol selection and \gls{P2P} mesh formation, devices
+can establish alternative communication paths when primary channels fail,
+allowing them to sustain information exchange and system availability.
+
+\todo{FIXED: muito ênfase em iot}
 
 \paragraph{How can device heterogeneity be leveraged to create and orchestrate
-these networks?}
+	these systems?}
 
-\gls{iot} deployments naturally comprise devices with varying capabilities, from
-resource-constrained sensors, to gateway nodes with greater processing power
-and storage. Rather than treating this heterogeneity as a limitation,
-\textbf{\gls{ubabel}} exploits it through capability-aware protocols that allow
-devices to negotiate roles dynamically via discovery.
+Deployments naturally comprise devices with varying capabilities, from simple
+resource-constrained nodes, to more capable gateways that might act as
+aggregators or bridges. Rather than treating this heterogeneity as a
+limitation, \gls{ubabel} will exploit it through capability-aware protocols
+that allow devices to negotiate roles dynamically via autonomous and automatic
+discovery.
 
 Resource-rich nodes can serve as data aggregation and processing points, or
 bridges between a remote deployment and traditional network infrastructure (if
 desired), while simpler devices focus on sensing and actuation, creating a
 resilient multi-tier architecture.
 
-\paragraph{How can we achieve (near-)zero-configuration deployment for emergency scenarios?}
+\paragraph{How can we achieve (near-)zero-configuration deployment in diverse
+environments?}
 
-Emergency response and hazardous environment monitoring demand systems that 
-can be deployed rapidly without extensive configuration. \textbf{\gls{ubabel}} 
-provides automatic peer discovery across multiple protocols, self-organizing 
-network formation, and decentralized coordination mechanisms that eliminate the 
-need for pre-configured master nodes or manual network planning.
+Straightforward deployments are essential where users cannot perform complex
+configurations -- from smart homes and factories to hazardous areas.
+\gls{ubabel} will provide automatic peer discovery across multiple protocols,
+self-organizing network formation, and decentralized coordination mechanisms
+that eliminate the need for pre-configured coordinator nodes or manual network
+planning.
+\todo{FIXED: demasiado foco em emergências}
 
 Devices will autonomously establish connectivity with each other, negotiate
 protocols, and begin operation upon being activated, with minimal configuration
 effort to enable rapid deployment even in hard-to-reach locations.
-\todo{FIXED: overpromising}
 
 % \todo{move to immediately before amazon azure etc, use as motivation like:
 % "to motivate this consider these relevant examples of use cases: imagine that etc etc; that suffer from x y and z with cloud infra etc dependencies"}
@@ -208,23 +216,20 @@ effort to enable rapid deployment even in hard-to-reach locations.
 % (smoke/flame detection, temperature monitoring), and adapt evacuation guidance
 % based on blocked or presumed-dangerous routes.
 %
-% This dual-mode operation demonstrates how \textbf{\gls{ubabel}} systems can
+% This dual-mode operation demonstrates how \gls{ubabel} systems can
 % provide everyday utility while maintaining resilience and usefulness for
 % emergency scenarios, without requiring infrastructure reconfiguration or manual
 % intervention.
 
 \section*{Expected Contributions}
 
-We plan to make the following
-\todo{"main" aqui implica outras contributions secundárias, if that's the case
-não devia inclui-las também?}
-contributions:
+We plan to make the following main contributions:
 
 \begin{itemize}
     \item A decentralized architecture supporting multiple communication
-        protocols (\gls{BLE}, \gls{LoRa}, \gls{ZigBee}, \gls{ESP-NOW}) with adaptive
-        switching based on \gls{QoS} requirements, resource availability and
-        device capabilities;
+        protocols (Wi-Fi, \gls{BLE}, \gls{LoRa}, \gls{ZigBee}, \gls{ESP-NOW})
+        with adaptive switching based on \gls{QoS} requirements, resource
+        availability and device capabilities;
     \item A resource-efficient programming framework for embedded platforms
         that enables autonomous operation without central coordination,
         providing abstractions for multi-protocol communication, peer
@@ -233,3 +238,23 @@ contributions:
         independent operation and automatic disaster-mode failover in a
         real-world deployment.
 \end{itemize}
+
+\section*{Document Structure}
+
+\todo{FIXED: added doc structure}
+The remainder of this document is arranged as follows:
+
+\begin{description}
+	\item[\textbf{Chapter~\ref{cha:related_work}}] Reviews related work in
+	      \gls{P2P} networking, multi-protocol communication, decentralized
+	      synchronization, data compression, and security.\todo{retirar security daqui altogether?}
+
+	\item[\textbf{Chapter~\ref{cha:solution_arch}}] Presents the system
+	      requirements, operating conditions, failure modes, hardware and
+	      software platforms, and the architectural model of the proposed
+	      solution.
+
+    \item[\textbf{Chapter~\ref{cha:planning_progress}}] Summarizes the current
+        implementation status and outlines the development and
+        evaluation plan.
+\end{description}
