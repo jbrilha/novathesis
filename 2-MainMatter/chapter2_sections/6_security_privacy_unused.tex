@@ -12,12 +12,11 @@ carefully provisioned, emergency-focused deployments must balance security
 guarantees against the possibility of infrastructure failure.
 
 Traditional security approaches that assume persistent connectivity to
-\glspl{CA}, \glspl{KDC}, or even
-blockchain networks cannot fully function, if at all, when those very
-structures collapse. Embedded platforms further exacerbate this issue by ruling
-out computationally expensive cryptographic approaches that could more easily
-provide a given network with a certain degree of independence from those
-structures.
+\glspl{CA}, \glspl{KDC}, or even blockchain networks cannot fully function, if
+at all, when those very infrastructures collapse. Embedded platforms further
+exacerbate this issue by ruling out computationally expensive cryptographic
+approaches that could more easily provide a given network with a certain degree
+of independence from those structures.
 
 \subsection{Authentication and Privacy}
 \label{subsec:authentication_privacy}
@@ -25,17 +24,19 @@ structures.
 Authentication protocols are necessary to establish device identity and enable
 secure communications. In disaster scenarios, authentication mechanisms must
 operate without centralized coordinators while maintaining privacy guarantees
-that prevent device tracking and activity correlation.
+that prevent device tracking, activity correlation, and injection of false
+information into the system by adversaries.
+\todo{FIXED: added false info injection}
 
 \subsubsection*{Lightweight Group Authentication}
 
-The \gls{GASE}~\cite{gase2023} demonstrates lightweight group authentication
+The \gls{GASE}~\cite{gase2023} provides lightweight group authentication
 suitable for resource-constrained devices through a combination of \gls{SSS}
 and aggregated \gls{MAC} usage. It operates within a three-tier cloud-edge-IoT
 architecture, focusing on asynchronous mass authentication of the low-end
 \gls{iot} nodes therein.
 
-There are several phases to this protocol, summarily:
+There are several phases to this protocol, outlined as follows:
 \begin{enumerate}
     \item \textbf{Initialization:} The \gls{AS} generates $2N$ secret-shadows,
         and distributes them to each \gls{iot} node (two per node). Nodes are
@@ -63,8 +64,8 @@ a new polynomial parameter for each group, which are published to allow nodes
 to compute fresh shares from their stored secret without needing a secure
 channel for updates or redistribution.
 
-The main issue with this approach is that it assumes persistent availability of
-its centralized infrastructure components: the \gls{AS}, \glspl{GL} and edge
+The main limitation of this approach is that it assumes persistent availability
+of its centralized infrastructure components: the \gls{AS}, \glspl{GL} and edge
 entities for aggregation. If the \gls{GL} becomes inactive, the authentication
 process cannot proceed. While \gls{RPi} gateways could assume the role of an
 \gls{AS} for initial provisioning, the \gls{GL} dependency persists among
@@ -90,7 +91,7 @@ whether using challenge-response pairs~\cite{twofa2019,plgakd2021} or pseudonym
 systems~\cite{healthcare2023} -- assume either specialized hardware unavailable
 on ESP32/Raspberry Pico platforms  to leverage \glspl{PUF}, or centralized
 verification infrastructure (pseudonym servers, credential authorities). Both
-assumptions are incompatible with \textbf{\gls{ubabel}}'s commodity hardware
+assumptions are incompatible with \gls{ubabel}'s target of commodity hardware
 and infrastructure-less deployment model.
 
 
@@ -125,20 +126,20 @@ no coordination.
 
 This approach does assume secure bootstrapping via a \gls{KDC} that preloads
 polynomial shares into devices before deployment. For planned
-disaster-resilience installations (campus sensor networks, building monitoring
-systems), this physical preloading is acceptable, and a trusted device (laptop,
-\gls{PDA}, etc.) can serve as a \gls{KDC}, keeping in line with our zero-config
-efforts.
+disaster-resilience installations (e.g., campus sensor networks, building
+monitoring systems), this physical preloading is acceptable, and a trusted
+device (laptop, \gls{PDA}, etc.) can serve as a \gls{KDC}, keeping in line with
+our zero-config goals.
 
 \subsubsection*{Zero-Preloading Approaches}
 
 Alternative schemes attempt to eliminate pre-distributed keys entirely. The
-lightweight distributed key agreement protocol presented in
-~\cite{lightweight2008} achieves a considerable speedup compared to
-Diffie-Hellman by employing hash functions and bit-wise comparisons rather
-than modular exponentiation.
+lightweight distributed key agreement protocol presented
+in~\cite{lightweight2008} achieves a considerable speedup compared to
+Diffie-Hellman by employing hash functions and bit-wise comparisons rather than
+modular exponentiation.
 
-The approach generates temporal key pairs on-demand through random secret
+The approach generates temporary key pairs on-demand through random secret
 number generation, with nodes deriving shared keys via hash-based operations
 and bit-wise comparisons of prefix bit-strings, thus eliminating the need for
 pre-distributed keys.
@@ -147,7 +148,7 @@ However, it requires an inter-sensor authentication protocol to secure the
 initial public key exchange, creating a circular dependency: authentication
 requires keys, but key establishment requires authentication. Furthermore,
 revocation mechanisms are only briefly mentioned without any concrete details,
-limiting the potential of this implementation.
+limiting the potential of this approach.
 
 This highlights a fundamental limitation in zero-config security: establishing
 trust without pre-shared secrets or trusted third parties is theoretically
@@ -164,7 +165,7 @@ hardware and  validates that symmetric cryptography remains viable on
 resource-constrained devices without prohibitive energy or computational
 costs.
 
-This confirms that \textbf{\gls{ubabel}} can employ \gls{AES}-based encryption
+This confirms that \gls{ubabel} can employ \gls{AES}-based encryption
 for confidentiality without posing a significant compromise to battery lifetime
 or real-time performance required for disaster scenarios. The coordination and
 synchronization challenges associated with their master-based approach have
@@ -245,7 +246,7 @@ No existing work integrates distributed authentication, key management, and
 encryption for fully autonomous post-disaster operation while accepting
 pre-disaster physical provisioning as a pragmatic bootstrapping mechanism.
 
-\textbf{\gls{ubabel}}'s hybrid security model (Section
+\gls{ubabel}'s hybrid security model (Section
 \ref{subsec:microbabel_approach_5}) distinguishes pre-disaster provisioning
 (\gls{LPKM} shares, \gls{GASE} secret-shadows via \gls{KDC}) from post-disaster
 autonomous operation (adapted threshold authentication with local \gls{GL}

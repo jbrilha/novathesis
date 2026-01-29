@@ -1,0 +1,103 @@
+%!TEX root = ../../template.tex
+
+\gls{iot} and home automation (domotics) systems share the same technological
+building blocks (wireless sensors, embedded devices, network communication) but
+diverge significantly in their operational focus and architectures:
+
+\todo{FIXED: added citations}
+\begin{description}
+    \item \textbf{\gls{iot} systems}~\cite{iottaxonomy2015} typically focus on
+        \textbf{data collection and monitoring}, by streaming sensor readings
+        to centralized platforms for analysis and processing, with control
+        functions often being a secondary concern.
+    \item \textbf{Domotics systems}~\cite{domotics2019,domoticstaxonomy2025}
+        instead prioritize \textbf{real-time control and actuation} over
+        physical spaces, where responsiveness and local autonomy are paramount
+        for end user experience
+        and privacy.
+\end{description}
+
+This distinction gains additional relevance when focusing on resilience
+requirements: while \gls{iot} deployments may tolerate delayed data aggregation
+and/or temporary connectivity issues in monitoring scenarios, domotics
+applications (such as emergency lighting control or \gls{HVAC} management)
+demand immediate local response regardless of network conditions.
+
+Both domains, however, suffer from a common vulnerability when confronted with
+infrastructure failures during disasters: their predominantly cloud-centric
+architectures collapse precisely when autonomous operation becomes
+indispensable.\\
+
+The challenges faced by disaster-resilient \gls{iot} 
+\todo{em vez de "iot systems":\\ smart systems?}
+systems span multiple
+dimensions:
+\begin{description}
+    \item \textbf{Infrastructure failures} eliminate access points that devices
+        depend on for coordination and operation;
+    \item \textbf{Intermittent connectivity} creates network partitions where
+        subgroups of devices must operate autonomously without global state
+        synchronization;
+    \item \textbf{Resource constraints} limit the computational, memory and
+        energy budgets available for implementing sophisticated resilience
+        mechanisms in embedded platforms.
+\end{description}
+
+These challenges are fundamentally architectural: existing \gls{iot} and
+domotics systems are designed around the assumption of stable infrastructure,
+treating network partitions and coordinator failures as transient anomalies
+rather than the norm.
+
+Cloud-centric architectures place control decisions in remote servers, creating
+dependencies that cannot be satisfied when connectivity fails.
+Coordinator-based topologies (whether using dedicated gateways, master nodes,
+\gls{SDN} controllers, or others) concentrate the risk of failure in single
+points that can paralyze entire systems if compromised or disconnected. Even
+ostensibly distributed systems often rely on persistent connections (i.e.,
+\gls{TCP}) over a single medium, or heavy middleware platforms that exceed the
+capabilities of embedded devices and, once more, assume some form of
+infrastructure availability.
+
+The fundamental point of contention is between resilience requirements
+(autonomy during infrastructure collapse) and resource constraints (limited
+computation, memory, and energy). Traditional approaches address one at the
+cost of the other: cloud platforms provide sophisticated coordination but fail
+during outages; purely local systems avoid external dependencies but struggle
+with inter-device coordination and protocol heterogeneity with low resource
+usage.
+
+Disaster-resilient systems require architectural choices that prioritize
+autonomous \gls{P2P} connectivity as the baseline mode of operation rather than
+having it as a secondary -- even exceptional -- fallback mechanism.
+
+Naturally, this requires a fundamental rethinking of \gls{iot} systems design:
+how devices discover and communicate with each other using diverse protocol
+stacks (without depending on centralized control), how they achieve temporal
+synchronization and coordination without master beacons, how to optimize the
+usage of limited available resources, and how to maintain secure operation
+throughout without persistent access to inherently centralized components such
+as \glspl{CA} or \glspl{KDC}.\\
+
+The following sections briefly cover related work across five areas that
+collectively enable autonomous operation: (Section~\ref{sec:wireless_comms})
+common wireless communication technologies across application, link, and
+physical layers; (Section~\ref{sec:p2p_mesh}) \gls{P2P} mesh networking and
+topology management for autonomous network formation without coordinator
+dependencies; (Section \ref{sec:multi_protocol}) multi-protocol communication
+and adaptive selection based on \gls{QoS} and device capabilities;
+(Section~\ref{sec:decentralized_sync}) decentralized synchronization mechanisms
+for coordinating multi-protocol communication without master nodes;
+(Section~\ref{sec:data_compression}) lightweight data compression and energy
+optimization techniques to extend autonomous operation duration and device
+lifetime.
+
+For each area, we examine how existing approaches handle (or fail to handle)
+infrastructure failure scenarios, identify architectural assumptions that
+conflict with disaster-resilient requirements, and position
+\gls{ubabel}'s contributions relative to the current state of the art.
+
+\todo{FIXED: updated security section description}
+Additionally, security and privacy considerations are presented in
+Section~\ref{sec:security_scope}, which outlines the scope of this work in
+regard to higher-layer safety mechanisms.
+

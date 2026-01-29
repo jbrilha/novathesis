@@ -4,13 +4,16 @@
 \label{sec:p2p_mesh}
 
 Infrastructure-dependent star topologies in which devices communicate via a
-central coordinator or gateway suffer from a similar fate to single-protocol
-communication: when that coordinator becomes unavailable or unreachable, the
-entire network loses connectivity.
+central coordinator or gateway suffer from a similar downside when compared
+with single-protocol communication: when that coordinator becomes unavailable
+or unreachable, the entire network loses connectivity.
 
 This pattern pervades current \gls{iot} deployments, from Wi-Fi access point
 dependencies to \gls{LoRaWAN} gateway requirements, and becomes catastrophic in
-disaster scenarios where central coordinators are most likely to fail first.
+disaster scenarios where central coordinators are most likely to fail first,
+\todo{FIXED: justify this claim}
+due to power outages, physical damage, or severe network congestion from increased
+emergency communications traffic.
 
 \gls{P2P} mesh architectures address this limitation by distributing
 coordination across all participating nodes, thus eliminating single points of
@@ -45,8 +48,8 @@ promoted to the active view if one of its nodes fails.
 
 The active view is managed reactively, such that nodes are added during join
 operations and removed upon failure detection, while the passive view is
-maintained cyclically through periodic shuffle operations that exchange node
-identifiers between peers.
+maintained cyclically through periodic shuffle operations that randomly
+exchange node identifiers between peers.
 
 This hybrid strategy enables remarkable resilience, with the system recovering
 from 80\% node failures with minimal reliability loss (maintaining ~95\%
@@ -61,16 +64,20 @@ B, then B can reach A, preventing the formation of one-way communication paths
 that complicate routing.
 
 However, HyParView assumes \gls{TCP} availability for maintaining persistent
-connections and using connection failures as implicit failure detectors. This
-dependency on full network stack functionality makes direct application to
+connections and using connection failures as implicit failure detectors.
+\todo{FIXED: adicionei isto com base na nota. mas nós vamos ter some form of multi-hop também so not sure I understand pqq é mau}
+Additionally, it assumes that any node can communicate with any other node
+in its active view, which in practice requires some form of routing infrastructure.
+
+This dependency on full network stack functionality makes direct application to
 resource-constrained embedded platforms challenging, though the architectural
 principles of hybrid views and shuffle-based passive view maintenance remain
 valuable.\\
 
 The heterogeneous disaster \gls{iot} architecture~\cite{heterogeneous-disaster}
-discussed in Section~\ref{subsec:multi-channel} employs RPL for its \gls{WSN}
-layer, demonstrating practical routing in resource-constrained disaster
-scenarios.
+discussed in Section~\ref{subsec:multi-channel} employs \gls{RPL} for its
+\gls{WSN} layer, demonstrating practical routing in resource-constrained
+disaster scenarios.
 
 Their performance analysis reveals considerable trade-offs: convergence time
 scales linearly from 7 seconds for 20 nodes to 14.5 seconds for 100 nodes,
@@ -86,7 +93,19 @@ The \gls{DTN} component using mobile drones as data mules provides an alternativ
 path for partitioned networks, with a maximum of 20 nodes per \gls{DODAG} to
 maintain acceptable convergence times during emergency situations, but this
 approach trades latency for eventual delivery rather than real-time mesh
-routing.
+routing.\\
+
+These approaches reveal fundamental trade-offs: tree-based protocols like
+\gls{RPL} offer structured routing for resource-constrained devices but create
+single points of failure; fully distributed protocols like HyParView achieve
+resilience through \gls{P2P} overlay management but assume network capabilities
+impractical for embedded platforms; and hybrid multi-layer approaches
+demonstrate practical deployment but still face throughput limitations.
+
+\todo{FIXED: add take-away for the section + set up narrativo "motivates exploration..."}
+This gap between resilience requirements and embedded capabilities
+motivates the exploration of topology management strategies more suitable for
+autonomous operation, particularly in unstable network conditions.
 
 \subsection{Routing in Partitioned and Intermittently Connected Networks}
 \label{subsec:routing_parts}
@@ -147,7 +166,7 @@ properties come at the cost of persistent computational infrastructure that an
 embedded-focused deployment cannot provide.
 
 \subsection{Discussion}
-\label{subsec:rw_discussion_1}
+\label{subsec:rw_discussion_2}
 
 Existing peer discovery and topology mainteance approaches demonstrate
 mechanisms appropriate for distributed operation but not without their
@@ -155,9 +174,9 @@ limitations for resource-constrained platforms aimed at disaster scenarios.
 
 HyParView's~\cite{hyparview2007} hybrid view architecture (small active, large
 passive) provides remarkable resilience to node failures, but the assumption of
-TCP availability and persistent connections is not suitable for embedded
-devices using connectionless radio technology or operating under intermittent
-connectivity conditions.
+routing and \gls{TCP} availability and persistent connections is not suitable
+for embedded devices using connectionless radio technology or operating under
+intermittent connectivity conditions.
 
 The multi-protocol gateway's~\cite{multiproto_gateway}
 \gls{BLE}-based neighbor discovery works on our targeted hardware but imposes
@@ -177,11 +196,11 @@ Coordination frameworks like the one in~\cite{resilient2019} provide dynamic
 leader election but depend on JVM-based middleware on resource-rich edge
 servers.\\
 
-No existing work integrates connectionless neighbor discovery, hybrid view
-maintenance, true P2P routing (not tree-based), and partition-tolerant
+We have found no work that integrates connectionless neighbor discovery, hybrid
+view maintenance, true P2P routing (not tree-based), and partition-tolerant
 store-and-forward on resource-constrained embedded platforms.
 
-\textbf{\gls{ubabel}}'s approach (Section \ref{subsec:microbabel_approach_1})
+\gls{ubabel}'s approach (Section \ref{component:p2p_mesh})
 must adapt HyParView's architectural principles to \gls{BLE}/\gls{LoRa}
 connectionless communication while supporting multi-hop routing without
-coordinator dependencies.
+depending on coordinators or routing infrastructure.

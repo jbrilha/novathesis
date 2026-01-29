@@ -1,0 +1,60 @@
+%!TEX root = ../../template.tex
+
+
+\section{System Assumptions and Threat Model}
+\label{sec:threat_model}
+\todo{passar isto para depois do system model?}
+\gls{ubabel}'s approach to security will reflect the priorities of
+disaster-scenario deployments, prioritizing resilience over defending against
+all possible attacks. We establish the following assumptions and threat
+boundaries:
+
+\subsection{Operational Assumptions}
+
+\paragraph{Honest Majority:} Most nodes behave correctly and in accordance with
+established protocol specifications. We assume adversaries lack the
+coordination capabilities or resources to simultaneously compromise a majority
+of the network.
+
+\paragraph{Controlled Provisioning:}\todo{worth including sequer?}
+Cryptographic primitives are distributed during initial device installation --
+before any disasters. This is consistent with planned infrastructure
+deployments where sensors are provisioned as part of their setup.
+
+\paragraph{Local Adversaries:}
+Attackers can monitor or disrupt communication within local regions but cannot
+coordinate simultaneous attacks across the entire network. This reflects the
+physical constraints of \gls{RF} jamming and the distributed nature of disaster
+scenarios.
+
+\subsection{Threat Model}
+
+A sophisticated adversary capable of large-scale infrastructure compromise
+would target communication systems regardless of deployed security mechanisms,
+so our threat model prioritizes resilience against infrastructure
+\emph{failure} while providing reasonable security against opportunistic
+attacks during disasters.
+
+We consider adversaries with the following capabilities, and briefly present
+our corresponding defenses:
+
+\begin{itemize}
+    \item \textbf{Passive observation:} Can monitor wireless communications
+        within radio range. \gls{AES} encryption prevents plaintext exposure.
+    \item \textbf{Active interference:} Can disrupt specific protocols or
+        channels locally. Multi-protocol diversity enables fallback to
+        available mediums.
+    \item \textbf{Node compromise:} Can physically remove devices from the
+        network (denial of service). Flash encryption prevents secret
+        extraction from captured devices.
+    \item \textbf{Message injection:} Can attempt to inject forged messages
+        without valid credentials. \gls{MAC} verification detects and rejects
+        unauthorized transmissions.
+    \item \textbf{Replay attacks:} Capture and retransmit previously valid
+        messages. Sequence numbers or timestamp-based checks can detect and
+        reject stale messages.
+\end{itemize}
+
+\subsection{Explicitly Out of Scope}
+
+\inlinetodo{meter algo aqui ou not really? byzantine attacks, etc?}

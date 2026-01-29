@@ -1,0 +1,128 @@
+%!TEX root = ../../template.tex
+
+\section{Wireless Communication Technologies}
+\label{sec:wireless_comms}
+
+A core pillar of resilient and decentralized \gls{iot} systems is the
+heterogeneity of available communication capabilities and wireless protocols
+across different layers of the communication stack.
+Different technologies naturally expose different trade-offs in terms of
+infrastructure requirements, range, throughput, discovery mechanisms, and
+energy consumption -- all of which directly influence the design choices around
+their usage.
+
+There is no single communication protocol that fully addresses the requirements
+of infrastructure-free and disaster-resilient operation. As such, it is
+important to establish the capabilities and limitations of each one, as well as
+their potential for harmonious cooperation within a unified system.
+
+\subsection{Application-Layer Protocols}
+
+At the application layer, two messaging protocols stand out given their
+wide-spread adoption in \gls{iot} deployments:
+
+\begin{description}
+    \item[\textbf{\gls{MQTT}:}] A lightweight publish/subscribe messaging
+        protocol designed for constrained devices and unreliable, low-bandwidth
+        networks. It relies on a centralized \emph{broker} to mediate
+        communication between publishers and subscribers -- essential, a
+        server.
+    
+    \item[\textbf{\gls{CoAP}~\cite{coap2012,rfc7252}:}] A RESTful,
+        request/response protocol designed for constrained environments.
+        Operates over \gls{UDP} and assumes the presence of well-known
+        endpoints or proxy servers for resource discovery and access.
+\end{description}
+
+Both protocols inherently assume the availability of stable endpoints, and rely
+on continuous network connectivity in order to operate. These assumptions
+conflict with the infrastructure-less and failure-prone environments targeted
+by \gls{ubabel}. For this reason, while such protocols are of interest for
+broader interoperability (see Non-Functional Requirements in
+Section~\ref{subsubsec:nonfunc_reqs}), they are not a part of the foundational
+protocols employed by this work.
+
+\subsection{Physical- and Link-Layer Technologies}
+
+This section reviews the physical- and link-layer wireless technologies
+relevant to resilient and decentralized \gls{iot} deployments. While the
+previous section addressed higher-layer messaging protocols, the technologies
+discussed here provide the foundational communication stack that determines the
+behavior of \gls{ubabel}.
+
+Table~\ref{tab:protocol_specs} details the basic operational characteristics of
+the wireless communication technologies considered in this work.
+
+\rowcolors{1}{}{GhostWhite}
+\begin{table}[htbp]
+	\centering
+	\caption{Protocol Characteristics}
+	\label{tab:protocol_specs}
+	\footnotesize
+	\begin{tabular}{@{}lccccc@{}}
+		\toprule
+		\rowcolor{Gainsboro}%
+		\textbf{Protocol}  & \textbf{Discovery}        & \textbf{Range$^1$} & \textbf{Frequency}  & \textbf{Data Rate} & \textbf{Power Draw} \\
+		\midrule
+		Wi-Fi              & \glslink{SSID}{SSID} scan & 50-100 m           & 2.4 GHz             & 1-50 Mbps          & High                \\
+		\glslink{BLE}{BLE} & Advertising               & 10-50 m            & 2.4 GHz             & 1-2 Mbps           & Low                 \\
+		\gls{ESP-NOW}      & Peer list                 & 50-100 m           & 2.4 GHz             & ~1 Mbps            & Very Low            \\
+		\gls{ZigBee}       & Beacon                    & 10-100 m           & 2.4 GHz             & 250 Kbps           & Very Low            \\
+		\gls{LoRa}         & Preamble detection        & 2-10 km            & 433/868/915 MHz$^2$ & 0.3-50 Kbps$^3$    & Low$^3$             \\
+		\bottomrule
+		\multicolumn{6}{p{\linewidth}}{\footnotesize
+			$^1$ Outdoor line-of-sight; indoor ranges typically 30-50\% lower
+		}                                                                                                                                    \\
+		\multicolumn{6}{p{\linewidth}}{\footnotesize
+			$^2$ Frequency depends on regional regulations
+		}                                                                                                                                    \\
+		\multicolumn{6}{p{\linewidth}}{\footnotesize
+			$^3$ Data rate and power consumption depend on \gls{SF}; higher \gls{SF} = longer range, lower rate, higher energy cost
+		}                                                                                                                                    \\
+	\end{tabular}
+\end{table}
+\todo{get actual power draw values from somewhere}
+
+These characteristics drive protocol selection based on deployment context and
+communication requirements:
+
+\paragraph{Range vs. Throughput Trade-offs:} \gls{LoRa} provides 2-10 km range
+(with appropriate antenna configurations) but very limited throughput (0.3-50
+Kbps), suitable for sparse periodic synchronization between distant partitions.
+\gls{BLE} and \gls{ESP-NOW} offer moderate range (50-100 m) with higher
+throughput (1-2 Mbps), appropriate for dense local deployments where multi-hop
+forwarding is feasible and often required.
+
+\paragraph{Discovery Mechanisms:} Different protocols employ distinct peer
+discovery approaches. \gls{BLE} advertising enables continuous passive
+discovery, \gls{ESP-NOW} requires explicit peer lists, and \gls{ZigBee} uses
+beacon-based association. \gls{ubabel}'s hybrid discovery mechanism
+(Section~\ref{component:multi_protocol}) will accommodate these differences
+while maintaining a unified peer view across protocols.
+
+\paragraph{Energy Considerations:} Protocol selection must account for energy
+costs: Wi-Fi consumes significantly more power than \gls{BLE}, while
+\gls{LoRa} power consumption depends heavily on \gls{SF} configuration. The
+data compression mechanisms (Section~\ref{component:reduction_compression})
+interact with protocol selection to minimize overall energy expenditure.\\
+
+Together, these protocol characteristics illustrate the inherent trade-offs
+faced by resilient \gls{iot} deployments operating without reliable
+infrastructure. Understanding how range, throughput, discovery mechanisms and
+energy consumption vary across communication technologies is essential to
+establish an architecture that can adaptively leverage multiple protocols
+instead of relying on a single one.
+
+\subsection{Discussion}
+\label{subsec:rw_discussion_1}
+
+The communication technologies highlight that no single protocol can
+simultaneously optimize for range, throughput, energy efficiency, and autonomy
+under infrastructure failures. Instead, resilience emerges from the ability
+to combine the complimentary features of each technology and adapt communication
+strategies to the specific context and requirements of a given environment.
+
+These observations motivate an approach in which diversity is
+treated as a first-class requirement, and provide the technological context for
+the multi-protocol operation and architectural choices discussed in
+Chapter~\ref{cha:solution_arch}.

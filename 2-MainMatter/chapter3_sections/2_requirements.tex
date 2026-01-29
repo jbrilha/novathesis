@@ -1,0 +1,100 @@
+%!TEX root = ../../template.tex
+
+\section{System Requirements}
+\label{sec:goals_requirements}
+
+\subsection{Overview of \gls{ubabel}'s Approach}
+
+% \gls{ubabel} addresses these concerns through a decentralized approach
+% that aims to eliminate the dependency on centralized coordination, continuous
+% connectivity and cloud infrastructure.
+%
+% Rather than treating infrastructure failures as an exceptional condition
+% requiring failover mechanisms, our architecture focuses on autonomous
+% \gls{P2P} connectivity as the baseline mode of operation, with
+% infrastructure integration as an added benefit when available, rather than a
+% hard dependency.
+%
+% This approach means rethinking multiple aspects of traditional \gls{iot}
+% systems design: from multi-protocol communication strategies that adapt to the
+% available mediums and device resources without centralized control, to
+% gossip-based synchronization mechanisms that achieve coordination through local
+% interactions, to lightweight data compression techniques to make the most out
+% of the limited storage and battery available in each device.
+
+In order to effectively overcome the aforementioned challenges, we can
+highlight a set of functional requirements that \gls{ubabel} must meet in order
+to eliminate the \emph{dependency} on centralized coordination, continuous
+connectivity, and cloud infrastructure; and a set of non-functional
+requirements which would strengthen the overall quality of the framework and
+ensure it can be widely adopted with ease.
+
+\todo{or (non-)functional requirements}
+
+\subsubsection*{Functional Requirements}
+\label{subsubsec:func_reqs}
+
+\todo{"something something these are essential ..." ou o parágrafo anterior basta?}
+
+\paragraph{Infrastructure Independence:}
+
+The system must maintain communication capabilities when traditional
+infrastructure becomes unavailable. Rather than treating this
+unavailability as an exceptional condition requiring failover mechanisms, our
+architecture will focus on autonomous \gls{P2P} connectivity as the baseline
+mode of operation, with infrastructure integration as an added benefit when
+available, rather than a hard dependency.
+
+\paragraph{Autonomous Operation:}
+
+Devices will self-organize into functional networks, dispensing centralized
+coordinators and static master nodes. Instead, local \gls{P2P} gossip
+interactions will be the basis for coordination and synchronization.
+
+\paragraph{Multi-Protocol Exploitation:}
+
+Communication strategies will adapt to the available mediums and device
+resources without centralized control. Communications will continue despite
+disruption of individual protocols through adaptive selection and opportunistic
+protocol switching. Protocol diversity provides resilience through redundancy,
+and this should be achieved with minimal impact on the upper layers of the
+application (through abstractions).
+
+\paragraph{Scalability:}
+
+The system must support deployments ranging from small, localized networks to
+large-scale, highly distributed collections. Rather than requiring global
+knowledge of all participants, nodes organize into local groups where elected
+leaders maintain state only for their immediate members. This area-based
+approach -- analogous to \gls{OSPF}'s autonomous systems~\cite{rfc1247} --
+distributes coordination load and enables networks to scale while keeping
+per-node overhead bounded by local group size.
+
+\paragraph{Resource Efficiency:}
+
+Embedded platforms inevitably present strict resource constraints (i.e., memory
+storage, processing, battery), thus all protocols and algorithms must execute
+within these limitations. In order to enable this, lightweight data compression
+and reduction techniques will be employed to make the most out of the limited
+storage and battery available, and adaptive protocol selection will take into
+account device capabilities and available resources.
+
+\subsubsection*{Non-Functional Requirements}
+\label{subsubsec:nonfunc_reqs}
+
+\todo{"something something these are not essential ..." ou o parágrafo anterior basta?}
+
+\paragraph{Optional Cloud Integration:}
+
+When infrastructure \emph{is} available, it should be taken advantage of. Thus,
+\gls{ubabel} will exploit it for tasks that are beyond the capabilities of
+individual nodes or even gateways, such as data aggregation, analytics, and
+long-term storage. Cloud integration thus becomes an optional -- and welcome --
+addition to the repertoire of features, but does not itself become a
+requirement for dependable operation.
+
+\paragraph{Interoperability:}
+
+Following optional cloud integration, widely used \gls{iot} protocols such as
+\gls{MQTT} and \gls{CoAP} can be leveraged to enable integration with existing
+\gls{iot} platforms and services when conditions allow.

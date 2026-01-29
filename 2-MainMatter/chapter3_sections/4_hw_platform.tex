@@ -1,0 +1,248 @@
+%!TEX root = ../../template.tex
+
+\section{Hardware Platform}
+\label{sec:hw_platform}
+
+\gls{ubabel} targets resource-constrained embedded platforms commonly used in
+\gls{iot} and domotics systems. The following sections cover device
+specifications and communication protocol characteristics, establishing the
+foundation for our multi-protocol, heterogeneous architecture.
+
+We distinguish between two device classes based on their capabilities and roles
+within the architecture:
+
+\paragraph{Class-1: Battery-Powered Sensor Nodes:} The primary targets for
+\gls{ubabel}. These embedded devices handle sensing, actuation, \gls{P2P}
+communication, and decentralized coordination without requiring external
+infrastructure. \gls{ubabel} operates autonomously with Class-1 devices alone.
+
+\paragraph{Class-2: Optional Aggregation Nodes:} Resource-rich devices that can
+enhance deployments with data aggregation, and optional cloud bridging when
+infrastructure is available. These devices run the broader
+Babel~\cite{fouto2022babel} framework and are mentioned here for completeness,
+but are not required for \gls{ubabel}'s core autonomous operation.
+
+\subsection{Class-1: Sensor Nodes}
+
+Table~\ref{tab:c1_device_specs} presents the resources available across Class-1
+devices. These span from basic sensor nodes (Pico 2W, ESP32-C5/C6) to more
+capable embedded devices (ESP32-S3/P4), enabling role differentiation
+within the autonomous peer network.
+
+\todo{figure out table spacing issues }
+\rowcolors{1}{}{GhostWhite}
+\begin{table}[htbp]
+	\centering
+	\caption{Class-1 Device Specifications}
+	\label{tab:c1_device_specs}
+	\footnotesize
+	\begin{tabular}{@{}l p{5.2cm} c c c c @{}}
+		\toprule
+		\rowcolor{Gainsboro}%
+		\textbf{Device}       & \textbf{\glslink{CPU}{CPU}$^1$} & \textbf{CPU Clock} & \textbf{\glslink{SRAM}{SRAM}} & \textbf{\glslink{PSRAM}{PSRAM}$^2$} & \textbf{Flash} \\
+		\midrule
+		Raspberry Pi Pico 2 W & Dual-Core Arm Cortex-M33        & 150 MHz            & 520 KB                        & \xmark                              & 4 MB           \\
+		ESP32                 & Dual-Core Xtensa LX6            & 240 MHz            & 520 KB                        & \xmark                              & 16 MB          \\
+		ESP32-C5              & Single-Core RISC-V              & 240 MHz            & 384 KB                        & \xmark                              & 4 MB           \\
+		ESP32-C6              & Single-Core RISC-V              & 160 MHz            & 512 KB                        & \xmark                              & 4 MB           \\
+		ESP32-S3              & Dual-Core Xtensa LX7            & 240 MHz            & 512 KB                        & 8 MB                                & 16 MB          \\
+		ESP32-P4              & Dual-Core RISC-V                & 360 MHz            & 768 KB                        & 32 MB                               & 32 MB          \\
+		\bottomrule
+		\multicolumn{6}{l}{\footnotesize $^1$ All supported devices are 32-bit}                                                                                             \\
+		\multicolumn{6}{p{\linewidth}}{\footnotesize
+			$^2$ \gls{PSRAM} is supported on all devices, but not available in the particular models used during development
+		}                                                                                                                                                                   \\
+	\end{tabular}
+\end{table}
+
+Resource availability within Class-1 devices varies significantly both in
+processing power and available memory. While there are no fixed roles,
+capability awareness naturally influences dynamic selection procedures:
+
+\paragraph{Group Leader Preference:} Higher-resource devices (ESP32-S3/P4) are
+prioritized in local \gls{GL} elections due to their ability to efficiently
+aggregate member \glspl{MAC} and maintain group state
+(Section~\ref{component:security_keys}). Resource availability merely
+influences preference, not eligibility.
+
+\paragraph{Protocol Bridging:} Devices with broader protocol support naturally
+serve as bridges between protocol domains, forwarding messages across different
+mediums based on advertised capabilities.\\
+
+\todo{not sure how pico handles it, tenho de confirmar se isto é verdade}
+All Class-1 devices support flash encryption for cryptographic primitive
+storage.
+
+\subsubsection*{Protocol Diversity and Device Coverage}
+
+Table~\ref{tab:device_protos} shows the communication protocols supported
+across Class-1 devices, demonstrating considerable heterogeneity.
+
+\rowcolors{1}{}{GhostWhite}
+\begin{table}[htbp]
+	\centering
+	\caption{Supported Communication Protocols}
+	\label{tab:device_protos}
+	\footnotesize
+	\begin{tabular}{@{}lccccc@{}}
+		\toprule
+		\rowcolor{Gainsboro}%
+		\textbf{Device} & \textbf{Wi-Fi} & \textbf{Bluetooth}     & \textbf{\gls{ESP-NOW}} & \textbf{\gls{ZigBee}} & \textbf{\gls{LoRa}$^1$} \\
+		\midrule
+		Pico 2W         & 2.4GHz         & Classic + \gls{LE} 5.2 & \xmark                 & \xmark                & \checkmark              \\
+		ESP32           & 2.4 GHz        & Classic + \gls{LE} 4.2 & \checkmark             & \xmark                & \checkmark              \\
+		ESP32-C5$^2$    & 2.4/5 GHz      & \gls{LE} 6.0           & \checkmark             & 3.0                   & \checkmark              \\
+		ESP32-C6$^2$    & 2.4 GHz        & \gls{LE} 5.3           & \checkmark             & 3.0                   & \checkmark              \\
+		ESP32-S3        & 2.4 GHz        & \gls{LE} 5.0           & \checkmark             & \xmark                & \checkmark              \\
+		ESP32-P4$^3$    & 2.4 GHz        & \gls{LE} 5.3           & \checkmark             & \xmark                & \checkmark              \\
+		\bottomrule
+		\multicolumn{6}{p{\linewidth}}{\footnotesize
+			$^1$ Via external SX1276/SX1262 transceiver, controlled through
+			\gls{SPI}
+		}                                                                                                                                    \\
+		\multicolumn{6}{p{\linewidth}}{\footnotesize
+			$^2$ ESP32-C5/C6 also support 802.11ax (Wi-Fi 6) and \gls{Thread},
+			but we focus on \gls{ZigBee} given its wider adoption in \gls{iot}
+			systems
+		}                                                                                                                                    \\
+		\multicolumn{6}{p{\linewidth}}{\footnotesize
+			$^3$ ESP32-P4 does not possess wireless capabilities by itself and
+			relies on a C6-Mini coprocessor, with ZigBee support still in
+			development
+		}                                                                                                                                    \\
+	\end{tabular}
+\end{table}
+
+Protocol support across devices provides several advantages:
+
+\paragraph{Coverage:} All devices support at least three protocols (Wi-Fi,
+\gls{BLE}, \gls{LoRa}), ensuring baseline multi-protocol operation across the
+entire platform range. Even the least capable device (Pico 2 W) can participate
+in protocol-diverse mesh networks.
+
+\paragraph{Protocol-Specific Advantages:} ESP32 family devices can leverage
+\gls{ESP-NOW} for \gls{P2P} communication without infrastructure. ESP32-C5/C6
+additionally provide \gls{ZigBee} support for standardized mesh networking --
+particularly interesting in building automation and domotics contexts.
+
+Notably, ESP32-C5 supports \gls{ESP-NOW} over both 2.4 and 5 GHz
+bands, which provides a crucial short-range alternative path for congested
+environments where \gls{BLE}, Wi-Fi and \gls{ZigBee} all contend for 2.4 GHz
+channels.
+
+\paragraph{Long-Range Capabilities:} All platforms support external \gls{LoRa}
+transceivers via \gls{SPI}, enabling long-range communication for disaster
+scenarios. This addresses the multi-protocol resilience requirements discussed
+in Section~\ref{sec:multi_protocol}.\\
+
+These factors combine to provide multi-protocol resilience: spectrum diversity
+across 2.4/5 GHz and sub-GHz bands, infrastructure-free operation via
+\gls{ESP-NOW} and \gls{BLE}, and long-range connectivity through \gls{LoRa}.
+
+% \subsubsection*{Protocol Characteristics}
+%
+% Table~\ref{tab:protocol_specs} details the basic operational characteristics of
+% each of the supported protocols.
+%
+% \todo{get actual power draw values from somewhere}
+%
+% \rowcolors{1}{}{GhostWhite}
+% \begin{table}[htbp]
+% 	\centering
+% 	\caption{Protocol Characteristics}
+% 	\label{tab:protocol_specs}
+% 	\footnotesize
+% 	\begin{tabular}{@{}lccccc@{}}
+% 		\toprule
+% 		\rowcolor{Gainsboro}%
+% 		\textbf{Protocol}  & \textbf{Discovery}        & \textbf{Range$^1$} & \textbf{Frequency}  & \textbf{Data Rate} & \textbf{Power Draw} \\
+% 		\midrule
+% 		Wi-Fi              & \glslink{SSID}{SSID} scan & 50-100 m           & 2.4 GHz             & 1-50 Mbps          & High                \\
+% 		\glslink{BLE}{BLE} & Advertising               & 10-50 m            & 2.4 GHz             & 1-2 Mbps           & Low                 \\
+% 		\gls{ESP-NOW}      & Peer list                 & 50-100 m           & 2.4 GHz             & ~1 Mbps            & Very Low            \\
+% 		\gls{ZigBee}       & Beacon                    & 10-100 m           & 2.4 GHz             & 250 Kbps           & Very Low            \\
+% 		\gls{LoRa}         & Preamble detection        & 2-10 km            & 433/868/915 MHz$^2$ & 0.3-50 Kbps$^3$    & Low$^3$             \\
+% 		\bottomrule
+% 		\multicolumn{6}{p{\linewidth}}{\footnotesize
+% 			$^1$ Outdoor line-of-sight; indoor ranges typically 30-50\% lower
+% 		}                                                                                                                                    \\
+% 		\multicolumn{6}{p{\linewidth}}{\footnotesize
+% 			$^2$ Frequency depends on regional regulations
+% 		}                                                                                                                                    \\
+% 		\multicolumn{6}{p{\linewidth}}{\footnotesize
+% 			$^3$ Data rate and power consumption depend on \gls{SF}; higher \gls{SF} = longer range, lower rate, higher energy cost
+% 		}                                                                                                                                    \\
+% 	\end{tabular}
+% \end{table}
+%
+% These characteristics drive protocol selection based on deployment context and
+% communication requirements:
+%
+% \paragraph{Range vs. Throughput Trade-offs:} \gls{LoRa} provides 2-10 km range
+% (with appropriate antenna configurations) but very limited throughput (0.3-50
+% Kbps), suitable for sparse periodic synchronization between distant partitions.
+% \gls{BLE} and \gls{ESP-NOW} offer moderate range (50-100 m) with higher
+% throughput (1-2 Mbps), appropriate for dense local deployments where multi-hop
+% forwarding is feasible and often required.
+%
+% \paragraph{Discovery Mechanisms:} Different protocols employ distinct peer
+% discovery approaches. \gls{BLE} advertising enables continuous passive
+% discovery, \gls{ESP-NOW} requires explicit peer lists, and \gls{ZigBee} uses
+% beacon-based association. \gls{ubabel}'s hybrid discovery mechanism
+% (Section~\ref{component:multi_protocol}) will accommodate these differences
+% while maintaining a unified peer view across protocols.
+%
+% \paragraph{Energy Considerations:} Protocol selection must account for energy
+% costs: Wi-Fi consumes significantly more power than \gls{BLE}, while
+% \gls{LoRa} power consumption depends heavily on \gls{SF} configuration. The
+% data compression mechanisms (Section~\ref{component:reduction_compression})
+% interact with protocol selection to minimize overall energy expenditure.\\
+%
+\todo{REWORD THIS SINCE IT WAS MOVED}
+Together, these device capabilities and protocol characteristics establish the
+hardware foundation for \gls{ubabel}'s infrastructure-independent operation.
+The following section details how these resources are orchestrated through
+\gls{ubabel}'s architectural approach.
+
+\subsection{Class-2: Aggregation Nodes}
+
+For deployments where additional resources are available, Class-2 devices can
+enhance \gls{ubabel} networks without introducing coordinator dependencies.
+Table~\ref{tab:c2_device_specs} presents the resources available to these
+devices.
+
+\rowcolors{1}{}{GhostWhite}
+\begin{table}[htbp]
+	\centering
+	\caption{Class-2 Device Specifications}
+	\label{tab:c2_device_specs}
+	\footnotesize
+	\begin{tabular}{@{}l p{5.2cm} c c c @{}}
+		\toprule
+		\rowcolor{Gainsboro}%
+		\textbf{Device} & \textbf{\glslink{CPU}{CPU}$^1$} & \textbf{CPU Clock} & \textbf{\glslink{RAM}{RAM}}$^1$ & \textbf{Storage}  \\
+		\midrule
+		Raspberry Pi 5  & Quad-Core 64-bit Arm Cortex-A76 & 2.4 GHz            & 4-16 GB                         & Variable external \\
+		Raspberry Pi 4  & Quad-Core 64-bit Arm Cortex-A72 & 1.8 GHz            & 4-8 GB                          & Variable external \\
+		\bottomrule
+		\multicolumn{5}{p{\linewidth}}{\footnotesize
+			$^1$ Configurations with less \gls{RAM} are available but were not considered
+		}                                                                                                                            \\
+	\end{tabular}
+\end{table}
+
+Class-2 devices serve as \emph{optional} infrastructure that, when present,
+can perform:
+\begin{itemize}
+	\item Data aggregation and long-term storage
+	\item Computationally intensive analytics beyond Class-1 capabilities
+	\item Optional cloud bridging when external connectivity is available and
+	      desired (e.g., \gls{MQTT} brokerage, \gls{CoAP} endpoints)
+\end{itemize}
+
+Critically, Class-2 devices \emph{do not} serve as coordinators or single
+points of failure. \gls{ubabel} networks will operate fully autonomously with
+Class-1 devices alone; Class-2 nodes participate as peers that happen to have
+greater resources, not as masters. Their absence does not prevent network
+formation, peer discovery, or autonomous operation.
+

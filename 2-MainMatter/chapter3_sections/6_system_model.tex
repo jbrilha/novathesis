@@ -3,34 +3,22 @@
 \section{System Model} % (fold)
 \label{sec:system_model}
 
-\subsection{Como se pretende resolver cada desafio}
+\subsection{Architecture}
 
-\textbf{\gls{ubabel}} addresses these concerns through a decentralized approach
-that aims to eliminate the dependency on centralized coordination, continuous
-connectivity and cloud infrastructure.
+The foundational building blocks of the \gls{ubabel} architecture can be
+separated into the following \emph{components}, which aim to address each of
+the aforementioned technical challenges.
 
-Rather than treating infrastructure failures as an exceptional condition
-requiring failover mechanisms, our architecture focuses on autonomous
-\gls{P2P} connectivity as the baseline mode of operation, with
-infrastructure integration as an added benefit when available, rather than a
-hard dependency.
+\subsubsection*{Mesh Topology Manager}
+\label{component:p2p_mesh}
 
-This approach means rethinking multiple aspects of traditional \gls{iot}
-systems design: from multi-protocol communication strategies that adapt to the
-available mediums and device resources without centralized control, to
-gossip-based synchronization mechanisms that achieve coordination through local
-interactions, to lightweight data compression techniques to make the most out
-of the limited storage and battery available in each device.
+As discussed in Section~\ref{sec:p2p_mesh}, tree topologies and
+coordinator-based approaches limit resilience, and heavyweight middleware
+platforms or HyParView's routing and \gls{TCP} requirements exceed embedded
+device capabilities.
 
-
-\subsection{MicroBabel's Approach}
-\label{subsec:microbabel_approach_1}
-
-Tree topologies and coordinator-based approaches limit resilience, and
-heavyweight middleware platforms or HyParView's \gls{TCP} requirements exceed
-embedded device capabilities.
-
-\textbf{\gls{ubabel}} intends to address these limitations through a fully
+\todo{"temos ainda de endereçar o wireless"}
+\gls{ubabel} intends to address these limitations through a fully
 distributed \gls{P2P} mesh architecture without coordinator dependencies. The
 system adapts HyParView's hybrid view concept (maintaining small active
 neighbor sets for actual communication and larger passive backup lists for
@@ -38,7 +26,6 @@ failure recovery) but implements discovery and maintenance at the link layer
 using \gls{BLE} and \gls{LoRa} advertisements rather than at the transport
 layer via \gls{TCP} connections, accommodating the connectionless nature of
 embedded radio/wireless communication.
-\todo{FIXED: BLE/LORA mismatch with TCP}
 
 Neighbor discovery is performed through advertising beacons emitted by one or
 more of the supported protocols (e.g., \gls{BLE}, \gls{LoRa}, Wi-Fi) carrying
@@ -46,21 +33,18 @@ relevant peering information (node identity, capabilities, current neighbor
 counts, etc.), with periodic gossip exchanges that propagate topology
 information beyond single-hop range.
 
-It's 
-\todo{FIXED: addressed dupes and bridges}
-immediately apparent that -- if these exchanges aren't properly integrated
+It's immediately apparent that -- if these exchanges aren't properly integrated
 -- the same node advertising itself through different protocols could lead to
 duplicate neighbor entries on the receiver side. To address this, nodes possess
 unique IDs that are consistent across protocols, and by advertising their
 capabilities they simultaneously inform potential neighbors of which protocols
 they can expect to receive their advertisements from, which prevents
 unnecessary processing of packets that would only contain redundant information
-(e.g., by peeking at the sender's ID).
-Nodes supporting multiple protocols naturally serve as bridges, enabling
-topology formation and message forwarding between nodes that might not share
-the same protocol stack, this is exemplified in Figure~\ref{fig:something}.
+(e.g., by peeking at the sender's ID). Nodes supporting multiple protocols
+naturally serve as bridges, enabling topology formation and message forwarding
+between nodes that might not share the same protocol stack, this is exemplified
+in Figure~\ref{fig:something}.
 \todo{ADD FIGURE WITH (LORA ONLY) -> (BLE/LORA) -> (BLE ONLY)}
-
 
 This approach mitigates potential range limitations: while \gls{BLE} typically
 provides 10-50m coverage depending on environment and antenna configuration,
@@ -69,7 +53,7 @@ multi-hop dissemination, supporting informed routing decisions and topology
 adaptation.
 
 Unlike the tree topology of Multi-Protocol Gateway or the \gls{RPL} \gls{DODAG}
-structure of heterogeneous disaster architecture, \textbf{\gls{ubabel}} will
+structure of heterogeneous disaster architecture, \gls{ubabel} will
 implement true \gls{P2P} mesh networking where any node can communicate with
 any other node through dynamically selected multi-hop paths.
 
@@ -88,14 +72,15 @@ switching creating new communication opportunities.
 Coordination emerges from local interactions via gossip-based information
 propagation, decentralized time synchronization
 (Section~\ref{sec:decentralized_sync}), and adaptive protocol selection
-(Section~\ref{sec:multi_protocol}), rather than centralized allocation of roles.
+(Section~\ref{sec:multi_protocol}), rather than centralized allocation or
+scheduling of roles.
 
-\subsection{MicroBabel's Approach}
-\label{subsec:microbabel_approach_2}
+\subsubsection*{Multi-Protocol Communication Layer}
+\label{component:multi_protocol}
 
 While existing multi-channel approaches rely on centralized decision-making for
 channel selection -- whether through master nodes (MCSC-WoT), \gls{SDN} controllers
-(MINOS), or infrastructure endpoints -- \textbf{\gls{ubabel}} will address these
+(MINOS), or infrastructure endpoints -- \gls{ubabel} will address these
 limitations through decentralized \emph{protocol} selection, extending beyond
 single-medium channel hopping.
 
@@ -116,24 +101,24 @@ compression for (relatively) energy-expensive \gls{LoRa}, lighter compression fo
 short-range \gls{BLE}), integrating the receiver energy asymmetry observations into
 power management decisions.
 
-Unlike AWCT's \gls{LoRaWAN} gateway dependency, Heterogeneous \gls{iot}'s \gls{NVIS} centralized
-backhaul, MCSC-WoT's master-based synchronization, or MINOS's \gls{SDN} controller
-requirement, \textbf{\gls{ubabel}} operates autonomously in a \gls{P2P}
-manner with no static coordinator dependencies.
+Unlike AWCT's \gls{LoRaWAN} gateway dependency, Heterogeneous \gls{iot}'s
+\gls{NVIS} centralized backhaul, MCSC-WoT's master-based synchronization, or
+MINOS's \gls{SDN} controller requirement, \gls{ubabel} operates autonomously in
+a \gls{P2P} manner with no static coordinator dependencies.
 
 The multi-protocol capability provides resilience through diversity rather than
 optimization through centralized selection: when conditions render one medium
 unsuitable, devices autonomously transition to alternatives without requiring
 coordinator intervention.
 
-\subsection{MicroBabel's Approach}
-\label{subsec:microbabel_approach_3}
+\subsubsection*{Decentralized Synchronization Service}
+\label{component:decentralized_sync}
 
 While MCSC-WoT demonstrates master-based synchronization feasibility and
 \gls{RGCS} provides masterless convergence, both assume homogeneous
 single-protocol networks.
 
-\textbf{\gls{ubabel}} will extend \gls{RGCS} to heterogeneous multi-protocol
+\gls{ubabel} will extend \gls{RGCS} to heterogeneous multi-protocol
 networks through protocol-specific Poisson processes with distinct activation
 rates. Rather than a single $\lambda$ controlling overall sync frequency, the
 system employs per-protocol gossip rates that take into account the energy
@@ -192,11 +177,12 @@ assumptions, since heterogeneous gossip graphs with protocol-specific
 characteristics warrant distinct sync frequencies, enabling simultaneous
 optimization of convergence speed, energy consumption, and range coverage.
 
-\subsection{MicroBabel's Approach}
-\label{subsec:microbabel_approach_4}
+\subsubsection*{Data Reduction and Compression Module}
+\label{component:reduction_compression}
+\todo{maybe not worth defining as a ""component"" per se}
 
 Extending Ambrosia's lightweight prediction approach to multi-protocol
-scenarios, \textbf{\gls{ubabel}} will reduce data transmission through
+scenarios, \gls{ubabel} will reduce data transmission through
 prediction-based filtering: nodes transmit sensor readings only when prediction
 error exceeds configurable thresholds (similar to Ambrosia), with
 protocol-aware tuning to balance accuracy against energy constraints across
@@ -255,78 +241,59 @@ will provide substantial energy savings without requiring complex and
 computationally intensive compression algorithms that would themselves consume
 significant power.
 
-\subsection{MicroBabel's Approach}
-\label{subsec:microbabel_approach_5}
-
-While zero-config approaches face circular authentication dependencies and
-centralized schemes fail when infrastructure collapses, \textbf{\gls{ubabel}}
-will adopt a hybrid security model that distinguishes between pre-disaster
-deployment and post-disaster autonomous operation.
-
-\begin{description}
-    \item \textbf{Pre-disaster deployment phase:} For planned installations
-        (building sensor networks, campus-wide monitoring), devices are
-        provisioned during initial deployment:
-
-        \begin{itemize}
-            \item \textbf{LPKM polynomial shares:} Preloaded via \gls{KDC} for
-                distributed key management
-            \item \textbf{GASE secret-shadows:} Two per node for threshold
-                authentication ($(t-1)$-of-$n$ reveal protocol)
-        \end{itemize}
-
-        These are reasonable assumptions for disaster-resilience scenarios, as
-        preparation happens before any emergency operation needs to take place.
-
-	\item \textbf{Post-disaster autonomous operation:} Once a disaster occurs
-	      and infrastructure fails, the network operates autonomously using
-	      mechanisms that require no central coordination:
-
-	      \begin{itemize}
-              \item \textbf{Threshold-based authentication} (adapted from
-                  \gls{GASE}): Nodes form ad-hoc authentication groups where
-                  $(t-1)$-of-$n$ members reveal secret shares (pre-distributed)
-                  to derive session keys via Lagrange interpolation. Local
-                  coordinator election replaces GASE's centralized \glspl{GL}
-                  Session key derivation combines group secrets with
-                  device-specific keys to prevent impersonation, while
-                  aggregated \gls{MAC} tags enable efficient multi-node
-                  verification without individual authentication overhead.
-                  \todo{too dense?}
-              \item \textbf{Distributed revocation} (adapted from \gls{LPKM}):
-                  nodes independently compute updated keys excluding
-                  compromised peers, with revocation decisions propagated via
-                  gossip
-              \item \textbf{Periodic share updating} (adapted from \gls{LPKM}):
-                  timer-based key refresh for backward secrecy, no coordinator
-                  needed
-              \item \textbf{Lightweight encryption}: \gls{AES} encryption
-                  (demonstrated by MCSC-WoT on ESP32) with
-                  compress-then-encrypt strategies
-                  (Section~\ref{sec:data_compression}) to minimize ciphertext
-                  size and transmission energy
-              \item \textbf{Channel hopping/protocol switching for security}:
-                  multi-channel/multi-protocol operation complicates
-                  eavesdropping and uses masterless synchronization
-                  (\gls{RGCS}) rather than master-based beacons
-	      \end{itemize}
-
-	\item \textbf{Threat model:} The system will prioritize availability and
-	      resilience over complete compromise resistance. Assumptions include:
-
-	      \begin{itemize}
-		      \item \textbf{Honest majority}: most nodes behave correctly;
-		            adversaries cannot compromise majority simultaneously
-              \item \textbf{Local adversary}: attackers can monitor/disrupt
-                  local regions but not entire network simultaneously
-		      \item \textbf{Physical security during deployment}: devices can be
-		            provisioned securely before disaster strikes
-	      \end{itemize}
-
-          This threat model reflects emergency priorities where maintaining
-          communication capability matters more than preventing all possible
-          attacks. If an adversary with sophisticated capabilities attacks
-          during a disaster, communication infrastructure would already be
-          their target regardless of security mechanisms.
-\end{description}
-
+% \subsubsection*{Security and Key Management}
+% \label{component:security_keys}
+%
+% While zero-config approaches face circular authentication dependencies and
+% centralized schemes fail when infrastructure collapses, \gls{ubabel}
+% will adopt a hybrid security model that distinguishes between pre-disaster
+% deployment and post-disaster autonomous operation.
+%
+% \begin{description}
+% 	\item \textbf{Pre-disaster deployment phase:} For planned installations
+% 	      (building sensor networks, campus-wide monitoring), devices are
+% 	      provisioned during initial deployment:
+%
+% 	      \begin{itemize}
+% 		      \item \textbf{LPKM polynomial shares:} Preloaded via \gls{KDC} for
+% 		            distributed key management
+% 		      \item \textbf{GASE secret-shadows:} Two per node for threshold
+% 		            authentication ($(t-1)$-of-$n$ reveal protocol)
+% 	      \end{itemize}
+%
+% 	      These are reasonable assumptions for disaster-resilience scenarios, as
+% 	      preparation happens before any emergency operation needs to take place.
+%
+% 	\item \textbf{Post-disaster autonomous operation:} Once a disaster occurs
+% 	      and infrastructure fails, the network operates autonomously using
+% 	      mechanisms that require no central coordination:
+%
+% 	      \begin{itemize}
+% 		      \item \textbf{Threshold-based authentication} (adapted from
+% 		            \gls{GASE}): Nodes form ad-hoc authentication groups where
+% 		            $(t-1)$-of-$n$ members reveal secret shares (pre-distributed)
+% 		            to derive session keys via Lagrange interpolation. Local
+% 		            coordinator election replaces GASE's centralized \glspl{GL}
+% 		            Session key derivation combines group secrets with
+% 		            device-specific keys to prevent impersonation, while
+% 		            aggregated \gls{MAC} tags enable efficient multi-node
+% 		            verification without individual authentication overhead.
+% 		            \todo{too dense?}
+% 		      \item \textbf{Distributed revocation} (adapted from \gls{LPKM}):
+% 		            nodes independently compute updated keys excluding
+% 		            compromised peers, with revocation decisions propagated via
+% 		            gossip
+% 		      \item \textbf{Periodic share updating} (adapted from \gls{LPKM}):
+% 		            timer-based key refresh for backward secrecy, no coordinator
+% 		            needed
+% 		      \item \textbf{Lightweight encryption}: \gls{AES} encryption
+% 		            (demonstrated by MCSC-WoT on ESP32) with
+% 		            compress-then-encrypt strategies
+% 		            (Section~\ref{sec:data_compression}) to minimize ciphertext
+% 		            size and transmission energy
+% 		      \item \textbf{Channel hopping/protocol switching for security}:
+% 		            multi-channel/multi-protocol operation complicates
+% 		            eavesdropping and uses masterless synchronization
+% 		            (\gls{RGCS}) rather than master-based beacons
+% 	      \end{itemize}
+% \end{description}

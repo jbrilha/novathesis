@@ -7,12 +7,12 @@ Multi-channel communication strategies, particularly those that employ
 coordinated channel hopping for security or efficiency reasons, require nodes
 to maintain synchronized clocks. Without time synchronization, devices cannot
 agree on when to switch channels, rendering coordinated multi-protocol
-operation impossible.
+operation unfeasible.
 
 Traditional master-based synchronization approaches -- where a designated
 coordinator is responsible for communicating timing signals -- once more fall
-into the trap of having a single point of failure in that same master node:
-should it fail, the entire network becomes susceptible to losing accurate
+into the limitation of having a single point of failure in that same master
+node: should it fail, the entire network becomes susceptible to losing accurate
 temporal reference, leading to the collapse of any coordination efforts.
 
 This is a notorious challenge to overcome when designing distributed systems,
@@ -33,11 +33,11 @@ framework~\cite{mcsc-wot} demonstrates a security-focused multi-channel hopping
 approach aimed at embedded platforms, but with a fundamental dependency on a
 master node broadcasting synchronization signals.
 
-This approach uses a shared \gls{PRNG} seed to generate channel-hopping sequences,
-with the master node broadcasting periodic synchronization beacons that slave
-nodes use to compensate for clock drift. Nodes that lose synchronization
-altogether can rejoin by hopping to a random channel and waiting for the next
-master beacon.
+This approach uses a shared \gls{PRNG} seed to generate channel-hopping
+sequences, with the coordinator node broadcasting periodic synchronization
+beacons that participant nodes use to compensate for clock drift. Nodes that
+lose synchronization altogether can rejoin by hopping to a random channel and
+waiting for the next coordinator beacon.
 
 While the proposed goals were achieved in terms of minimizing energy
 expenditure and maintaining \gls{FHSS} patterns, it inherits the fundamental
@@ -59,7 +59,7 @@ infrastructure-independent operation requirements we aim to fulfill.
 Decentralized time synchronization eliminates coordinator dependencies by
 having nodes reach consensus on clock values through distributed local
 interactions. Two complementary approaches demonstrate the viability of
-gossip-based synchronization for wireless sensor networks.\todo{mau usar WSN aqui? é o mencionado nos papers}
+gossip-based synchronization for \glspl{WSN}.
 
 The \gls{RGCS} algorithm proposed
 in~\cite{rgcs2018} addresses time synchronization in dynamic \glspl{WSN} through
@@ -90,11 +90,11 @@ with nodes adjusting $\beta$ parameters based on the difference between their
 and the neighbors' logical clocks.
 
 Bounded communication delays are handled through a least-square estimation
-low-pass filter.\todo{não sei se sei explicar este low-pass filter, vale a
-	pena?} This addresses the realistic concern of uplink and downlink delays
-differing, and avoids the symmetric delay assumptions made by many theoretical
-protocols. The filter's weighing parameter decreases over time, in order to
-restrain the negative effects of additive noise in stochastic approximation.
+low-pass filter.This addresses the realistic concern of uplink and downlink
+delays differing, and avoids the symmetric delay assumptions made by many
+theoretical protocols. The filter's weighing parameter decreases over time, in
+order to restrain the negative effects of additive noise in stochastic
+approximation.
 
 Storage complexity remains O($|N_i|$) per node per iteration (proportional only
 to the number of neighbors, not network size) thus ensuring scalability. The
@@ -109,13 +109,9 @@ As discussed in Section~\ref{subsec:peer_disc}, the shuffle-based passive view
 maintenance presented in HyParView~\cite{hyparview2007} provides a
 complementary coordination mechanism. While primarily designed for topology
 management, the periodic shuffle operations in which nodes exchange lists of
-known peers also provide a \emph{catalog} with potential synchronization
-partners beyond their immediate active neighbors. When a node receives a
-shuffle message containing peer descriptors (IDs and capabilities), it can
-evaluate these peers as candidates for time synchronization based on their
-advertised characteristics -- for instance, prioritizing peers with \gls{NTP}
-access or those maintaining more reliable clock sources.
-\todo{FIXED: quantum leap? mencionar aqui GPS clock sync como possibilidade?}
+known peers can also provide a \emph{catalog} of potential synchronization
+partners beyond their immediate active neighbors.
+\todo{FIXED: moved NTP and GPS talk to discussion}
 
 Nodes performing shuffle exchanges already communicate periodically; these same
 communication windows can opportunistically carry synchronization messages
@@ -126,7 +122,7 @@ providing added resilience to topology changes without requiring global network
 knowledge.
 
 \subsection{Discussion}
-\label{subsec:rw_discussion_3}
+\label{subsec:rw_discussion_4}
 
 Master-based synchronization approaches like MCSC-WoT~\cite{mcsc-wot}
 demonstrate feasibility on ESP32 platforms with measured AES encryption
@@ -143,14 +139,22 @@ range properties.
 HyParView's~\cite{hyparview2007} shuffle-based passive view maintenance
 provides complementary coordination through periodic peer exchanges that could
 carry piggybacked sync messages, but was not designed for time synchronization
-integration.\\
+integration. 
+\todo{FIXED: aqui}
+One example would be when a node receives a shuffle message
+containing peer descriptors (IDs and capabilities): it can evaluate these peers
+as candidates for time synchronization based on their advertised
+characteristics -- for instance, prioritizing peers with access to \gls{NTP},
+\gls{GPS} clock synchronization, or simply those maintaining more reliable
+clock sources.
+\\
 
-No existing work addresses decentralized time synchronization across
+We have found no work that addresses decentralized time synchronization across
 heterogeneous multi-protocol networks where different communication
 technologies (\gls{BLE}, \gls{LoRa}, Wi-Fi) have distinct energy costs, range,
 and reliability properties that warrant protocol-specific gossip rates.
 
-\textbf{\gls{ubabel}}'s approach (Section~\ref{subsec:microbabel_approach_3})
-must extend \gls{RGCS} to multi-protocol scenarios with per-protocol Poisson
-processes while guaranteeing and preventing protocol selection oscillations
-during sync events.
+\gls{ubabel}'s approach (Section~\ref{component:decentralized_sync}) will
+strive to extend \gls{RGCS} to multi-protocol scenarios with per-protocol
+Poisson processes while preventing protocol selection oscillations during sync
+events.

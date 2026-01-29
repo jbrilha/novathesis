@@ -1,0 +1,57 @@
+%!TEX root = ../../template.tex
+
+\section{Security Considerations and Scope Delimitation}
+\label{sec:security_scope}
+
+This thesis focuses on resilience and decentralization at the physical and link
+layers, and, as such, security mechanisms operating at higher layers (i.e.,
+authentication, key management, privacy-preserving mechanisms) are considered
+out of scope for the present body of work.
+
+Security and privacy are nonetheless critical concerns in emergency and
+disaster-focused scenarios, where sensitive data such as location tracking and
+environmental conditions could be the target of malicious actors seeking to
+disrupt system operation, inject false information, or compromise user safety.
+
+Substantial research effort has been devoted to addressing these concerns in
+resource-constrained \gls{iot} systems. While a comprehensive discussion of
+such mechanisms is beyond the scope of this work, a brief overview of relevant
+approaches is provided below to contextualize potential future extensions of
+the proposed \gls{ubabel} framework.\\
+
+Several lightweight authentication and key management approaches demonstrate
+that cryptographic operations based on hash functions, symmetric encryption and
+polynomial secret sharing are feasible on embedded platforms. The
+\gls{GASE}~\cite{gase2023} relies on aggregated \glspl{MAC} and threshold
+techniques to reduce computational overhead, while the \gls{LPKM}
+protocol~\cite{lpkm2013} enables scalable and pairwise key establishment with
+low storage requirements and distributed revocation. Symmetric encryption --
+notably \gls{AES} -- has been proven to be practical on ESP32 devices without
+prohibitive performance or energy costs, as demonstrated by the MCSC-WoT
+framework~\cite{mcsc-wot}.\\
+
+Other lines of work approach privacy-preservation by relying on hardware
+fingerprints and pseudonym systems, including protocols based on
+\glspl{PUF}~\cite{twofa2019,plgakd2021,healthcare2023}. However, these
+approaches assume specialized hardware or centralized verification
+infrastructure, greatly limiting their applicability to commodity devices and
+infrastructure-less deployments. Similarly, zero-preloading key agreement
+schemes~\cite{lightweight2008} attempt to eliminate prior trust establishment
+but face unresolved challenges related to authentication bootstrapping and
+revocation.\\
+
+Several proposals focus instead on blockchain technology or distributed ledgers
+to address \gls{iot} security concerns, including access
+control~\cite{towards2019} and decentralized
+\glspl{PKI}~\cite{decentralized2018pki}. While these approaches remove single
+points of failure, they assume persistent connectivity incompatible with
+disaster scenarios and computational capabilities far beyond those available in
+low-end embedded platforms; pairing-based decentralized encryption schemes
+further exacerbate this issue~\cite{privacy2012}.\\
+
+Ultimately, existing work confirms the feasibility of lightweight security
+mechanisms on constrained devices, but also highlights a persistent reliance on
+infrastructure availability or pre-established trust. Rather than addressing
+these challenges directly, the proposed \gls{ubabel} framework focuses on
+providing a foundation for resilient and decentralized communication on top of
+which security mechanisms may be integrated.

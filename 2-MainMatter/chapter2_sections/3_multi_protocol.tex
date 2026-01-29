@@ -7,15 +7,15 @@ Single-protocol (i.e. Wi-Fi only, \gls{BLE} only, \gls{LoRa} only, etc.) communi
 architectures are susceptible to a fundamental vulnerability: if their chosen
 medium becomes unavailable or inefficient due to interference, range
 limitations, or infrastructure failures, the entire system loses connectivity
-and most times ceases to function altogether.
+and most times ceases to operate altogether.
 
 This becomes especially grave in disaster scenarios where communication
 conditions change unpredictably due to factors such as \gls{RF} interference
-from debris, obstacles blocking line-of-sight propagation, or damage to access
-points.
+caused by debris, obstacles blocking line-of-sight propagation, or damage to
+access points which may become unavailable as a result.
 
-Existing approaches to multi-protocol \gls{iot} systems can be placed in three
-categories: multi-channel resilience architectures that orchestrate
+Existing approaches to multi-protocol \gls{iot} systems can be divided into
+three categories: multi-channel resilience architectures that orchestrate
 communication technologies for emergency scenarios; implementations that show
 the feasibility of protocol heterogeneity on embedded platforms; and adaptive
 selection frameworks that switch protocols based on runtime conditions.
@@ -24,7 +24,7 @@ selection frameworks that switch protocols based on runtime conditions.
 \label{subsec:multi-channel}
 
 Several disaster-focused systems explicitly address infrastructure failures
-through protocol diversity.
+through the exploration of protocol diversity.
 
 The AWCT (Always Connected Things) framework~\cite{awct} orchestrates \gls{LPWAN}
 on top of \gls{LoRaWAN} with ad-hoc networks (Bluetooth and Wi-Fi) specifically for
@@ -72,7 +72,8 @@ next synchronization signal.
 However, the system depends on a master node broadcasting synchronization
 signals and uses an initial \gls{PRNG} seed shared among all nodes, raising
 questions about scalability and seed distribution mechanisms -- particularly
-how new nodes can acquire seeds if deployed to a network at a later time.
+how new nodes can acquire seeds if deployed to a network some time after the
+system is operational.
 
 \subsection{Protocol Heterogeneity on Embedded Platforms}
 \label{subsec:proto-het}
@@ -99,31 +100,33 @@ node.\\
 \subsection{Runtime Adaptive Protocol Selection}
 \label{subsec:runtime-adaptive}
 
-\todo{este é o paper do MDPI, removo?}
-A recent approach to protocol adaptation is presented in~\cite{adaptive2025},
-which introduces a closed-loop control system with four integrated components:
-a context monitor sampling runtime metrics at 1 Hz, a decision engine using
-multi-criteria weighted scoring across six dimensions (message frequency,
-payload size, network conditions, packet loss rate, energy budget, \gls{QoS}
-requirements), protocol adapters encapsulating protocol-specific libraries, and
-a learning component that adjusts thresholds using \gls{EWMA} for
-deployment-specific patterns.
-
-Some key aspects of this work include \gls{hysteresis} control with a threshold
-band to prevent oscillation between protocols, and switching cost awareness
-requiring benefits to exceed costs by a certain threshold before transitioning.
-
-However, this framework assumes infrastructure availability for protocol
-endpoints (\gls{MQTT} brokers, \gls{HTTP} servers, \gls{CoAP} endpoints) and was
-evaluated only on laptop platforms using Python libraries rather than embedded
-C implementations.
-
-Nevertheless, the evaluation methodology provides valuable insight into the
-energy expenditure of these different approaches (further explored in
-Section~\ref{subsec:receiver_energy}), and grants useful foundations for more
-complex multi-protocol approaches, in particular with the multi-criteria
-decision framework and \gls{hysteresis} control mechanism, but the actual
-system cannot operate when infrastructure fails.\\
+\todo{FIXED: removed MDPI paper}
+%%%%%%%%%%%%%%%%%%%%%%%%%
+% A recent approach to protocol adaptation is presented in~\cite{adaptive2025},
+% which introduces a closed-loop control system with four integrated components:
+% a context monitor sampling runtime metrics at 1 Hz, a decision engine using
+% multi-criteria weighted scoring across six dimensions (message frequency,
+% payload size, network conditions, packet loss rate, energy budget, \gls{QoS}
+% requirements), protocol adapters encapsulating protocol-specific libraries, and
+% a learning component that adjusts thresholds using \gls{EWMA} for
+% deployment-specific patterns.
+%
+% Some key aspects of this work include \gls{hysteresis} control with a threshold
+% band to prevent oscillation between protocols, and switching cost awareness
+% requiring benefits to exceed costs by a certain threshold before transitioning.
+%
+% However, this framework assumes infrastructure availability for protocol
+% endpoints (\gls{MQTT} brokers, \gls{HTTP} servers, \gls{CoAP} endpoints) and was
+% evaluated only on laptop platforms using Python libraries rather than embedded
+% C implementations.
+%
+% Nevertheless, the evaluation methodology provides valuable insight into the
+% energy expenditure of these different approaches (further explored in
+% Section~\ref{subsec:receiver_energy}), and grants useful foundations for more
+% complex multi-protocol approaches, in particular with the multi-criteria
+% decision framework and \gls{hysteresis} control mechanism, but the actual
+% system cannot operate when infrastructure fails.\\
+% %%%%%%%%%%%%%%%%%%%%%%%%%
 
 The MINOS platform~\cite{minos2019} exemplifies the limitations of centralized
 multi-protocol approaches. While providing sophisticated multi-protocol support
@@ -135,7 +138,7 @@ entire system loses its adaptive capabilities and reverts to static operation
 at best, or complete failure at worst.
 
 \subsection{Discussion}
-\label{subsec:rw_discussion_2}
+\label{subsec:rw_discussion_3}
 
 Existing frameworks demonstrate the technical feasibility of heterogeneous
 channel/protocol coordination but rely on centralized control mechanisms
@@ -146,17 +149,16 @@ with minimum 20-second send intervals at 10 hops, MCSC-WoT~\cite{mcsc-wot}
 requires master nodes broadcasting synchronization signals, the multi-protocol
 gateway~\cite{multiproto_gateway} uses tree topologies with gateway
 coordinators as single points of failure, and MINOS~\cite{minos2019} assumes
-SDN controllers with persistent MQTT/web infrastructure.
+SDN controllers with persistent \gls{MQTT}/web infrastructure.
 
-While adaptive protocol selection frameworks~\cite{adaptive2025} provide
-runtime switching strategies, they assume infrastructure availability
-(\gls{MQTT} brokers, \gls{HTTP} servers, \gls{CoAP} endpoints) and have not
-been validated on embedded platforms.\\
+% While adaptive protocol selection frameworks~\cite{adaptive2025} provide
+% runtime switching strategies, they assume infrastructure availability
+% (\gls{MQTT} brokers, \gls{HTTP} servers, \gls{CoAP} endpoints) and have not
+% been validated on embedded platforms.\\
 
-\todo{se calhar dizer "no existing work" é too much? never say never etc}
-No existing work addresses fully distributed multi-protocol coordination where
-nodes can autonomously select and switch protocols without persistent
-infrastructure. \textbf{\gls{ubabel}}'s approach to decentralized protocol
-selection is detailed in Section \ref{subsec:microbabel_approach_2}, with
-masterless synchronization mechanisms addressed in
-\ref{sec:decentralized_sync}.
+We have found no work that addresses fully distributed multi-protocol
+coordination where nodes can autonomously select and switch protocols without
+resorting to persistent infrastructure. \gls{ubabel}'s approach to
+decentralized protocol selection is detailed in Section
+\ref{component:multi_protocol} along with masterless synchronization
+mechanisms.

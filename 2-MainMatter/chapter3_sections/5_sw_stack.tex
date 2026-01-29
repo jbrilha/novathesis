@@ -1,0 +1,72 @@
+%!TEX root = ../../template.tex
+
+\section{Software Stack and Development Environment}
+\label{sec:sw_stack}
+
+\gls{ubabel} is implemented on top of well-established embedded software
+platforms that provide hardware abstraction and concurrency support while
+remaining sufficiently lightweight for resource-constrained platforms.
+
+The system leverages vendor-supported \glspl{SDK} and a minimal \gls{RTOS} to
+ensure portability across Class-1 devices while maintaining fine-grain control
+over hardware resources.
+
+\subsection{Operating System Layer}
+
+FreeRTOS~\cite{freertos2024} serves as the \gls{RTOS} across all Class-1
+devices. It provides deterministic task scheduling and inter-task communication
+implemented around a single queue primitive~\cite{freertos2026mp}. This queue
+mechanism forms the basis for queues (as data structures), semaphores, and
+mutexes. FreeRTOS also allows for configurable memory allocation and per-task
+stack management, all without the overhead of a full-featured \gls{OS}.
+
+This allows multiple protocol components and I/O handlers to execute
+concurrently while preserving predictable timing behavior, which is essential
+for networking and radio-driver applications.\\
+
+FreeRTOS is the \emph{de facto} \gls{OS} on ESP32-family devices, and is easily
+brought into the Pico platform, so by using it as a common execution runtime,
+\gls{ubabel} maintains a consistent concurrency and timing model across
+heterogeneous microcontroller platforms, simplifying both portability and
+implementation.
+
+\subsection{Platform SDKs and Hardware Abstractions}
+
+Hardware-specific functionality is accessed through vendor abstractions. The
+\gls{ESP-IDF}~\cite{espidf2026} is used for the ESP32 family, while the
+Raspberry Pi Pico \gls{SDK}~\cite{picosdk2026} is used for RP2350-based
+devices.
+
+These frameworks provide \glspl{API} for peripheral access (e.g., \gls{GPIO},
+\gls{SPI}, \gls{I2C}, \gls{UART}), timers, interrupt handling, Wi-Fi/\gls{BLE}
+radio stacks, and -- where available -- hardware-accelerated cryptographic
+operations.\\
+
+By encapsulating platform-specific bare-metal details behind stable interfaces,
+they allow \gls{ubabel} to target multiple microcontrollers through a set of
+thin \glspl{HAL}, enabling re-utilization of higher-lever protocols and
+coordination logic across Class-1 devices.
+
+\todo{mencionar anywhere que usamos lwip? custom lora drivers, etc?}
+
+\subsection{Implementation Language}
+
+The \gls{ubabel} framework is implemented in the C programming language. This
+is the language of choice for the target development platforms, as it allows
+precise control over memory usage, interrupt behavior, and timing. These
+properties are essential in embedded environments with limited memory strict
+real-time constraints.
+
+\subsection{Concurrency Model}
+
+\gls{ubabel} follows a task-based concurrency model built on FreeRTOS
+primitives. Protocol handlers execute as independent tasks, allowing
+computation, I/O, and radio operations to execute concurrently and predictably.
+Inter-task communication is handled through message queues, while mutexes and
+semaphores are used to protect shared state and coordinate access to hardware
+resources.
+
+An event dispatcher provides higher-level coordination by routing events
+between protocol components and system services. This structure decouples
+individual components, simplifies reasoning about system behavior, and supports
+incremental extension of the protocol stack.
