@@ -3,53 +3,113 @@
 \section{Planning}
 
 \subsection{Validation}
+\label{subsec:validation}
 
--- make sure it works and has desired properties in isolation...\\
--- reacts quick... works in set of scenarios... tolerates faults\\
--- maybe compare com mqtt
+To validate \gls{ubabel}'s implementation, we plan to follow a three-tier
+approach: component verification, integration testing, and deployment
+evaluation.
+
+\paragraph{Component Verification}
+Individual components are validated in isolation to ensure correct behavior
+under controlled conditions:
+
+\begin{itemize}
+	\item \textbf{Protocol handlers:} Message delivery rates, latency bounds,
+	      and energy consumption per protocol
+	\item \textbf{Peer discovery:} Discovery time and neighbor view consistency
+	      across protocol combinations
+	\item \textbf{Topology manager:} Active/passive view maintenance and
+	      failure detection latency
+	\item \textbf{Synchronization service:} Clock drift compensation, gossip
+	      convergence speed, and multi-protocol sync overhead
+	\item \textbf{Compression service:} Compression ratios, prediction
+	      accuracy, and computational overhead on Class-1 devices
+\end{itemize}
+
+\paragraph{Integration Testing:}
+System properties are evaluated through controlled network scenarios:
+
+\begin{itemize}
+	\item \textbf{Infrastructure independence:} Network formation time without
+	      access points or coordinators
+	\item \textbf{Protocol adaptation:} Switching latency and stability under
+	      changing conditions (e.g., interference, protocol unavailability)
+	\item \textbf{Fault tolerance:} Recovery time after node failures, message
+	      delivery during network partitions
+	\item \textbf{Scalability:} Performance degradation as network size
+	      increases
+	\item \textbf{End-to-end latency:} Message delivery times across multi-hop
+	      paths with varying protocol combinations
+\end{itemize}
+
+\paragraph{Deployment Evaluation:}
+Real-world validation using the use cases from Section~\ref{subsec:use_cases}:
+
+\begin{itemize}
+	\item \textbf{Campus monitoring scenario:} Multi-building deployment
+	      measuring autonomous operation duration, data delivery rates, and
+	      battery lifetime under normal vs. disaster modes
+	\item \textbf{Building safety scenario:} Single-building deployment
+	      measuring critical alert propagation, evacuation guidance system, and
+	      responsiveness during simulated infrastructure failures
+\end{itemize}
+
+\paragraph{Baseline Comparison:} Where applicable, performance is compared
+against centralized alternatives (e.g., MQTT based systems) to quantify
+the benefits and drawbacks of our approach.
 
 \subsection{Task Scheduling}
 
+In order to achieve the proposed requirements
+(Section~\ref{subsubsec:func_reqs}), we delineate a set of tasks to be carried
+out in the coming months:
+
+\todo{too verbose? compactar as tasks?}
 \begin{description}
-    \item[Task 1:] Core Components
+	\item[Task 1 -- Core Components:] Foundational protocol and communication
+	      primitives
 	      \begin{description}
 		      \item[Task 1.1:] Protocol Manager
 		      \item[Task 1.2:] Event Dispatcher Validation
 		      \item[Task 1.3:] Communication Manager
 	      \end{description}
 
-	\item[Task 2:] Discovery \& Topology
+	\item[Task 2 -- Discovery \& Topology:] Network formation, discovery and
+	      routing mechanisms
 	      \begin{description}
 		      \item[Task 2.1:] Peer Discovery Service
 		      \item[Task 2.2:] Topology Manager
 		      \item[Task 2.3:] Routing Service
 	      \end{description}
 
-	\item[Task 3:] Coordination Layer
+	\item[Task 3 -- Coordination Layer:] Coordination and Synchronization
+	      mechanisms
 	      \begin{description}
 		      \item[Task 3.1:] Protocol Selector
 		      \item[Task 3.2:] Synchronization Service
 	      \end{description}
 
-	\item[Task 4:] Data Management
+	\item[Task 4 -- Data Management]: Lightweight reduction and compression
+	      strategies
 	      \begin{description}
 		      \item[Task 4.1:] Compression Service
 		      \item[Task 4.2:] Message Queue
 	      \end{description}
 
-	\item[Task 5:] Integration
+	\item[Task 5 -- Integration] \todo{I mean duh... se calhar retiro isto, era a pensar no integration hell ser chato e demorado de resolver}
 
-	\item[Task 6:] Data Management
+	\item[Task 6 -- Validation:] Following the approach outlined in
+	      Section~\ref{subsec:validation}
 	      \begin{description}
 		      \item[Task 6.1:] Use Case Development
 		      \item[Task 6.2:] Experimental Setup
 		      \item[Task 6.3:] Performance Evaluation
 	      \end{description}
 
-	\item[Task 7:] Dissertation Work
+	\item[Task 7 -- Dissertation Work:] Elaboration of the final document
 	      \begin{description}
 		      \item[Task 7.1:] Writing
-		      \item[Task 7.2:] Preparation for PerCom (2026)
+              \item[Task 7.2:] Preparation for PerCom (2027)\todo{perhaps too ambitious...?}
 	      \end{description}
 \end{description}
 
