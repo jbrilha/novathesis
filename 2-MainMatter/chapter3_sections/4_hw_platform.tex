@@ -9,27 +9,20 @@ specifications and communication protocol characteristics, establishing the
 foundation for our multi-protocol, heterogeneous architecture.
 
 We distinguish between two device classes based on their capabilities and roles
-within the architecture:
+within the architecture.
 
-\paragraph{Class-1: Battery-Powered Sensor Nodes:} The primary targets for
-\gls{ubabel}. These embedded devices handle sensing, actuation, \gls{P2P}
-communication, and decentralized coordination without requiring external
-infrastructure. \gls{ubabel} operates autonomously with Class-1 devices alone.
+\subsection{Class-1: Battery-Powered Sensor Nodes}
 
-\paragraph{Class-2: Optional Aggregation Nodes:} Resource-rich devices that can
-enhance deployments with data aggregation, and optional cloud bridging when
-infrastructure is available. These devices run the broader
-Babel~\cite{fouto2022babel} framework and are mentioned here for completeness,
-but are not required for \gls{ubabel}'s core autonomous operation.
-
-\subsection{Class-1: Sensor Nodes}
+The primary targets for \gls{ubabel}. These  embedded devices
+handle sensing, actuation, \gls{P2P} communication, and decentralized
+coordination without requiring external infrastructure.
 
 Table~\ref{tab:c1_device_specs} presents the resources available across Class-1
 devices. These span from basic sensor nodes (Pico 2W, ESP32-C5/C6) to more
 capable embedded devices (ESP32-S3/P4), enabling role differentiation
 within the autonomous peer network.
 
-\todo{figure out table spacing issues }
+\todo{TODO: figure out table spacing}
 \rowcolors{1}{}{GhostWhite}
 \begin{table}[htbp]
 	\centering
@@ -59,19 +52,20 @@ Resource availability within Class-1 devices varies significantly both in
 processing power and available memory. While there are no fixed roles,
 capability awareness naturally influences dynamic selection procedures:
 
-\paragraph{Group Leader Preference:} Higher-resource devices (ESP32-S3/P4) are
-prioritized in local \gls{GL} elections due to their ability to efficiently
-aggregate member \glspl{MAC} and maintain group state
-(Section~\ref{component:security_keys}). Resource availability merely
-influences preference, not eligibility.
+% \paragraph{Group Leader Preference:} Higher-resource devices (ESP32-S3/P4) are
+% prioritized in local \gls{GL} elections due to their ability to efficiently
+% aggregate member \glspl{MAC} and maintain group state
+% (Section~\ref{component:security_keys}). Resource availability merely
+% influences preference, not eligibility.
+
+\paragraph{Data Aggregation and Buffering:} Higher-resource devices
+(ESP32-S3/P4) can maintain larger message buffers and aggregate data from
+multiple sensor nodes, which is particularly valuable during network partitions
+when store-and-forward mechanisms come into effect.
 
 \paragraph{Protocol Bridging:} Devices with broader protocol support naturally
 serve as bridges between protocol domains, forwarding messages across different
 mediums based on advertised capabilities.\\
-
-\todo{not sure how pico handles it, tenho de confirmar se isto é verdade}
-All Class-1 devices support flash encryption for cryptographic primitive
-storage.
 
 \subsubsection*{Protocol Diversity and Device Coverage}
 
@@ -139,77 +133,21 @@ These factors combine to provide multi-protocol resilience: spectrum diversity
 across 2.4/5 GHz and sub-GHz bands, infrastructure-free operation via
 \gls{ESP-NOW} and \gls{BLE}, and long-range connectivity through \gls{LoRa}.
 
-% \subsubsection*{Protocol Characteristics}
-%
-% Table~\ref{tab:protocol_specs} details the basic operational characteristics of
-% each of the supported protocols.
-%
-% \todo{get actual power draw values from somewhere}
-%
-% \rowcolors{1}{}{GhostWhite}
-% \begin{table}[htbp]
-% 	\centering
-% 	\caption{Protocol Characteristics}
-% 	\label{tab:protocol_specs}
-% 	\footnotesize
-% 	\begin{tabular}{@{}lccccc@{}}
-% 		\toprule
-% 		\rowcolor{Gainsboro}%
-% 		\textbf{Protocol}  & \textbf{Discovery}        & \textbf{Range$^1$} & \textbf{Frequency}  & \textbf{Data Rate} & \textbf{Power Draw} \\
-% 		\midrule
-% 		Wi-Fi              & \glslink{SSID}{SSID} scan & 50-100 m           & 2.4 GHz             & 1-50 Mbps          & High                \\
-% 		\glslink{BLE}{BLE} & Advertising               & 10-50 m            & 2.4 GHz             & 1-2 Mbps           & Low                 \\
-% 		\gls{ESP-NOW}      & Peer list                 & 50-100 m           & 2.4 GHz             & ~1 Mbps            & Very Low            \\
-% 		\gls{ZigBee}       & Beacon                    & 10-100 m           & 2.4 GHz             & 250 Kbps           & Very Low            \\
-% 		\gls{LoRa}         & Preamble detection        & 2-10 km            & 433/868/915 MHz$^2$ & 0.3-50 Kbps$^3$    & Low$^3$             \\
-% 		\bottomrule
-% 		\multicolumn{6}{p{\linewidth}}{\footnotesize
-% 			$^1$ Outdoor line-of-sight; indoor ranges typically 30-50\% lower
-% 		}                                                                                                                                    \\
-% 		\multicolumn{6}{p{\linewidth}}{\footnotesize
-% 			$^2$ Frequency depends on regional regulations
-% 		}                                                                                                                                    \\
-% 		\multicolumn{6}{p{\linewidth}}{\footnotesize
-% 			$^3$ Data rate and power consumption depend on \gls{SF}; higher \gls{SF} = longer range, lower rate, higher energy cost
-% 		}                                                                                                                                    \\
-% 	\end{tabular}
-% \end{table}
-%
-% These characteristics drive protocol selection based on deployment context and
-% communication requirements:
-%
-% \paragraph{Range vs. Throughput Trade-offs:} \gls{LoRa} provides 2-10 km range
-% (with appropriate antenna configurations) but very limited throughput (0.3-50
-% Kbps), suitable for sparse periodic synchronization between distant partitions.
-% \gls{BLE} and \gls{ESP-NOW} offer moderate range (50-100 m) with higher
-% throughput (1-2 Mbps), appropriate for dense local deployments where multi-hop
-% forwarding is feasible and often required.
-%
-% \paragraph{Discovery Mechanisms:} Different protocols employ distinct peer
-% discovery approaches. \gls{BLE} advertising enables continuous passive
-% discovery, \gls{ESP-NOW} requires explicit peer lists, and \gls{ZigBee} uses
-% beacon-based association. \gls{ubabel}'s hybrid discovery mechanism
-% (Section~\ref{component:multi_protocol}) will accommodate these differences
-% while maintaining a unified peer view across protocols.
-%
-% \paragraph{Energy Considerations:} Protocol selection must account for energy
-% costs: Wi-Fi consumes significantly more power than \gls{BLE}, while
-% \gls{LoRa} power consumption depends heavily on \gls{SF} configuration. The
-% data compression mechanisms (Section~\ref{component:reduction_compression})
-% interact with protocol selection to minimize overall energy expenditure.\\
-%
-\todo{REWORD THIS SINCE IT WAS MOVED}
-Together, these device capabilities and protocol characteristics establish the
-hardware foundation for \gls{ubabel}'s infrastructure-independent operation.
-The following section details how these resources are orchestrated through
-\gls{ubabel}'s architectural approach.
+Together, these Class-1 specifications and multi-protocol capabilities
+establish the core hardware foundation for \gls{ubabel}'s autonomous operation.
+Section~\ref{sec:system_model} details how these resources are exploited
+in the proposed architecture.
 
-\subsection{Class-2: Aggregation Nodes}
+\subsection{Class-2: Optional Aggregation Nodes}
 
-For deployments where additional resources are available, Class-2 devices can
-enhance \gls{ubabel} networks without introducing coordinator dependencies.
-Table~\ref{tab:c2_device_specs} presents the resources available to these
-devices.
+Resource-rich devices that run the broader Babel~\cite{fouto2022babel}
+framework and are mentioned here for the sake of integration with broader
+systems, but are not required for \gls{ubabel}'s core autonomous operation.
+
+This class encompasses general-purpose computing devices such as desktops,
+laptops, and servers. For development purposes, and staying within the realm
+of embedded platforms, we specifically utilize Raspberry Pi \glspl{SBC},
+whose specifications are available in Table~\ref{tab:c2_device_specs}.
 
 \rowcolors{1}{}{GhostWhite}
 \begin{table}[htbp]
@@ -231,18 +169,15 @@ devices.
 	\end{tabular}
 \end{table}
 
-Class-2 devices serve as \emph{optional} infrastructure that, when present,
-can perform:
-\begin{itemize}
-	\item Data aggregation and long-term storage
-	\item Computationally intensive analytics beyond Class-1 capabilities
-	\item Optional cloud bridging when external connectivity is available and
-	      desired (e.g., \gls{MQTT} brokerage, \gls{CoAP} endpoints)
-\end{itemize}
+Class-2 devices serve as \emph{optional} infrastructure that, when present, can
+perform: (1) Data aggregation and long-term storage; (2) Computationally
+intensive analytics beyond Class-1 capabilities; and (3) Optional cloud
+bridging when external connectivity is available and desired (e.g., \gls{MQTT}
+brokerage, \gls{CoAP} endpoints).
 
-Critically, Class-2 devices \emph{do not} serve as coordinators or single
-points of failure. \gls{ubabel} networks will operate fully autonomously with
-Class-1 devices alone; Class-2 nodes participate as peers that happen to have
-greater resources, not as masters. Their absence does not prevent network
-formation, peer discovery, or autonomous operation.
+Critically, these devices \emph{do not} serve as coordinators or single points
+of failure. \gls{ubabel} networks will operate fully autonomously with Class-1
+devices alone; Class-2 nodes simply participate as peers that happen to have
+greater resources. Their absence does not prevent network formation, peer
+discovery, or autonomous operation.
 

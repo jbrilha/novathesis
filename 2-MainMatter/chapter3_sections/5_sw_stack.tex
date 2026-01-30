@@ -25,7 +25,7 @@ concurrently while preserving predictable timing behavior, which is essential
 for networking and radio-driver applications.\\
 
 FreeRTOS is the \emph{de facto} \gls{OS} on ESP32-family devices, and is easily
-brought into the Pico platform, so by using it as a common execution runtime,
+brought into the Pico platform. By using it as a common execution runtime,
 \gls{ubabel} maintains a consistent concurrency and timing model across
 heterogeneous microcontroller platforms, simplifying both portability and
 implementation.
@@ -44,17 +44,10 @@ operations.\\
 
 By encapsulating platform-specific bare-metal details behind stable interfaces,
 they allow \gls{ubabel} to target multiple microcontrollers through a set of
-thin \glspl{HAL}, enabling re-utilization of higher-lever protocols and
-coordination logic across Class-1 devices.
-
-\todo{mencionar anywhere que usamos lwip? custom lora drivers, etc?}
-
-\subsection{Implementation Language}
-
-The \gls{ubabel} framework is implemented in the C programming language. This
-is the language of choice for the target development platforms, as it allows
-precise control over memory usage, interrupt behavior, and timing. These
-properties are essential in embedded environments with limited memory strict
+thin \glspl{HAL}, enabling re-utilization of higher-level protocols and
+coordination logic across Class-1 devices. \gls{ubabel} is implemented in C, as
+it allows precise control over memory usage, interrupt behavior, and timing,
+which are essential in embedded environments with limited memory strict
 real-time constraints.
 
 \subsection{Concurrency Model}

@@ -1,0 +1,54 @@
+%!TEX root = ../../template.tex
+
+\section{Operating Conditions and Failure Modes}
+\label{sec:operating_conditions}
+
+\gls{ubabel} is designed to remain operational under conditions where
+traditional infrastructure becomes unreliable or unavailable. This section
+establishes the operational environment and failure scenarios that drive our
+architectural decisions.
+
+\subsection{Target Operating Environments}
+\todo{move this para os use cases later?}
+
+\gls{ubabel} targets deployments where infrastructure availability cannot be
+guaranteed, and in which autonomous operation is a necessity:
+
+\paragraph{Disaster Scenarios:} Locations susceptible to natural disasters
+(i.e., earthquakes, floods, fires) or infrastructure failures that eliminate
+power grids and network access points.
+
+\paragraph{Remote or Hazardous Locations:} Industrial sites, wilderness
+monitoring, or dangerous environments where manual intervention and
+infrastructure maintenance are impractical or impossible.
+
+\paragraph{Local-First Deployments:} Environments where data sovereignty
+requirements or privacy concerns require local processing and control rather
+than cloud dependency, even when connectivity is available.
+
+\subsection{Expected Failure Modes}
+
+The architecture must maintain functionality under the following conditions:
+
+\paragraph{Infrastructure Collapse:} Complete loss of access points and
+external network connectivity. Devices must self-organize and maintain
+\gls{P2P} communication without infrastructure support.
+
+\paragraph{Communication Medium Disruption:} Individual protocols may become
+unavailable due to interference, jamming, congestion, or physical obstacles
+blocking signal propagation. Multi-protocol diversity provides alternative
+communication paths and ensures continued operation.
+
+\paragraph{Network Partitioning:} Physical damage or communication range
+limitations may split networks into isolated subgroups. Devices within
+partitions must continue autonomous operation while supporting eventual
+reconciliation when connectivity is restored.
+
+\paragraph{Node Failures:} Individual devices may become unavailable due to
+battery depletion, physical damage, or environmental conditions. The network
+must maintain operation despite individual node failures without depending on
+specific coordinator nodes.
+
+\paragraph{Intermittent Connectivity:} Communication links may be unstable with
+varying packet loss, latency, and availability. Protocols must tolerate
+unreliable links and adapt to changing conditions.

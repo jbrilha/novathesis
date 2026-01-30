@@ -11,8 +11,8 @@ and most times ceases to operate altogether.
 
 This becomes especially grave in disaster scenarios where communication
 conditions change unpredictably due to factors such as \gls{RF} interference
-caused by debris, obstacles blocking line-of-sight propagation, or damage to
-access points which may become unavailable as a result.
+caused by debris, obstacles blocking line-of-sight propagation, or
+damaged/unavailable access points.
 
 Existing approaches to multi-protocol \gls{iot} systems can be divided into
 three categories: multi-channel resilience architectures that orchestrate
@@ -24,15 +24,15 @@ selection frameworks that switch protocols based on runtime conditions.
 \label{subsec:multi-channel}
 
 Several disaster-focused systems explicitly address infrastructure failures
-through the exploration of protocol diversity.
+through the exploitation of protocol diversity.
 
-The AWCT (Always Connected Things) framework~\cite{awct} orchestrates \gls{LPWAN}
-on top of \gls{LoRaWAN} with ad-hoc networks (Bluetooth and Wi-Fi) specifically for
+The \gls{AWCT} framework~\cite{awct} orchestrates \gls{LPWAN} on top of
+\gls{LoRaWAN} with ad-hoc networks (Bluetooth and Wi-Fi) specifically for
 standby emergency communication. Their architecture adds three modules to
-standard \gls{iot} devices (Raspberry Pi boards, in their test case): a battery module
-for power management, a power interrupt handler that triggers emergency mode
-when the power grid fails, and an ad-hoc bridge that forwards packets between
-the Bluetooth, Wi-Fi and \gls{LPWAN} interfaces.
+standard \gls{iot} devices (Raspberry Pi boards, in their test case): a battery
+module for power management, a power interrupt handler that triggers emergency
+mode when the power grid fails, and an ad-hoc bridge that forwards packets
+between the Bluetooth, Wi-Fi and \gls{LPWAN} interfaces.
 
 The system leverages dense \gls{iot} device deployment to provide emergency coverage,
 demonstrating that existing infrastructure can still serve a purpose during
@@ -80,27 +80,27 @@ system is operational.
 
 The work presented in~\cite{multiproto_gateway} shows the technical feasibility
 of multi-protocol operation on commodity Wi-Fi/\gls{BLE} modules by integrating
-\gls{ESP-NOW}, \gls{ZigBee}, and \gls{Modbus} protocols on devices from the ESP32 family to
-construct multi-hop, tree-based wireless networks.
+\gls{ESP-NOW}, \gls{ZigBee}, and \gls{Modbus} protocols on devices from the
+ESP32 family to construct multi-hop, tree-based wireless networks.
 
-Their implementation uses \gls{BLE} advertising beacons for neighbor discovery with
-\gls{RSSI} measurements (for distance estimation), computing parent selection
-priorities based on weighted combinations of child count, \gls{RSSI} values, and hop
-count in the network tree of a given node. The system also supports automatic
-parent reselection when the current parent becomes unreachable, making it
-somewhat resilient to single node failures.
+In this tree-based architecture, devices organize hierarchically with a central
+gateway serving as the root. Their implementation uses \gls{BLE} advertising
+beacons for neighbor discovery with \gls{RSSI} measurements (for distance
+estimation), computing parent selection priorities based on weighted
+combinations of child count, \gls{RSSI} values, and hop count in the network
+tree of a given node. The system also supports automatic parent reselection
+when the current parent becomes unreachable, making it somewhat resilient to
+single node failures.
 
 Testing demonstrated successful multi-hop operation up to 5 hops in office
 environments, but evaluation was limited to linear network topologies.
-Additionally, this architecture relies on a tree topology with master-slave
+Additionally, this architecture relies on a tree topology with parent/child
 communication that is centered around a gateway (coordinator) rather than being
-a \gls{P2P} mesh, creating a single point of failure at the coordinator
-node.\\
+a \gls{P2P} mesh, creating a single point of failure at the coordinator node.\\
 
 \subsection{Runtime Adaptive Protocol Selection}
 \label{subsec:runtime-adaptive}
 
-\todo{FIXED: removed MDPI paper}
 %%%%%%%%%%%%%%%%%%%%%%%%%
 % A recent approach to protocol adaptation is presented in~\cite{adaptive2025},
 % which introduces a closed-loop control system with four integrated components:
@@ -136,6 +136,7 @@ controller, \gls{MQTT} broker, and web server infrastructure. The architecture's
 single point of failure means that when the controller becomes unreachable the
 entire system loses its adaptive capabilities and reverts to static operation
 at best, or complete failure at worst.
+\todo{FIXED: removed MDPI paper}
 
 \subsection{Discussion}
 \label{subsec:rw_discussion_3}

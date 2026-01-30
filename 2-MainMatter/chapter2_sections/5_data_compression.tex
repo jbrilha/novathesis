@@ -3,6 +3,9 @@
 \section{Lightweight Data Compression and Energy Efficiency}
 \label{sec:data_compression}
 
+\todo{TOFIX: não fiz nada em relação ao flow fraquito desta section porque
+provavelmente vou compactar muito mais. thoughts?}
+
 Energy constraints present one of the most fundamental limitations in
 battery-powered \gls{iot} deployments, particularly in hazardous deployments where
 replacements and recharging are impractical, and during disaster scenarios
@@ -93,8 +96,6 @@ that when battery drops below a certain threshold (e.g., 20\%), the system
 switches to lossy-only transmission instead of lossless, extending lifetime at
 the cost of reconstruction accuracy.
 
-\todo{FIXED: ""é bom? é mau? é adequado?""}
-
 This trade-off aligns with disaster-scenario requirements where sustained
 operation during prolonged periods of network outages often takes higher
 priority over perfect data-fidelity, as approximate sensor readings over
@@ -148,12 +149,15 @@ The two-tier data reduction technique proposed in~\cite{twotier2019}
 applies compression at both sensor nodes (Tier 1) and gateways (Tier 2) to
 reduce energy consumption in the overall system.
 
-Sensor nodes employ Delta encoding followed by \gls{RLE}, allowing this approach to
-achieve 80-84\% compression by exploiting the temporal correlation in sensor
-data. Gateways perform hierarchical clustering based on the \gls{MDL} principle, transmitting \emph{hypothesis} data sets and
-difference vectors instead of full data sets.
+Sensor nodes employ Delta encoding followed by \gls{RLE}, allowing this
+approach to achieve 80-84\% compression by exploiting the temporal correlation
+in sensor data. Gateways perform hierarchical clustering based on the \gls{MDL}
+principle -- 
+\todo{FIXED: descrever o MDL um bocado}
+that is, combining pairs of datasets into one cluster when their
+combined representation is shorter than separate encodings -- to transmit
+\emph{hypothesis} data sets and difference vectors instead of full data sets.
 
-\todo{falar mais do MDL ou como é gateway side not so important?}
 
 The Delta+\gls{RLE} implementation -- validated through OMNeT++ simulation --
 proves to be lightweight enough for resource-constrained nodes, while gateway
@@ -162,7 +166,7 @@ clustering reduces transmission to cloud infrastructure.
 \subsection{Receiver-Side Energy Considerations}
 \label{subsec:receiver_energy}
 
-\todo{outra vez o paper do MDPI.... retirar por completo, fingir que não vi?}
+\todo{TOFIX: outra vez o paper do MDPI.... retirar por completo, fingir que não vi?}
 An often overlooked aspect of \gls{iot} energy optimization is the asymmetry
 between sender and receiver energy consumption. The adaptive protocol selection
 framework analysis~\cite{adaptive2025} revealed that receiver nodes
@@ -213,7 +217,7 @@ We have found no work that integrates prediction-based reduction with
 protocol-aware adaptive thresholding and compression tuning for heterogeneous
 multi-protocol networks.
 
-\gls{ubabel}'s approach (Section~\ref{subsec:microbabel_approach_4}) should,
+\gls{ubabel}'s approach (Section~\ref{component:reduction_compression}) should,
 therefore, consider lightweight prediction and compression in multi-protocol
 scenarios with per-protocol thresholds and strategy selection while accounting
 for gateway receiver energy costs.

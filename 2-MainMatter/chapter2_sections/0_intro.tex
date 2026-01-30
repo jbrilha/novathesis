@@ -29,7 +29,7 @@ architectures collapse precisely when autonomous operation becomes
 indispensable.\\
 
 The challenges faced by disaster-resilient \gls{iot} 
-\todo{em vez de "iot systems":\\ smart systems?}
+\todo{TOFIX: em vez de "iot systems":\\ smart systems?}
 systems span multiple
 dimensions:
 \begin{description}
@@ -50,8 +50,8 @@ rather than the norm.
 
 Cloud-centric architectures place control decisions in remote servers, creating
 dependencies that cannot be satisfied when connectivity fails.
-Coordinator-based topologies (whether using dedicated gateways, master nodes,
-\gls{SDN} controllers, or others) concentrate the risk of failure in single
+Coordinator-based topologies -- whether using dedicated gateways, master nodes,
+\gls{SDN} controllers, among others -- concentrate the risk of failure in single
 points that can paralyze entire systems if compromised or disconnected. Even
 ostensibly distributed systems often rely on persistent connections (i.e.,
 \gls{TCP}) over a single medium, or heavy middleware platforms that exceed the
@@ -67,6 +67,7 @@ with inter-device coordination and protocol heterogeneity with low resource
 usage.
 
 Disaster-resilient systems require architectural choices that prioritize
+\todo{TOFIX: general statement.. não encontro citations to back this up exactly, sinto que é kind of a given}
 autonomous \gls{P2P} connectivity as the baseline mode of operation rather than
 having it as a secondary -- even exceptional -- fallback mechanism.
 
@@ -96,7 +97,7 @@ infrastructure failure scenarios, identify architectural assumptions that
 conflict with disaster-resilient requirements, and position
 \gls{ubabel}'s contributions relative to the current state of the art.
 
-\todo{FIXED: updated security section description}
+\todo{FIXED: separei section sobre security, no longer part of "autonomous operation" areas per se}
 Additionally, security and privacy considerations are presented in
 Section~\ref{sec:security_scope}, which outlines the scope of this work in
 regard to higher-layer safety mechanisms.

@@ -65,19 +65,19 @@ the core dependency. This leads to shortcomings in key areas that demand
 more fundamental architectural reconsideration:
 
 \begin{description}
-    \item[\textbf{Limited suitability for hazardous environments:}]
-    \todo{tive de meter as labels inline para o final do chapter não passar para a próxima página... se ficar feio assim mudo algo elsewhere}
+    \item \textbf{Limited suitability for hazardous environments:}\\
         Remote or dangerous locations (industrial sites, disaster-prone areas)
         require systems that can operate reliably without constant human
         intervention or stable network infrastructure;
-    \item[\textbf{Lack of autonomous operation:}] Device deployment and
-        operation en masse can be brittle, with little tolerance for individual
-        node failures in the \gls{iot} infrastructure, which is naturally
-        susceptible to network failures and intermittent connectivity;
-    \item[\textbf{Privacy and data sovereignty concerns:}] Cloud platforms and
-        other third-parties are oftentimes an unavoidable middle layer between
-        end devices and end users, raising questions about data processing and
-        control.
+    \item \textbf{Lack of autonomous operation:}\\
+        Device deployment and operation en masse can be brittle, with little
+        tolerance for individual node failures in the \gls{iot} infrastructure,
+        which is naturally susceptible to network failures and intermittent
+        connectivity;
+    \item \textbf{Privacy and data sovereignty concerns:}\\
+        Cloud platforms and other third-parties are oftentimes an unavoidable
+        middle layer between end devices and end users, raising questions about
+        data processing and control.
 \end{description}
 
 While these challenges affect both \gls{iot} and domotics systems alike --
@@ -99,11 +99,12 @@ A pragmatic issue in the context of smart homes is that without cloud
 connectivity, users cannot interact with their appliances, such that during a
 Wi-Fi outage smart lights become uncontrollable despite all hardware being
 physically present. While merely inconvenient domestically, this architectural
-dependency has critical implications in other contexts and \gls{ubabel}
-addresses such scenarios across scales: from residential systems requiring
-local control, to building monitoring infrastructures that must operate during
-emergencies, to disaster response networks where autonomous operation becomes
-essential when traditional infrastructure fails.
+dependency has critical implications in other contexts and \gls{ubabel} aims at
+addressing such scenarios across different application domains: from
+residential systems requiring local control, to building monitoring
+infrastructures that must operate during emergencies, to disaster response
+networks where autonomous operation becomes essential when traditional
+infrastructure fails.
 
 While cloud platforms like Amazon Alexa, Google Home, and Microsoft Azure \gls{iot}
 Hub offer convenience for data processing and remote device control, their
@@ -148,7 +149,7 @@ anti-jamming and additional throughput.
 In this work, we focus on three main research questions:
 
 \paragraph{How can these systems maintain communication and full operation when
-	traditional infrastructure fails?}
+	traditional infrastructure fails?\\}
 
 Conventional deployments of networked devices often heavily rely on Wi-Fi
 access points, cellular towers, or other centralized infrastructure that can
@@ -239,7 +240,7 @@ We plan to make the following main contributions:
         real-world deployment.
 \end{itemize}
 
-\section*{Document Structure}
+\section*{Document Structure (Roadmap)}
 
 \todo{FIXED: added doc structure}
 The remainder of this document is arranged as follows:
@@ -257,5 +258,7 @@ The remainder of this document is arranged as follows:
 
     \item[\textbf{Chapter~\ref{cha:planning_progress}}] Summarizes the current
         implementation status and outlines the development and
-        evaluation plan. \todo{merge with chap3 se não conseguir reduzir espaço elsewhere....}
+        evaluation plan.
 \end{description}
+
+\todo{might be worth voltar atrás e resumir algo para não ter esta página neste estado}

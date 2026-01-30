@@ -65,9 +65,9 @@ that complicate routing.
 
 However, HyParView assumes \gls{TCP} availability for maintaining persistent
 connections and using connection failures as implicit failure detectors.
-\todo{FIXED: adicionei isto com base na nota. mas nós vamos ter some form of multi-hop também so not sure I understand pqq é mau}
-Additionally, it assumes that any node can communicate with any other node
-in its active view, which in practice requires some form of routing infrastructure.
+Additionally, it assumes that any node can communicate with any other node in
+its active view, which in practice requires some form of routing
+infrastructure.
 
 This dependency on full network stack functionality makes direct application to
 resource-constrained embedded platforms challenging, though the architectural
@@ -200,7 +200,7 @@ We have found no work that integrates connectionless neighbor discovery, hybrid
 view maintenance, true P2P routing (not tree-based), and partition-tolerant
 store-and-forward on resource-constrained embedded platforms.
 
-\gls{ubabel}'s approach (Section \ref{component:p2p_mesh})
+\gls{ubabel}'s approach (Section \ref{component:topology_manager})
 must adapt HyParView's architectural principles to \gls{BLE}/\gls{LoRa}
 connectionless communication while supporting multi-hop routing without
 depending on coordinators or routing infrastructure.

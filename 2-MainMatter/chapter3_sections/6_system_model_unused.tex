@@ -1,0 +1,299 @@
+%!TEX root = ../../template.tex
+
+\section{System Model}
+\label{sec:system_model}
+
+\subsection{Architecture}
+
+The foundational building blocks of the \gls{ubabel} architecture can be
+separated into the following \emph{components}, which aim to address each of
+the aforementioned technical challenges.
+
+\subsubsection*{Mesh Topology Manager}
+\label{component:p2p_mesh}
+
+As discussed in Section~\ref{sec:p2p_mesh}, tree topologies and
+coordinator-based approaches limit resilience, and heavyweight middleware
+platforms or HyParView's routing and \gls{TCP} requirements exceed embedded
+device capabilities.
+
+\todo{"temos ainda de endereçar o wireless"}
+\gls{ubabel} intends to address these limitations through a fully
+distributed \gls{P2P} mesh architecture without coordinator dependencies. The
+system adapts HyParView's hybrid view concept (maintaining small active
+neighbor sets for actual communication and larger passive backup lists for
+failure recovery) but implements discovery and maintenance at the link layer
+using \gls{BLE} and \gls{LoRa} advertisements rather than at the transport
+layer via \gls{TCP} connections, accommodating the connectionless nature of
+embedded radio/wireless communication.
+
+Neighbor discovery is performed through advertising beacons emitted by one or
+more of the supported protocols (e.g., \gls{BLE}, \gls{LoRa}, Wi-Fi) carrying
+relevant peering information (node identity, capabilities, current neighbor
+counts, etc.), with periodic gossip exchanges that propagate topology
+information beyond single-hop range.
+
+It's immediately apparent that -- if these exchanges aren't properly integrated
+-- the same node advertising itself through different protocols could lead to
+duplicate neighbor entries on the receiver side. To address this, nodes possess
+unique IDs that are consistent across protocols, and by advertising their
+capabilities they simultaneously inform potential neighbors of which protocols
+they can expect to receive their advertisements from, which prevents
+unnecessary processing of packets that would only contain redundant information
+(e.g., by peeking at the sender's ID). Nodes supporting multiple protocols
+naturally serve as bridges, enabling topology formation and message forwarding
+between nodes that might not share the same protocol stack, this is exemplified
+in Figure~\ref{fig:something}.
+\todo{ADD FIGURE WITH (LORA ONLY) -> (BLE/LORA) -> (BLE ONLY)}
+
+This approach mitigates potential range limitations: while \gls{BLE} typically
+provides 10-50m coverage depending on environment and antenna configuration,
+gossip-based propagation enables nodes to learn about distant neighbors through
+multi-hop dissemination, supporting informed routing decisions and topology
+adaptation.
+
+Unlike the tree topology of Multi-Protocol Gateway or the \gls{RPL} \gls{DODAG}
+structure of heterogeneous disaster architecture, \gls{ubabel} will
+implement true \gls{P2P} mesh networking where any node can communicate with
+any other node through dynamically selected multi-hop paths.
+
+Route selection considers multiple factors gathered through local observation
+and gossip: link quality metrics (\gls{RSSI}, \gls{PLR}), neighbor availability
+across different protocols, and current energy budgets.
+
+Store-and-forward mechanisms inspired by the Bundle Protocol will enable operation
+during network partitions, but will be adapted for \gls{P2P} rather than
+cloud-centric operation: data parcels are compressed (using techniques from
+Section~\ref{sec:data_compression}), queued in local storage (flash, MicroSD
+cards) when no forward path exists, and opportunistically transmitted when
+connectivity windows emerge, be it through topology changes or protocol
+switching creating new communication opportunities.
+
+Coordination emerges from local interactions via gossip-based information
+propagation, decentralized time synchronization
+(Section~\ref{sec:decentralized_sync}), and adaptive protocol selection
+(Section~\ref{sec:multi_protocol}), rather than centralized allocation or
+scheduling of roles.
+
+\subsubsection*{Multi-Protocol Communication Layer}
+\label{component:multi_protocol}
+
+While existing multi-channel approaches rely on centralized decision-making for
+channel selection -- whether through master nodes (MCSC-WoT), \gls{SDN} controllers
+(MINOS), or infrastructure endpoints -- \gls{ubabel} will address these
+limitations through decentralized \emph{protocol} selection, extending beyond
+single-medium channel hopping.
+
+The system will employ opportunistic multi-protocol operation (\gls{BLE} + Wi-Fi +
+\gls{LoRa} + \gls{ESP-NOW}) wherein devices adaptively select communication mediums based
+on factors like message priority, neighbor availability, energy budget, network
+conditions and device capabilities. This selection will be performed through
+local decision-making informed by information gathered through gossip
+protocols, without requiring \gls{SDN} controllers or infrastructure coordination.
+
+\Gls{hysteresis} control mechanisms adapted from the Adaptive Protocol Selection
+Framework prevent oscillations in these decisions while allowing rapid
+response to changing conditions.
+
+Protocol-specific compression strategies account for the different
+energy/bandwidth trade-offs across the proposed stack (e.g. aggressive
+compression for (relatively) energy-expensive \gls{LoRa}, lighter compression for
+short-range \gls{BLE}), integrating the receiver energy asymmetry observations into
+power management decisions.
+
+Unlike AWCT's \gls{LoRaWAN} gateway dependency, Heterogeneous \gls{iot}'s
+\gls{NVIS} centralized backhaul, MCSC-WoT's master-based synchronization, or
+MINOS's \gls{SDN} controller requirement, \gls{ubabel} operates autonomously in
+a \gls{P2P} manner with no static coordinator dependencies.
+
+The multi-protocol capability provides resilience through diversity rather than
+optimization through centralized selection: when conditions render one medium
+unsuitable, devices autonomously transition to alternatives without requiring
+coordinator intervention.
+
+\subsubsection*{Decentralized Synchronization Service}
+\label{component:decentralized_sync}
+
+While MCSC-WoT demonstrates master-based synchronization feasibility and
+\gls{RGCS} provides masterless convergence, both assume homogeneous
+single-protocol networks.
+
+\gls{ubabel} will extend \gls{RGCS} to heterogeneous multi-protocol
+networks through protocol-specific Poisson processes with distinct activation
+rates. Rather than a single $\lambda$ controlling overall sync frequency, the
+system employs per-protocol gossip rates that take into account the energy
+required for each transmission, and the current network conditions:
+
+\begin{description}
+	\item \textbf{$\lambda$\_\gls{BLE}} (high frequency): provides rapid local
+	      synchronization with nearby neighbors, leveraging \gls{BLE}'s low energy cost
+	      for frequent exchanges
+	\item \textbf{$\lambda$\_\gls{LoRa}} (low frequency): maintains long-range
+	      temporal coordination, using \gls{LoRa}'s more expensive transmissions
+	      sparingly
+	\item \textbf{$\lambda$\_Wi-Fi} / Others (medium frequency): situational
+	      use based on network density, energy budgets and other factors
+\end{description}
+
+Each protocol will have its own Poisson-triggered gossip loop, but all updates
+contribute to a single shared logical clock via the converge-to-max criterion
+explored above. When sync events from different protocols occur
+near-simultaneously, the max operation's associativity ensures correct
+convergence regardless of update order.
+
+This multi-graph gossip approach provides several advantages over homogeneous
+sync:
+\begin{description}
+	\item \textbf{Faster convergence:} High-frequency \gls{BLE} gossip can achieve
+	      tighter local consensus while sparse \gls{LoRa} exchanges prevent drift
+	      between distant clusters. The combination converges faster than either
+	      protocol alone.
+	\item \textbf{Resilience through diversity:} If 2.4 GHz interference
+	      disrupts \gls{BLE}/Wi-Fi synchronization, \gls{LoRa} maintains loose temporal
+	      coordination across the network. Conversely, if \gls{LoRa} experiences poor
+	      conditions, local \gls{BLE} sync keeps nearby nodes coordinated.
+	\item \textbf{Natural energy optimization:} Protocol characteristics
+	      directly inform sync frequencies, so that more expensive long-range
+	      transmissions occur rarely while cheap short-range exchanges happen
+	      frequently, matching energy budgets to communication needs.
+\end{description}
+
+The \gls{hysteresis} control mechanisms adapted from
+Section~\ref{sec:multi_protocol} will prevent oscillations in protocol
+selection during sync events: sync partner and protocol choices stabilize
+around locally optimal configurations rather than continuously switching
+between equally-viable options.
+
+The approach aims to handle network partitions gracefully: nodes maintain
+synchronization within their reachable partition using available protocols, and
+when partitions merge (through mobility or topology changes), the
+converge-to-max criterion naturally reconciles previously independent temporal
+references without requiring special merge logic.
+
+Unlike MCSC-WoT's master-based approach, this architecture will operate in a
+fully \gls{P2P} fashion with no fixed coordinator dependencies. The
+multi-protocol extension goes beyond \gls{RGCS}'s original homogeneous network
+assumptions, since heterogeneous gossip graphs with protocol-specific
+characteristics warrant distinct sync frequencies, enabling simultaneous
+optimization of convergence speed, energy consumption, and range coverage.
+
+\subsubsection*{Data Reduction and Compression Module}
+\label{component:reduction_compression}
+\todo{maybe not worth defining as a ""component"" per se}
+
+Extending Ambrosia's lightweight prediction approach to multi-protocol
+scenarios, \gls{ubabel} will reduce data transmission through
+prediction-based filtering: nodes transmit sensor readings only when prediction
+error exceeds configurable thresholds (similar to Ambrosia), with
+protocol-aware tuning to balance accuracy against energy constraints across
+heterogeneous protocols.
+
+Building on prediction-based reduction, the goal is to apply Delta+\gls{RLE} compression
+to the readings that are transmitted, combining both techniques for added
+energy savings and reduced data volume over the air.
+
+Following the two-tier architecture pattern, compression occurs at sensor nodes
+before transmission, with just the first sample in each window being
+transmitted with no compression applied.
+
+Adaptive threshold selection will adjust $\delta$ based on both channel
+characteristics and node state:
+\todo{estes deltas vinham do ambrosia, fica confuso agora que falo de delta encoding?}
+\begin{itemize}
+	\item \textbf{High $\delta$ for \gls{LoRa}}: Tolerates larger prediction errors
+	      to minimize expensive long-range transmissions, sending only when
+	      predictions deviate significantly. These packets undergo
+	      aggressive Delta+\gls{RLE} compression to minimize airtime costs.
+	\item \textbf{Low $\delta$ for \gls{BLE}}: Requires tighter prediction accuracy
+	      for cheap local exchanges, allowing for more frequent transmissions to
+	      maintain precision. Lighter compression (delta encoding only)
+	      is applied here for lower latency.
+	\item \textbf{Battery-aware adaptation}: As node energy depletes, increased
+	      $\delta$ across all channels reduces transmission frequency, extending
+	      lifetime for critical messages. Compression at this point becomes more
+	      lossy to further minimize transmitted data volume.
+\end{itemize}
+
+\textbf{Application-aware transmission} will distinguish between data types:
+periodic sensor readings (temperature, humidity, light) use window-based
+prediction with configurable $\delta$ thresholds, while discrete events
+(emergency alerts, button presses, motion detection) transmit immediately
+without prediction. For predictable streams, accuracy-critical applications
+maintain low $\delta$, while trend monitoring can accept higher values to
+reduce transmission frequency.
+
+Compression strategies also vary by data type: environmental sensors can
+tolerate more prominent Delta+\gls{RLE} compression given their high temporal
+correlation, while critical alerts transmit with minimal (if any) compression
+to reduce latency.
+
+\textbf{Gateway energy management} accounts for the 15-20\% receiver energy
+cost by implementing selective radio shutdown: gateways can disable specific
+protocols during low-activity periods, waking periodically to check for
+incoming sync beacons or when prompted via other protocols. Decompression
+overhead in these nodes is minimal compared to transmission costs at
+the sensor level.
+\todo{entrar pela coisa de desligar os rádios ainda mais?}
+
+The expectation is that the combination of lightweight prediction, adaptive
+thresholding, and protocol-specific tuning together with Delta+\gls{RLE} compression
+will provide substantial energy savings without requiring complex and
+computationally intensive compression algorithms that would themselves consume
+significant power.
+
+% \subsubsection*{Security and Key Management}
+% \label{component:security_keys}
+%
+% While zero-config approaches face circular authentication dependencies and
+% centralized schemes fail when infrastructure collapses, \gls{ubabel}
+% will adopt a hybrid security model that distinguishes between pre-disaster
+% deployment and post-disaster autonomous operation.
+%
+% \begin{description}
+% 	\item \textbf{Pre-disaster deployment phase:} For planned installations
+% 	      (building sensor networks, campus-wide monitoring), devices are
+% 	      provisioned during initial deployment:
+%
+% 	      \begin{itemize}
+% 		      \item \textbf{LPKM polynomial shares:} Preloaded via \gls{KDC} for
+% 		            distributed key management
+% 		      \item \textbf{GASE secret-shadows:} Two per node for threshold
+% 		            authentication ($(t-1)$-of-$n$ reveal protocol)
+% 	      \end{itemize}
+%
+% 	      These are reasonable assumptions for disaster-resilience scenarios, as
+% 	      preparation happens before any emergency operation needs to take place.
+%
+% 	\item \textbf{Post-disaster autonomous operation:} Once a disaster occurs
+% 	      and infrastructure fails, the network operates autonomously using
+% 	      mechanisms that require no central coordination:
+%
+% 	      \begin{itemize}
+% 		      \item \textbf{Threshold-based authentication} (adapted from
+% 		            \gls{GASE}): Nodes form ad-hoc authentication groups where
+% 		            $(t-1)$-of-$n$ members reveal secret shares (pre-distributed)
+% 		            to derive session keys via Lagrange interpolation. Local
+% 		            coordinator election replaces GASE's centralized \glspl{GL}
+% 		            Session key derivation combines group secrets with
+% 		            device-specific keys to prevent impersonation, while
+% 		            aggregated \gls{MAC} tags enable efficient multi-node
+% 		            verification without individual authentication overhead.
+% 		            \todo{too dense?}
+% 		      \item \textbf{Distributed revocation} (adapted from \gls{LPKM}):
+% 		            nodes independently compute updated keys excluding
+% 		            compromised peers, with revocation decisions propagated via
+% 		            gossip
+% 		      \item \textbf{Periodic share updating} (adapted from \gls{LPKM}):
+% 		            timer-based key refresh for backward secrecy, no coordinator
+% 		            needed
+% 		      \item \textbf{Lightweight encryption}: \gls{AES} encryption
+% 		            (demonstrated by MCSC-WoT on ESP32) with
+% 		            compress-then-encrypt strategies
+% 		            (Section~\ref{sec:data_compression}) to minimize ciphertext
+% 		            size and transmission energy
+% 		      \item \textbf{Channel hopping/protocol switching for security}:
+% 		            multi-channel/multi-protocol operation complicates
+% 		            eavesdropping and uses masterless synchronization
+% 		            (\gls{RGCS}) rather than master-based beacons
+% 	      \end{itemize}
+% \end{description}
