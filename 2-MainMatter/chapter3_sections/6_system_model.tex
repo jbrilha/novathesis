@@ -6,16 +6,16 @@
 \gls{ubabel} is structured as a layered architecture where components interact
 to achieve autonomous multi-protocol operation. This section presents the key
 architectural components organized into four functional layers: Core
-Infrastructure, Discovery \& Topology, Coordination, and Data Management.
+Components, Discovery \& Topology, Coordination, and Data Management.
 
 Figure~\ref{fig:system_architecture} \todo{FIGURA SEMELHANTE AO TRABALHO DO AKOS}
 illustrates the overall component organization and interactions.
 
-\subsection{Core Infrastructure Layer}
+\subsection{Core Components Layer}
 \label{subsec:core_infra}
 
 \todo{mix entre o que temos e o que podemos vir a ter}
-The Core Infrastructure Layer provides the foundational services for protocol
+The Core Components Layer provides the foundational services for protocol
 management, event dispatching, and connection handling. These components
 abstract protocol heterogeneity and provide unified interfaces to higher
 layers.
@@ -249,7 +249,7 @@ transmitted over \gls{LoRa} may employ more aggressive compression than
 \gls{BLE} transmissions, balancing compression overhead against transmission
 savings.
 
-\subsubsection*{Message Queue Manager (??)}
+\subsubsection*{Message Queue Manager}
 \label{component:message_queue}
 
 The Message Queue Manager handles priority-based queuing and buffer management
@@ -274,8 +274,8 @@ to available memory constraints.
 \subsection{Component Interactions}
 \label{subsec:component_interactions}
 
-Figure~\ref{fig:component_interactions} illustrates the interactions betweencomponents.
-\todo{INTERACTION DIAGRAM}
+Figure~\ref{fig:component_interactions} illustrates the interactions between
+components. \todo{INTERACTION DIAGRAM}
 
 The Protocol Manager provides capability information to the Protocol Selector,
 enabling adaptive selection decisions. Peer Discovery continuously feeds
