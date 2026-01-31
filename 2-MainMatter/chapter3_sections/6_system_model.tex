@@ -26,7 +26,8 @@ layers.
 The Protocol Manager maintains runtime information for all available
 communication protocols and device capabilities. It registers available
 protocols during system initialization and tracks their operational status
-throughout device operation.
+throughout device operation, simultaneously making decisions on adaptive
+selection based on current operational conditions.
 
 Key responsibilities include:
 \begin{itemize}
@@ -36,16 +37,11 @@ Key responsibilities include:
 	      hardware capabilities
 	\item Enabling or disabling protocols dynamically based on runtime
 	      conditions (e.g., battery level, interference detection)
-	\item Providing protocol capability information to the Protocol Selector
-	      for adaptive selection decisions
+	\item Selecting the appropriate protocol(s) for messages based on
+	      \gls{QoS}, device capabilities, energy budget and environmental
+	      conditions, all while preventing excessive oscillation through
+	      switching cost awareness
 \end{itemize}
-
-% Key responsibilities include: (1) Registering protocol handlers and their
-% characteristics (range, throughput, energy cost); (2) Tracking which protocols
-% are supported on each device based on hardware capabilities; (3) Enabling or
-% disabling protocols dynamically based on runtime conditions (e.g., battery
-% level, interference detection); and (4) Providing protocol capability
-% information to the Protocol Selector for adaptive selection decisions.
 
 \subsubsection*{Event Dispatcher}
 \label{component:event_dispatcher}
@@ -62,17 +58,17 @@ components while maintaining system-wide coordination.
 \subsubsection*{Communication Manager}
 \label{component:communication_manager}
 
-The Communication Manager provides protocol-agnostic connection state tracking
-and high-level abstractions for peer communication. Applications and system
-components interact with remote nodes using \glspl{UUID} rather than
+The Communication Manager provides protocol-agnostic virtual connection state
+tracking and high-level abstractions for peer communication. Applications and
+system components interact with remote nodes using \glspl{UUID} rather than
 protocol-specific addresses.
 
-For each connection, the manager:
+For each virtual connection, the manager:
 \begin{itemize}
-	\item Handles connection establishment with remote peers across multiple
-	      protocols
-	\item Delivers messages to peers, via unicast, multicast or broadcast
-	\item Tracks node state and connection integrity
+    \item Maintains \gls{UUID}-to-protocol mappings
+	\item Monitors per-protocol link availability
+	\item Determines message routing by querying the Topology Manager
+	\item Hands messages to the Message Queue Manager with routing decisions
 \end{itemize}
 
 This unified abstraction enables higher-layer components to interact with peers
@@ -94,19 +90,16 @@ Short-range protocols like \gls{BLE}, \gls{ESP-NOW}, and \gls{ZigBee} employ
 active discovery mechanisms (i.e., advertising, peer lists, beacons), while
 long-range \gls{LoRa} communication relies on opportunistic message exchange.
 
-The service maintains a unified peer view by:
+The service discovers peers and provides standardized information to the
+Topology Manager by:
 \begin{itemize}
 	\item Periodically scanning for neighbor advertisements and beacons across
 	      active protocols
 	\item Advertising local device capabilities (supported protocols,
 	      computational resources, battery status)
-	\item Aggregating discovery information from multiple protocols into a
-	      consistent peer database
+	\item Translating protocol-specific discovery information into standardized
+	      peer descriptors for the Topology Manager
 \end{itemize}
-
-Discovery handlers translate protocol-specific discovery information into
-standardized peer descriptors, enabling the Topology Manager to operate on a
-unified view regardless of the underlying medium.
 
 \subsubsection*{Topology Manager}
 \label{component:topology_manager}
@@ -123,66 +116,18 @@ providing view diversity without global knowledge.
 
 Key operations include:
 \begin{itemize}
-    \item Active view maintenance with symmetric link enforcement\todo{TBD.. not sure how feasible it is com lora/ble/esp now}
+	\item Managing peer membership in active and passive views
 	\item Passive view shuffling for backup peer discovery
-	\item Failure detection through connection timeout and explicit heartbeats
+	\item Providing routing decisions to Communication Manager
 	\item Automatic peer promotion from passive to active view upon failures
 \end{itemize}
-
-\subsubsection*{Routing Service}
-\label{component:routing}
-
-The Routing Service enables multi-hop communication when direct peer
-connectivity is unavailable. Unlike tree-based approaches
-(Section~\ref{subsec:rw_discussion_2}) that restrict communication paths, the
-Routing Service exploits the mesh topology maintained by the Topology Manager
-to find alternative routes across differnet protocols.
-
-Core functionality includes:
-\begin{itemize}
-	\item Multi-hop message forwarding using the active view
-	\item Store-and-forward buffering for partitioned networks
-	\item Path selection considering protocol characteristics and device
-	      capabilities
-	\item Opportunistic delivery when connectivity windows become available
-\end{itemize}
-
-When networks partition due to range limitations or failures, the Routing
-Service maintains local buffers of undeliverable messages. Upon partition
-reconciliation, buffered messages are opportunistically forwarded to their
-destinations.
 
 \subsection{Coordination Layer}
 \label{subsec:coordination}
 \todo{wishful thinking too}
 
-The Coordination Layer manages protocol adaptation and time synchronization,
+The Coordination Layer manages time synchronization,
 enabling coordinated operation without master nodes.
-
-\subsubsection*{Protocol Selector}
-\label{component:multi_protocol}
-
-The Protocol Selector implements adaptive protocol selection based on message
-type, device capabilities, and network conditions. Rather than using
-fixed protocol assignments, it dynamically chooses communication technologies
-considering multiple factors:
-
-\begin{itemize}
-    \item \textbf{\gls{QoS} requirements:} Latency-sensitive messages favor
-        short-range high-throughput protocols (\gls{BLE}, \gls{ESP-NOW}), while
-        delay-tolerant data can use long-range protocols (\gls{LoRa})
-    \item \textbf{Device capabilities:} Protocol choices are constrained by
-        both sender and receiver capabilities obtained from the Protocol
-        Manager
-	\item \textbf{Energy budget:} Low-battery devices prefer energy-efficient
-	      protocols, potentially sacrificing throughput for lifetime
-	\item \textbf{Protocol availability:} Interference or jamming may render
-	      specific protocols unavailable, requiring an alternative selection
-\end{itemize}
-
-The selector tracks per-protocol switching costs to prevent excessive
-oscillation between technologies, ensuring stable operation while remaining
-adaptable.
 
 \subsubsection*{Synchronization Service}
 \label{component:decentralized_sync}
@@ -194,9 +139,11 @@ inspired by \gls{RGCS}~\cite{rgcs2018}.
 
 Each node maintains a logical clock composed of rate and offset parameters that
 transform its hardware clock into synchronized logical time. Synchronization
-occurs through gossip exchanges using Poisson-distributed intervals to minimize
-collision probability.
+occurs through gossip exchanges using Poisson-distributed 
 \todo{explicar melhor what I mean by Poisson-distributed?}
+intervals to minimize collision probability, with sync partners selected from
+the Topology Manager's active view. Sync messages can also be piggybacked on
+the Topology Manager's shuffle exchanges to reduce communication overhead.
 
 Key aspects include:
 \begin{itemize}
@@ -235,8 +182,8 @@ Both sender and receiver maintain synchronized prediction state, ensuring
 consistency without additional communication overhead. The service supports:
 
 \begin{itemize}
-    \item Prediction-based reduction with configurable error thresholds
-        ($\delta$)
+	\item Prediction-based reduction with configurable error thresholds
+	      ($\delta$)
 	\item Protocol-aware threshold adaptation (higher thresholds for
 	      energy-expensive protocols)
 	\item Lightweight time-series compression using delta coding, zigzag
@@ -252,24 +199,21 @@ savings.
 \subsubsection*{Message Queue Manager}
 \label{component:message_queue}
 
-The Message Queue Manager handles priority-based queuing and buffer management
-for messages awaiting transmission or forwarding. It maintains separate queues
-for different message priorities (e.g., critical alerts, periodic sensor data,
-opportunistic synchronization) and enforces memory limits based on device
-capabilities.
+The Message Queue Manager handles all message transmission scheduling. It
+receives routing decisions from the Communication Manager and coordinates with
+the Protocol Manager to determine when messages can actually be transmitted. It
+maintains separate queues for different message priorities (e.g., critical
+alerts, periodic sensor data, opportunistic synchronization) and enforces
+memory limits based on device capabilities.
 
 Responsibilities include:
 \begin{itemize}
-    \item Priority queuing with configurable policies \inlinetodo{(strict priority, fair
-        queuing, weighted fair queuing)??}
+	\item Priority-based queuing with configurable policies
 	\item Store-and-forward buffer management for partitioned networks
+	\item Per-protocol transmission scheduling based on protocol availability
 	\item Delivery confirmation tracking and retransmission scheduling
 	\item Message aging awareness
 \end{itemize}
-
-During network partitioning, the queue manager coordinates with the Routing
-Service to maintain buffered messages until connectivity is restored, subject
-to available memory constraints.
 
 \subsection{Component Interactions}
 \label{subsec:component_interactions}
@@ -277,18 +221,26 @@ to available memory constraints.
 Figure~\ref{fig:component_interactions} illustrates the interactions between
 components. \todo{INTERACTION DIAGRAM}
 
-The Protocol Manager provides capability information to the Protocol Selector,
-enabling adaptive selection decisions. Peer Discovery continuously feeds
-neighbor information to the Topology Manager, which maintains active/passive
-views and provides topology information to the Routing Service for multi-hop
-forwarding decisions.
+Peer Discovery continuously feeds neighbor information to the Topology Manager,
+which maintains active/passive views and provides topology information to the
+Communication Manager for routing decisions. The Communication Manager then
+hands messages to the Message Queue Manager for immediate transmission or
+buffering based on those decisions.
 
-The Synchronization Service coordinates timing across components, particularly
-ensuring the Protocol Selector does not switch protocols during
-synchronization exchanges. The Compression Service reduces message size before
-they reach the Communication Manager for transmission, while the Message Queue
-Manager buffers messages and coordinates delivery with the Routing Service.
+The Message Queue Manager coordinates with the Protocol Manager to schedule
+actual transmission by querying for protocol availability and managing the
+transmission timing.
 
-The Event Dispatcher orchestrates all inter-component communication, enabling
-loosely coupled interactions through event publication and subscription. This
-decoupling simplifies component development and incremental system evolution.
+The Synchronization Service coordinates with the Protocol Manager to prevent
+protocol switching during synchronization exchanges, and selects sync partners
+from the Topology Manager's active view. Additionally, it can opportunistically
+coordinate during shuffle events by piggybacking synchronization information
+on peer description exchanges, thus reducing the total gossip overhead.
+
+The Compression Service reduces message size before they reach the
+Communication Manager for delivery.
+
+The Event Dispatcher orchestrates asynchronous inter-component communication,
+enabling loosely coupled interactions through event publication and
+subscription, simplifying component development and incremental system
+evolution.

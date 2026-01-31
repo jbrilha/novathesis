@@ -98,8 +98,9 @@ forwarding is feasible and often required.
 discovery approaches. \gls{BLE} advertising enables continuous passive
 discovery, \gls{ESP-NOW} requires explicit peer lists, and \gls{ZigBee} uses
 beacon-based association. \gls{ubabel}'s hybrid discovery mechanism
-(Section~\ref{component:multi_protocol}) will accommodate these differences
-while maintaining a unified peer view across protocols.
+(Section~\ref{component:peer_discovery}) will accommodate these differences
+while translating protocol-specific information into standardized peer
+descriptors.
 
 \paragraph{Energy Considerations:} Protocol selection must account for energy
 costs: Wi-Fi consumes significantly more power than \gls{BLE}, while
