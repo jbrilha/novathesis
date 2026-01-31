@@ -8,8 +8,17 @@ to achieve autonomous multi-protocol operation. This section presents the key
 architectural components organized into four functional layers: Core
 Components, Discovery \& Topology, Coordination, and Data Management.
 
-Figure~\ref{fig:system_architecture} \todo{FIGURA SEMELHANTE AO TRABALHO DO AKOS}
+Figure~\ref{fig:system_architecture}
 illustrates the overall component organization and interactions.
+
+\todo{figure out onde meter o event dispatcher?}
+% trim=left bottom right top,
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=\linewidth, trim=2cm 10cm 10cm 1cm, clip]{2-MainMatter/chapter3_sections/arch_components.pdf}
+  \caption{System architecture and component interactions}
+  \label{fig:system_architecture}
+\end{figure}
 
 \subsection{Core Components Layer}
 \label{subsec:core_infra}
@@ -218,8 +227,12 @@ Responsibilities include:
 \subsection{Component Interactions}
 \label{subsec:component_interactions}
 
-Figure~\ref{fig:component_interactions} illustrates the interactions between
-components. \todo{INTERACTION DIAGRAM}
+Figure~\ref{fig:system_architecture} illustrates the interactions between
+components.
+
+The communication manager is the top-level abstraction for application
+interaction, it receives user messages and processes them according to
+their type, available protocols, and known topology.
 
 Peer Discovery continuously feeds neighbor information to the Topology Manager,
 which maintains active/passive views and provides topology information to the
@@ -229,16 +242,15 @@ buffering based on those decisions.
 
 The Message Queue Manager coordinates with the Protocol Manager to schedule
 actual transmission by querying for protocol availability and managing the
-transmission timing.
+transmission timing, the Compression Service then acts upon outbound messages
+prior to actual transmission, performing data reduction if the message type and
+transmission method allow for or require it.
 
 The Synchronization Service coordinates with the Protocol Manager to prevent
 protocol switching during synchronization exchanges, and selects sync partners
 from the Topology Manager's active view. Additionally, it can opportunistically
 coordinate during shuffle events by piggybacking synchronization information
 on peer description exchanges, thus reducing the total gossip overhead.
-
-The Compression Service reduces message size before they reach the
-Communication Manager for delivery.
 
 The Event Dispatcher orchestrates asynchronous inter-component communication,
 enabling loosely coupled interactions through event publication and
