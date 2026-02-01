@@ -65,20 +65,36 @@ the core dependency. This leads to shortcomings in key areas that demand
 more fundamental architectural reconsideration:
 
 \begin{description}
-    \item \textbf{Limited suitability for hazardous environments:}\\
+    \item[\textbf{Limited suitability for hazardous environments:}]
         Remote or dangerous locations (industrial sites, disaster-prone areas)
         require systems that can operate reliably without constant human
         intervention or stable network infrastructure;
-    \item \textbf{Lack of autonomous operation:}\\
+    \item[\textbf{Lack of autonomous operation:}]
         Device deployment and operation en masse can be brittle, with little
         tolerance for individual node failures in the \gls{iot} infrastructure,
         which is naturally susceptible to network failures and intermittent
         connectivity;
-    \item \textbf{Privacy and data sovereignty concerns:}\\
+    \item[\textbf{Privacy and data sovereignty concerns:}]
         Cloud platforms and other third-parties are oftentimes an unavoidable
         middle layer between end devices and end users, raising questions about
         data processing and control.
 \end{description}
+
+% \begin{description}
+%     \item \textbf{Limited suitability for hazardous environments:}\\
+%         Remote or dangerous locations (industrial sites, disaster-prone areas)
+%         require systems that can operate reliably without constant human
+%         intervention or stable network infrastructure;
+%     \item \textbf{Lack of autonomous operation:}\\
+%         Device deployment and operation en masse can be brittle, with little
+%         tolerance for individual node failures in the \gls{iot} infrastructure,
+%         which is naturally susceptible to network failures and intermittent
+%         connectivity;
+%     \item \textbf{Privacy and data sovereignty concerns:}\\
+%         Cloud platforms and other third-parties are oftentimes an unavoidable
+%         middle layer between end devices and end users, raising questions about
+%         data processing and control.
+% \end{description}
 
 While these challenges affect both \gls{iot} and domotics systems alike --
 from industrial monitoring to residential automation -- they become
@@ -154,7 +170,9 @@ In this work, we focus on three main research questions:
 Conventional deployments of networked devices often heavily rely on Wi-Fi
 access points, cellular towers, or other centralized infrastructure that can
 easily become unavailable during disasters, or is altogether unreliable in
-remote locations. \gls{ubabel} will address this by leveraging a
+remote locations.
+
+\gls{ubabel} will address this by leveraging a
 multi-protocol communication approach, supporting a diverse set of wireless
 protocols that can operate independently of infrastructure.
 
@@ -189,7 +207,6 @@ self-organizing network formation, and decentralized coordination mechanisms
 that eliminate the need for pre-configured coordinator nodes or manual network
 planning.
 \todo{FIXED: demasiado foco em emergências}
-
 Devices will autonomously establish connectivity with each other, negotiate
 protocols, and begin operation upon being activated, with minimal configuration
 effort to enable rapid deployment even in hard-to-reach locations.
@@ -248,8 +265,9 @@ The remainder of this document is arranged as follows:
 \begin{description}
     \item[\textbf{Chapter~\ref{cha:related_work}}] Reviews widely-used
         communication protocols and related work in \gls{P2P} networking,
-        multi-protocol communication, decentralized synchronization, data
-        compression, and security.
+        multi-protocol communication, decentralized synchronization and data
+        compression.
+        % , and security.
 
 	\item[\textbf{Chapter~\ref{cha:solution_arch}}] Presents the system
 	      requirements, operating conditions, failure modes, hardware and

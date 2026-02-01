@@ -14,10 +14,10 @@ illustrates the overall component organization and interactions.
 \todo{figure out onde meter o event dispatcher?}
 % trim=left bottom right top,
 \begin{figure}[htbp]
-  \centering
-  \includegraphics[width=\linewidth, trim=2cm 10cm 10cm 1cm, clip]{2-MainMatter/chapter3_sections/arch_components.pdf}
-  \caption{System architecture and component interactions}
-  \label{fig:system_architecture}
+	\centering
+	\includegraphics[width=\linewidth, trim=2cm 10cm 10cm 1cm, clip]{2-MainMatter/chapter3_sections/arch_components.pdf}
+	\caption{System architecture and component interactions}
+	\label{fig:system_architecture}
 \end{figure}
 
 \subsection{Core Components Layer}
@@ -39,18 +39,30 @@ throughout device operation, simultaneously making decisions on adaptive
 selection based on current operational conditions.
 
 Key responsibilities include:
-\begin{itemize}
-	\item Registering protocol handlers and their characteristics (range,
-	      throughput, energy cost)
-	\item Tracking which protocols are supported on each device based on
-	      hardware capabilities
-	\item Enabling or disabling protocols dynamically based on runtime
-	      conditions (e.g., battery level, interference detection)
-	\item Selecting the appropriate protocol(s) for messages based on
-	      \gls{QoS}, device capabilities, energy budget and environmental
-	      conditions, all while preventing excessive oscillation through
-	      switching cost awareness
-\end{itemize}
+(1) Registering protocol handlers and their characteristics (range,
+throughput, energy cost);
+(2) Tracking which protocols are supported on each device based on
+hardware capabilities;
+(3) Enabling or disabling protocols dynamically based on runtime
+conditions (e.g., battery level, interference detection);
+(4) Selecting the appropriate protocol(s) for messages based on
+\gls{QoS}, device capabilities, energy budget and environmental
+conditions, all while preventing excessive oscillation through
+switching cost awareness
+
+% Key responsibilities include:
+% \begin{itemize}
+% 	\item Registering protocol handlers and their characteristics (range,
+% 	      throughput, energy cost)
+% 	\item Tracking which protocols are supported on each device based on
+% 	      hardware capabilities
+% 	\item Enabling or disabling protocols dynamically based on runtime
+% 	      conditions (e.g., battery level, interference detection)
+% 	\item Selecting the appropriate protocol(s) for messages based on
+% 	      \gls{QoS}, device capabilities, energy budget and environmental
+% 	      conditions, all while preventing excessive oscillation through
+% 	      switching cost awareness
+% \end{itemize}
 
 \subsubsection*{Event Dispatcher}
 \label{component:event_dispatcher}
@@ -73,12 +85,18 @@ system components interact with remote nodes using \glspl{UUID} rather than
 protocol-specific addresses.
 
 For each virtual connection, the manager:
-\begin{itemize}
-    \item Maintains \gls{UUID}-to-protocol mappings
-	\item Monitors per-protocol link availability
-	\item Determines message routing by querying the Topology Manager
-	\item Hands messages to the Message Queue Manager with routing decisions
-\end{itemize}
+(1) Maintains \gls{UUID}-to-protocol mappings;
+(2) Monitors per-protocol link availability;
+(3)	Determines message routing by querying the Topology Manager;
+(4) Hands messages to the Message Queue Manager with routing decisions.
+
+% For each virtual connection, the manager:
+% \begin{itemize}
+%     \item Maintains \gls{UUID}-to-protocol mappings
+% 	\item Monitors per-protocol link availability
+% 	\item Determines message routing by querying the Topology Manager
+% 	\item Hands messages to the Message Queue Manager with routing decisions
+% \end{itemize}
 
 This unified abstraction enables higher-layer components to interact with peers
 without concerning themselves with protocol-specific details.
@@ -100,15 +118,22 @@ active discovery mechanisms (i.e., advertising, peer lists, beacons), while
 long-range \gls{LoRa} communication relies on opportunistic message exchange.
 
 The service discovers peers and provides standardized information to the
-Topology Manager by:
-\begin{itemize}
-	\item Periodically scanning for neighbor advertisements and beacons across
-	      active protocols
-	\item Advertising local device capabilities (supported protocols,
-	      computational resources, battery status)
-	\item Translating protocol-specific discovery information into standardized
-	      peer descriptors for the Topology Manager
-\end{itemize}
+Topology Manager by: (1) Periodically scanning for neighbor advertisements and
+beacons across active protocols; (2) Advertising local device capabilities
+(supported protocols, computational resources, battery status); (3) Translating
+protocol-specific discovery information into standardized peer descriptors for
+the Topology Manager.
+
+% The service discovers peers and provides standardized information to the
+% Topology Manager by:
+% \begin{itemize}
+% 	\item Periodically scanning for neighbor advertisements and beacons across
+% 	      active protocols
+% 	\item Advertising local device capabilities (supported protocols,
+% 	      computational resources, battery status)
+% 	\item Translating protocol-specific discovery information into standardized
+% 	      peer descriptors for the Topology Manager
+% \end{itemize}
 
 \subsubsection*{Topology Manager}
 \label{component:topology_manager}
@@ -124,12 +149,18 @@ periodic shuffle operations that exchange peer descriptors with neighbors,
 providing view diversity without global knowledge.
 
 Key operations include:
-\begin{itemize}
-	\item Managing peer membership in active and passive views
-	\item Passive view shuffling for backup peer discovery
-	\item Providing routing decisions to Communication Manager
-	\item Automatic peer promotion from passive to active view upon failures
-\end{itemize}
+(1) Managing peer membership in active and passive views;
+(2) Passive view shuffling for backup peer discovery;
+(3) Providing routing decisions to Communication Manager;
+(4) Automatic peer promotion from passive to active view upon failures;
+
+% Key operations include:
+% \begin{itemize}
+% 	\item Managing peer membership in active and passive views
+% 	\item Passive view shuffling for backup peer discovery
+% 	\item Providing routing decisions to Communication Manager
+% 	\item Automatic peer promotion from passive to active view upon failures
+% \end{itemize}
 
 \subsection{Coordination Layer}
 \label{subsec:coordination}
@@ -148,22 +179,29 @@ inspired by \gls{RGCS}~\cite{rgcs2018}.
 
 Each node maintains a logical clock composed of rate and offset parameters that
 transform its hardware clock into synchronized logical time. Synchronization
-occurs through gossip exchanges using Poisson-distributed 
+occurs through gossip exchanges using Poisson-distributed
 \todo{explicar melhor what I mean by Poisson-distributed?}
 intervals to minimize collision probability, with sync partners selected from
 the Topology Manager's active view. Sync messages can also be piggybacked on
 the Topology Manager's shuffle exchanges to reduce communication overhead.
 
 Key aspects include:
-\begin{itemize}
-	\item Per-protocol Poisson gossip rates accounting for protocol-specific
-	      energy costs and reliability
-	\item Converge-to-max criterion for faster convergence than average-based
-	      approaches
-	\item Simultaneous rate and offset compensation
-	\item Multi-protocol operation where sync messages can be sent over any
-	      available protocol
-\end{itemize}
+(1) Per-protocol Poisson gossip rates accounting for protocol-specific energy
+costs and reliability; (2) Converge-to-max criterion for faster convergence
+than average-based approaches; (3) Simultaneous rate and offset compensation;
+(4) Multi-protocol operation where sync messages can be sent over any available
+protocol.
+
+% Key aspects include:
+% \begin{itemize}
+% 	\item Per-protocol Poisson gossip rates accounting for protocol-specific
+% 	      energy costs and reliability
+% 	\item Converge-to-max criterion for faster convergence than average-based
+% 	      approaches
+% 	\item Simultaneous rate and offset compensation
+% 	\item Multi-protocol operation where sync messages can be sent over any
+% 	      available protocol
+% \end{itemize}
 
 Unlike master-based synchronization that creates single points of failure, this
 gossip-based approach maintains synchronization through distributed local
@@ -189,16 +227,22 @@ thresholds.
 
 Both sender and receiver maintain synchronized prediction state, ensuring
 consistency without additional communication overhead. The service supports:
+(1) Prediction-based reduction with configurable error thresholds ($\delta$);
+(2) Protocol-aware threshold adaptation (higher thresholds for energy-expensive protocols);
+(3) Lightweight time-series compression using delta coding, zigzag encoding, and \gls{RLE};
+(4) Graceful degradation under low battery conditions.
 
-\begin{itemize}
-	\item Prediction-based reduction with configurable error thresholds
-	      ($\delta$)
-	\item Protocol-aware threshold adaptation (higher thresholds for
-	      energy-expensive protocols)
-	\item Lightweight time-series compression using delta coding, zigzag
-	      encoding, and \gls{RLE}
-	\item Graceful degradation under low battery conditions
-\end{itemize}
+% Both sender and receiver maintain synchronized prediction state, ensuring
+% consistency without additional communication overhead. The service supports:
+% \begin{itemize}
+% 	\item Prediction-based reduction with configurable error thresholds
+% 	      ($\delta$)
+% 	\item Protocol-aware threshold adaptation (higher thresholds for
+% 	      energy-expensive protocols)
+% 	\item Lightweight time-series compression using delta coding, zigzag
+% 	      encoding, and \gls{RLE}
+% 	\item Graceful degradation under low battery conditions
+% \end{itemize}
 
 Protocol-specific compression strategies account for varying energy costs: data
 transmitted over \gls{LoRa} may employ more aggressive compression than
@@ -216,23 +260,29 @@ alerts, periodic sensor data, opportunistic synchronization) and enforces
 memory limits based on device capabilities.
 
 Responsibilities include:
-\begin{itemize}
-	\item Priority-based queuing with configurable policies
-	\item Store-and-forward buffer management for partitioned networks
-	\item Per-protocol transmission scheduling based on protocol availability
-	\item Delivery confirmation tracking and retransmission scheduling
-	\item Message aging awareness
-\end{itemize}
+(1) Priority-based queuing with configurable policies;
+(2) Store-and-forward buffer management for partitioned networks;
+(3) Per-protocol transmission scheduling based on protocol availability;
+(4) Delivery confirmation tracking and retransmission scheduling;
+(5) Message aging awareness;.
+
+% Responsibilities include:
+% \begin{itemize}
+% 	\item Priority-based queuing with configurable policies
+% 	\item Store-and-forward buffer management for partitioned networks
+% 	\item Per-protocol transmission scheduling based on protocol availability
+% 	\item Delivery confirmation tracking and retransmission scheduling
+% 	\item Message aging awareness
+% \end{itemize}
 
 \subsection{Component Interactions}
 \label{subsec:component_interactions}
 
-Figure~\ref{fig:system_architecture} illustrates the interactions between
-components.
-
-The communication manager is the top-level abstraction for application
-interaction, it receives user messages and processes them according to
-their type, available protocols, and known topology.
+% Figure~\ref{fig:system_architecture} illustrates the interactions between
+% components.
+% The Communication Manager is the top-level abstraction for application
+% interaction, it receives user messages and processes them according to
+% their type, available protocols, and known topology.
 
 Peer Discovery continuously feeds neighbor information to the Topology Manager,
 which maintains active/passive views and provides topology information to the

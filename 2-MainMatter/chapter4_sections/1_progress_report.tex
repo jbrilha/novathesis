@@ -66,15 +66,23 @@ within buildings, forwarding data through gateway nodes to building-level
 aggregators. 
 
 This mode validates:
-\begin{itemize}
-    \item Multi-protocol communication for different ranges: \gls{BLE} within
-        rooms, \gls{ESP-NOW}/\gls{ZigBee} between floors, \gls{LoRa} across
-        buildings
-    \item Topology management with hybrid active/passive views
-    \item Data reduction for efficient transmission
-    \item Optional cloud integration (Non-Functional Requirement,
-        Section~\ref{subsubsec:nonfunc_reqs})
-\end{itemize}
+(1) Multi-protocol communication for different ranges: \gls{BLE} within rooms,
+\gls{ESP-NOW}/\gls{ZigBee} between floors, \gls{LoRa} across buildings;
+(2) Topology management with hybrid active/passive views;
+(3) Data reduction for efficient transmission;
+(4) Optional cloud integration (\gls{NFR},
+Section~\ref{subsubsec:nonfunc_reqs}).
+
+% This mode validates:
+% \begin{itemize}
+%     \item Multi-protocol communication for different ranges: \gls{BLE} within
+%         rooms, \gls{ESP-NOW}/\gls{ZigBee} between floors, \gls{LoRa} across
+%         buildings
+%     \item Topology management with hybrid active/passive views
+%     \item Data reduction for efficient transmission
+%     \item Optional cloud integration (Non-Functional Requirement,
+%         Section~\ref{subsubsec:nonfunc_reqs})
+% \end{itemize}
 
 \paragraph{Disaster Operation Mode:} Upon infrastructure failure (simulated
 power outage or network collapse), battery-powered sensors continue autonomous
@@ -83,14 +91,21 @@ interactions, with Class-1 gateways aggregating data from their vicinity and
 coordinating between buildings via \gls{LoRa}.
 
 This mode validates:
-\begin{itemize}
-    \item Infrastructure independence (Functional Requirement,
-        Section~\ref{subsubsec:func_reqs})
-    \item Autonomous operation without cloud connectivity
-    \item Protocol adaptation when primary mediums become unavailable
-    \item Store-and-forward mechanisms
-    \item Resource-efficient operation on limited battery power
-\end{itemize}
+(1) Infrastructure independence (\gls{FR}, Section~\ref{subsubsec:func_reqs});
+(2) Autonomous operation without cloud connectivity;
+(3) Protocol adaptation when primary mediums become unavailable;
+(4) Store-and-forward mechanisms;
+(5) Resource-efficient operation on limited battery power.
+
+% This mode validates:
+% \begin{itemize}
+%     \item Infrastructure independence (Functional Requirement,
+%         Section~\ref{subsubsec:func_reqs})
+%     \item Autonomous operation without cloud connectivity
+%     \item Protocol adaptation when primary mediums become unavailable
+%     \item Store-and-forward mechanisms
+%     \item Resource-efficient operation on limited battery power
+% \end{itemize}
 
 \subsubsection*{Building Safety and Evacuation System}
 \label{subsubsec:uc_safety}
@@ -122,11 +137,16 @@ transmitted via short-range protocols (\gls{BLE}, \gls{ESP-NOW}) to floor
 gateways, which forward aggregated data to the building coordinator.
 
 This mode validates:
-\begin{itemize}
-    \item Priority-based message queuing (critical vs. periodic data)
-    \item Low-latency local communication for real-time monitoring
-    \item Integration with existing infrastructure
-\end{itemize}
+(1) Priority-based message queuing (critical vs. periodic data);
+(2) Low-latency local communication for real-time monitoring;
+(3) Integration with existing infrastructure.
+
+% This mode validates:
+% \begin{itemize}
+%     \item Priority-based message queuing (critical vs. periodic data)
+%     \item Low-latency local communication for real-time monitoring
+%     \item Integration with existing infrastructure
+% \end{itemize}
 
 \paragraph{Disaster Operation Mode:} Upon detecting hazardous conditions or
 infrastructure failure, the system automatically transitions to emergency mode.
@@ -135,14 +155,23 @@ floor gateways compute safe evacuation routes based on detected
 hazards\todo{might be overpromising, cada um teria de manter some sort of
 layout info...}, and displays show real-time evacuation guidance reflecting
 current conditions.
+\todo{ou.... layout info stored in an SD card? much to consider}
 
 This mode validates:
-\begin{itemize}
-    \item Autonomous operation during infrastructure collapse (Functional
-        Requirement)
-    \item Multi-protocol broadcast for critical alerts (redundancy through
-        protocol diversity)
-    \item Decentralized coordination without central controllers
-    \item Adaptive protocol selection under emergency conditions
-    \item Real-time responsiveness despite limited resources
-\end{itemize}
+(1) Autonomous operation during infrastructure collapse;
+(2) Multi-protocol broadcast for critical alerts (redundancy through protocol
+diversity);
+(3) Decentralized coordination without central controllers;
+(4) Adaptive protocol selection under emergency conditions;
+(5) Real-time responsiveness despite limited resources.
+
+% This mode validates:
+% \begin{itemize}
+%     \item Autonomous operation during infrastructure collapse (Functional
+%         Requirement)
+%     \item Multi-protocol broadcast for critical alerts (redundancy through
+%         protocol diversity)
+%     \item Decentralized coordination without central controllers
+%     \item Adaptive protocol selection under emergency conditions
+%     \item Real-time responsiveness despite limited resources
+% \end{itemize}

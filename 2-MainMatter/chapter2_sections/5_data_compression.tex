@@ -158,34 +158,33 @@ that is, combining pairs of datasets into one cluster when their
 combined representation is shorter than separate encodings -- to transmit
 \emph{hypothesis} data sets and difference vectors instead of full data sets.
 
-
 The Delta+\gls{RLE} implementation -- validated through OMNeT++ simulation --
 proves to be lightweight enough for resource-constrained nodes, while gateway
 clustering reduces transmission to cloud infrastructure.
 
-\subsection{Receiver-Side Energy Considerations}
-\label{subsec:receiver_energy}
-
-\todo{TOFIX: outra vez o paper do MDPI.... retirar por completo, fingir que não vi?}
-An often overlooked aspect of \gls{iot} energy optimization is the asymmetry
-between sender and receiver energy consumption. The adaptive protocol selection
-framework analysis~\cite{adaptive2025} revealed that receiver nodes
-consistently consume 15-20\% more energy than senders across all evaluated
-protocols (\gls{MQTT}, \gls{CoAP}, \gls{HTTP}).
-
-This asymmetry shifts the energy bottleneck from endpoint sensors to
-intermediary nodes like gateways and has direct implications for gateway power
-management in disaster scenarios where battery replacement becomes impossible.
-The increased receiver cost stems from the added computational work required
-for parsing, processing, and managing incoming messages, particularly at high
-message rates.
-
-For \gls{ubabel}'s proposed heterogeneous architecture where sensor
-nodes might eventually forward data to aggregators/gateways, this finding has
-direct implications in that managing the power consumption of these gateways
-becomes as significant as sensor power optimization, since one gateway might
-receive substantial data from several nodes even if individually they don't
-perform frequent transmissions.
+% \subsection{Receiver-Side Energy Considerations}
+% \label{subsec:receiver_energy}
+%
+% \todo{TOFIX: outra vez o paper do MDPI.... retirar por completo, fingir que não vi?}
+% An often overlooked aspect of \gls{iot} energy optimization is the asymmetry
+% between sender and receiver energy consumption. The adaptive protocol selection
+% framework analysis~\cite{adaptive2025} revealed that receiver nodes
+% consistently consume 15-20\% more energy than senders across all evaluated
+% protocols (\gls{MQTT}, \gls{CoAP}, \gls{HTTP}).
+%
+% This asymmetry shifts the energy bottleneck from endpoint sensors to
+% intermediary nodes like gateways and has direct implications for gateway power
+% management in disaster scenarios where battery replacement becomes impossible.
+% The increased receiver cost stems from the added computational work required
+% for parsing, processing, and managing incoming messages, particularly at high
+% message rates.
+%
+% For \gls{ubabel}'s proposed heterogeneous architecture where sensor
+% nodes might eventually forward data to aggregators/gateways, this finding has
+% direct implications in that managing the power consumption of these gateways
+% becomes as significant as sensor power optimization, since one gateway might
+% receive substantial data from several nodes even if individually they don't
+% perform frequent transmissions.
 
 \subsection{Discussion}
 \label{subsec:rw_discussion_5}
@@ -219,6 +218,4 @@ multi-protocol networks.
 
 \gls{ubabel}'s approach (Section~\ref{component:reduction_compression}) should,
 therefore, consider lightweight prediction and compression in multi-protocol
-scenarios with per-protocol thresholds and strategy selection while accounting
-for gateway receiver energy costs.
-\todo{TODO: retirar receiver energy stuff se retirar o paper do MDPI}
+scenarios with per-protocol thresholds and strategy selection.
