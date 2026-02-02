@@ -5,8 +5,8 @@
 
 \gls{ubabel} is structured as a layered architecture where components interact
 to achieve autonomous multi-protocol operation. This section presents the key
-architectural components organized into four functional layers: Core
-Components, Discovery \& Topology, Coordination, and Data Management.
+architectural components organized into four component categories: Core,
+Discovery \& Topology, Coordination, and Data Management.
 
 Figure~\ref{fig:architecture_components}
 illustrates the overall component organization and interactions.
@@ -19,23 +19,21 @@ illustrates the overall component organization and interactions.
 	\label{fig:architecture_components}
 \end{figure}
 
-\subsection{Core Components Layer}
+\subsection{Core Components}
 \label{subsec:core_infra}
 
 \todo{mix entre o que temos e o que podemos vir a ter}
-The Core Components Layer provides the foundational services for protocol
-management, event dispatching, and connection handling. These components
-abstract protocol heterogeneity and provide unified interfaces to higher
-layers.
+These are the foundational components for protocol management, event dispatching,
+and connection handling. These components abstract protocol heterogeneity and
+provide unified interfaces to higher layers.
 
-\subsubsection*{Protocol Manager}
-\label{component:protocol_manager}
+\paragraph{Protocol Manager}
 
-The Protocol Manager maintains runtime information for all available
-communication protocols and device capabilities. It registers available
-protocols during system initialization and tracks their operational status
-throughout device operation, simultaneously making decisions on adaptive
-selection based on current operational conditions.
+Maintains runtime information for all available communication protocols and
+device capabilities. It registers available protocols during system
+initialization and tracks their operational status throughout device operation,
+simultaneously making decisions on adaptive selection based on current
+operational conditions.
 
 Key responsibilities include:
 (1) Registering protocol handlers and their characteristics (range,
@@ -63,22 +61,19 @@ switching cost awareness
 % 	      switching cost awareness
 % \end{itemize}
 
-\subsubsection*{Event Dispatcher}
+\paragraph{Event Dispatcher}
 \label{component:event_dispatcher}
 
-The Event Dispatcher implements an event-driven coordination model that
-decouples components and enables asynchronous communication between services.
-Components register interest in specific event types and subtypes, and the
-dispatcher routes incoming events to all registered subscribers.
+Implements an event-driven coordination model that decouples components and
+enables asynchronous communication between services. Components register
+interest in specific event types and subtypes, and the dispatcher routes
+incoming events to all registered subscribers. This approach prevents tight
+coupling between protocol implementations and application logic.
 
-This approach prevents tight coupling between protocol implementations and
-application logic, enabling independent development and testing of individual
-components while maintaining system-wide coordination.
-
-\subsubsection*{Communication Manager}
+\paragraph{Communication Manager}
 \label{component:communication_manager}
 
-The Communication Manager provides protocol-agnostic virtual connection state
+Provides protocol-agnostic virtual connection state
 tracking and high-level abstractions for peer communication. Applications and
 system components interact with remote nodes using \glspl{UUID} rather than
 protocol-specific addresses.
@@ -100,18 +95,14 @@ For each virtual connection, the manager:
 This unified abstraction enables higher-layer components to interact with peers
 without concerning themselves with protocol-specific details.
 
-\subsection{Discovery \& Topology Layer}
+\subsection{Discovery \& Topology Maintenance}
 \label{subsec:discovery_topology}
 \todo{wishful thinking}
 
-The Discovery \& Topology Layer handles peer discovery, network topology
-maintenance, and multi-hop routing. These components enable autonomous network
-formation without centralized coordination.
-
-\subsubsection*{Peer Discovery Service}
+\paragraph{Peer Discovery Service}
 \label{component:peer_discovery}
 
-The Peer Discovery Service implements multi-protocol neighbor discovery.
+Implements multi-protocol neighbor discovery.
 Short-range protocols like \gls{BLE}, \gls{ESP-NOW}, and \gls{ZigBee} employ
 active discovery mechanisms (i.e., advertising, peer lists, beacons), while
 long-range \gls{LoRa} communication relies on opportunistic message exchange.
@@ -134,18 +125,18 @@ the Topology Manager.
 % 	      peer descriptors for the Topology Manager
 % \end{itemize}
 
-\subsubsection*{Topology Manager}
+\paragraph{Topology Manager}
 \label{component:topology_manager}
 
-Inspired by HyParView~\cite{hyparview2007}, the Topology Manager maintains
-hybrid partial views for scalability and resilience. Each node keeps a small
-\emph{active view} of peers with which it maintains active communication links,
-and a larger \emph{passive view} serving as a pool of potential neighbors.
+Maintains hybrid partial views (HyParView~\cite{hyparview2007}) for scalability
+and resilience. Each node keeps a small \emph{active view} of peers with which
+it maintains active communication links, and a larger \emph{passive view}
+serving as a pool of potential neighbors.
 
-The active view is managed reactively: nodes are added during join operations
-and removed upon failure detection. The passive view is maintained through
-periodic shuffle operations that exchange peer descriptors with neighbors,
-providing view diversity without global knowledge.
+The \emph{active view} is managed reactively: nodes are added during join
+operations and removed upon failure detection. The \emph{passive view} is
+maintained through periodic shuffle operations that exchange peer descriptors
+with neighbors, providing view diversity without global knowledge.
 
 Key operations include:
 (1) Managing peer membership in active and passive views;
@@ -161,22 +152,19 @@ Key operations include:
 % 	\item Automatic peer promotion from passive to active view upon failures
 % \end{itemize}
 
-\subsection{Coordination Layer}
+\subsection{Coordination Component}
 \label{subsec:coordination}
 \todo{wishful thinking too}
-
-The Coordination Layer manages time synchronization,
-enabling coordinated operation without master nodes.
-
-\subsubsection*{Synchronization Service}
-\label{component:decentralized_sync}
 
 Coordinated multi-protocol operation requires time synchronization for channel
 hopping and scheduled communication windows. The Synchronization Service
 implements decentralized consensus on clock values through randomized gossip,
 inspired by \gls{RGCS}~\cite{rgcs2018}.
 
-Each node maintains a logical clock composed of rate and offset parameters that
+\paragraph{Synchronization Service}
+\label{component:decentralized_sync}
+
+Maintains a logical clock composed of rate and offset parameters that
 transform its hardware clock into synchronized logical time. Synchronization
 occurs through gossip exchanges using Poisson-distributed
 \todo{explicar melhor what I mean by Poisson-distributed?}
@@ -206,29 +194,24 @@ Unlike master-based synchronization that creates single points of failure, this
 gossip-based approach maintains synchronization through distributed local
 interactions.
 
-\subsection{Data Management Layer}
+\subsection{Data Management Components}
 \label{subsec:data_management}
 \todo{wishful thinking too$^2$}
 
-The Data Management Layer optimizes data transmission through compression and
-efficient queue management, extending operational lifetime in battery-powered
-deployments.
-
-\subsubsection*{Compression Service}
+\paragraph{Compression Service}
 \label{component:reduction_compression}
 
-The Compression Service reduces transmission overhead through prediction-based
-data reduction (inspired by Ambrosia~\cite{ambrosia2021}) and lightweight
-compression (inspired by Sprintz~\cite{sprintz2018} and the approach
-in~\cite{twotier2019}). It employs window-based forecasting where sensor values
-are transmitted only when prediction error exceeds application-specific
-thresholds.
+Reduces transmission overhead through prediction-based data reduction
+(Ambrosia~\cite{ambrosia2021}) and lightweight compression
+(Sprintz~\cite{sprintz2018} and~\cite{twotier2019}). It employs window-based
+forecasting where sensor values are transmitted only when prediction error
+exceeds application-specific thresholds.
 
 Both sender and receiver maintain synchronized prediction state, ensuring
 consistency without additional communication overhead. The service supports:
 (1) Prediction-based reduction with configurable error thresholds ($\delta$);
-(2) Protocol-aware threshold adaptation (higher thresholds for energy-expensive protocols);
-(3) Lightweight time-series compression using delta coding, zigzag encoding, and \gls{RLE};
+(2) Protocol-aware threshold adaptation;
+(3) Lightweight series compression using delta coding and \gls{RLE};
 (4) Graceful degradation under low battery conditions.
 
 % Both sender and receiver maintain synchronized prediction state, ensuring
@@ -248,10 +231,10 @@ transmitted over \gls{LoRa} may employ more aggressive compression than
 \gls{BLE} transmissions, balancing compression overhead against transmission
 savings.
 
-\subsubsection*{Message Queue Manager}
+\paragraph{Message Queue Manager}
 \label{component:message_queue}
 
-The Message Queue Manager handles all message transmission scheduling. It
+Handles all message transmission scheduling. It
 receives routing decisions from the Communication Manager and coordinates with
 the Protocol Manager to determine when messages can actually be transmitted. It
 maintains separate queues for different message priorities (e.g., critical
@@ -292,24 +275,20 @@ Responsibilities include:
 % \end{figure}
 
 Peer Discovery continuously feeds neighbor information to the Topology Manager,
-which maintains active/passive views and provides topology information to the
-Communication Manager for routing decisions. The Communication Manager then
-hands messages to the Message Queue Manager for immediate transmission or
-buffering based on those decisions.
+which provides topology information to the Communication Manager for routing
+decisions, which then hands messages to the Message Queue Manager for immediate
+transmission or buffering based on those decisions.
 
-The Message Queue Manager coordinates with the Protocol Manager\todo{ou o comms manager fala com o proto manager... what do we think?} to schedule
-actual transmission by querying for protocol availability and managing the
-transmission timing, the Compression Service then acts upon outbound messages
-prior to actual transmission, performing data reduction if the message type and
-transmission method allow for or require it.
+The Message Queue Manager coordinates with the Protocol Manager\todo{ou o comms
+manager fala com o proto manager... what do we think?} to determine protocol
+availability and manage the transmission timing. The Compression Service then
+acts upon outbound messages prior to actual transmission, performing data
+reduction if the message type and transmission method allow for or require it.
 
-The Synchronization Service coordinates with the Protocol Manager to prevent
-protocol switching during synchronization exchanges, and selects sync partners
-from the Topology Manager's active view. Additionally, it can opportunistically
-coordinate during shuffle events by piggybacking synchronization information
-on peer description exchanges, thus reducing the total gossip overhead.
+The Synchronization Service coordinates with the Protocol Manager for
+synchronization exchanges, and selects sync partners from the Topology
+Manager's active view. It can also opportunistically piggyback synchronization
+information on peer description exchanges, reducing the total gossip overhead.
 
-The Event Dispatcher orchestrates asynchronous inter-component communication,
-enabling loosely coupled interactions through event publication and
-subscription, simplifying component development and incremental system
-evolution.
+The Event Dispatcher operates in the background and provides asynchronous
+inter-component communication.

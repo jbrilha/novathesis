@@ -11,7 +11,7 @@ The system leverages vendor-supported \glspl{SDK} and a minimal \gls{RTOS} to
 ensure portability across Class-1 devices while maintaining fine-grain control
 over hardware resources.
 
-\subsection{Operating System Layer}
+\paragraph{Operating System Layer}
 
 FreeRTOS~\cite{freertos2024} serves as the \gls{RTOS} across all Class-1
 devices. It provides deterministic task scheduling and inter-task communication
@@ -30,7 +30,7 @@ brought into the Pico platform. By using it as a common execution runtime,
 heterogeneous microcontroller platforms, simplifying both portability and
 implementation.
 
-\subsection{Platform SDKs and Hardware Abstractions}
+\paragraph{Platform SDKs and Hardware Abstractions}
 
 Hardware-specific functionality is accessed through vendor abstractions. The
 \gls{ESP-IDF}~\cite{espidf2026} is used for the ESP32 family, while the
@@ -50,7 +50,7 @@ it allows precise control over memory usage, interrupt behavior, and timing,
 which are essential in embedded environments with limited memory strict
 real-time constraints.
 
-\subsection{Concurrency Model}
+\paragraph{Concurrency Model}
 
 \gls{ubabel} follows a task-based concurrency model built on FreeRTOS
 primitives. Protocol handlers execute as independent tasks, allowing
@@ -59,7 +59,7 @@ Inter-task communication is handled through message queues, while mutexes and
 semaphores are used to protect shared state and coordinate access to hardware
 resources.
 
-An event dispatcher provides higher-level coordination by routing events
-between protocol components and system services. This structure decouples
-individual components, simplifies reasoning about system behavior, and supports
-incremental extension of the protocol stack.
+% An event dispatcher provides higher-level coordination by routing events
+% between protocol components and system services. This structure decouples
+% individual components, simplifies reasoning about system behavior, and supports
+% incremental extension of the protocol stack.
