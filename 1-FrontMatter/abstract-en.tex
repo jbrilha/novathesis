@@ -8,38 +8,42 @@
 
 \typeout{NT FILE abstract-en.tex}%
 
-\todo{TODO: não me esqueci, deixo para o final}
+Current \gls{iot} and domotics systems are fundamentally dependent on
+continuous infrastructure availability, which creates critical vulnerabilities
+when cloud connectivity fails, access points become unreachable, or centralized
+coordinators become unresponsive.
 
-Regardless of the language in which the dissertation is written, usually there are at least two abstracts: one abstract in the same language as the main text, and another abstract in some other language.
+Resolving this dependence is particularly challenging when targeting
+resource-constrained platforms due to the conflicting nature of autonomous
+operation and the available computational, memory, and energy budgets. The
+heterogeneity of available communication protocols (i.e., Wi-Fi, \gls{BLE},
+\gls{LoRa}, \gls{ZigBee}, \gls{ESP-NOW}) introduces additional complexity but
+-- if properly utilized -- can help mitigate infrastructure dependence by
+providing resilience and autonomy through variety.
 
-The abstracts' order varies with the school.  If your school has specific regulations concerning the abstracts' order, the \gls{novathesis} (\LaTeX) template will respect them.  Otherwise, the default rule in the \gls{novathesis} template is to have in first place the abstract in \emph{the same language as main text}, and then the abstract in \emph{the other language}. For example, if the dissertation is written in Portuguese, the abstracts' order will be first Portuguese and then English, followed by the main text in Portuguese. If the dissertation is written in English, the abstracts' order will be first English and then Portuguese, followed by the main text in English.
-%
-However, this order can be customized by adding one of the following to the file \verb+5_packages.tex+.
+In this paper we propose \gls{ubabel}\todo{o template não deixa meter o ubabel
+assim na cover page.... reverter tudo para "microBabel?"}, a lightweight,
+\emph{multi-protocol} communication framework intended to address the
+difficulties of decentralized coordination in commodity embedded devices (ESP32
+family, Raspberry Pi Pico). Leveraging the available avenues for communication,
+we plan to enable resilient, decentralized,  and infrastructure-independent
+operation with: adaptive protocol selection based on operating conditions,
+\gls{QoS} requirements, and device capabilities; autonomous peer discovery;
+gossip-based time synchronization; and lightweight data reduction techniques.
 
-\begin{verbatim}
-    \ntsetup{abstractorder={<LANG_1>,...,<LANG_N>}}
-    \ntsetup{abstractorder={<MAIN_LANG>={<LANG_1>,...,<LANG_N>}}}
-\end{verbatim}
+The proposed system is designed for fully autonomous operation, but will allow
+for seamless integration with the broader
+Babel~\cite{fouto2022babel}\todo{talvez não mencionar o Babel aqui? kinda
+shifts focus maybe} ecosystem, further enabling the deployment and formation
+of heterogeneous systems where resource-constrained edge devices interoperate
+with \emph{optional} computational nodes for enhanced capabilities when
+available.
 
-For example, for a main document written in German with abstracts written in German, English and Italian (by this order) use:
-\begin{verbatim}
-    \ntsetup{abstractorder={de={de,en,it}}}
-\end{verbatim}
-
-Concerning its contents, the abstracts should not exceed one page and may answer the following questions (it is essential to adapt to the usual practices of your scientific area):
-
-\begin{enumerate}
-  \item What is the problem?
-  \item Why is this problem interesting/challenging?
-  \item What is the proposed approach/solution/contribution?
-  \item What results (implications/consequences) from the solution?
-\end{enumerate}
-
-% Abstract keywords
 \keywords{
-  One keyword \and
-  Another keyword \and
-  Yet another keyword \and
-  One keyword more \and
-  The last keyword
+	\glslink{iot}{\glsentrylong{iot}} (\glslink{iot}{\glsentryshort{iot}}) \and
+	Autonomous Operation \and
+	Multi-Protocol Communication \and
+	Disaster Resilience \and
+	Embedded Systems \and
+	\gls{P2P} Mesh Networks \and
 }

@@ -8,44 +8,44 @@
 
 \typeout{NT FILE abstract-pt.tex}%
 
-Independentemente da língua em que a dissertação está escrita, geralmente esta contém pelo menos dois resumos: um resumo na mesma língua do texto principal e outro resumo numa outra língua.
+\glsresetall
 
-A ordem dos resumos varia de acordo com a escola. Se a sua escola tiver regulamentos específicos sobre a ordem dos resumos, o template (\LaTeX) \gls{novathesis} irá respeitá-los. Caso contrário, a regra padrão no template \gls{novathesis} é ter em primeiro lugar o resumo \emph{no mesmo idioma do texto principal} e depois o resumo \emph{no outro idioma}. Por exemplo, se a dissertação for escrita em português, a ordem dos resumos será primeiro o português e depois o inglês, seguido do texto principal em português. Se a dissertação for escrita em inglês, a ordem dos resumos será primeiro em inglês e depois em português, seguida do texto principal em inglês.
-%
-No entanto, esse pedido pode ser personalizado adicionando um dos seguintes ao arquivo \verb+5_packages.tex+.
+Sistemas atuais de \gls{iot} e domótica dependem fundamentalmente de
+disponibilidade contínua de infraestrutura, o que cria vulnerabilidades
+críticas quando conectividade à \emph{cloud} falha, pontos de acesso tornam-se
+inalcançáveis, ou coordenadores centralizados deixam de responder.
 
-\begin{verbatim}
-    \abstractorder(<MAIN_LANG>):={<LANG_1>,...,<LANG_N>}
-\end{verbatim}
+Resolver esta dependência é particularmente desafiante quando o alvo são
+plataformas com recursos limitados, devido à natureza conflituosa de operação
+autónoma e as capacidades computacionais, de memória, e de energia disponíveis.
+A heterogeneidade de protocolos de comunicação disponíveis (i.e., Wi-Fi,
+\gls{BLE}, \gls{LoRa}, \gls{ZigBee}, \gls{ESP-NOW}) introduz complexidade
+adicional mas -- se utilizada corretamente -- pode ajudar a mitigar a
+dependência em infraestrutura ao providenciar resiliência e autonomia através
+de variedade.
 
-Por exemplo, para um documento escrito em Alemão com resumos em Alemão, Inglês e Italiano (por esta ordem), pode usar-se:
-\begin{verbatim}
-    \ntsetup{abstractorder={de={de,en,it}}}
-\end{verbatim}
+Neste trabalho propômos \gls{ubabel}, uma \emph{framework} de comunicação
+\emph{multi-protocolo} destinada a abordar as dificuldades de coordenação
+descentralizada em dispositivos embutidos comuns (família ESP32, Raspberry Pi
+Pico). Explorando os meios de comunicação disponíveis, planeamos possibilitar
+operação resiliente, descentralizada, e independente de infraestruturas com:
+seleção adaptativa de protocolos baseada em condições operacionais, requisitos
+de \emph{\gls{QoS}}, e de capacidades dos dispositivos; descoberta autónoma de
+\emph{peers}; sincronização temporal baseada em \emph{gossip}; e técnicas
+eficientes de redução de dados.
 
-Relativamente ao seu conteúdo, os resumos não devem ultrapassar uma página e frequentemente tentam responder às seguintes questões (é imprescindível a adaptação às práticas habituais da sua área científica):
+O sistema proposto é desenhado para operação completamente autónoma,
+mas permitirá integração natural\todo{maybe not "natural" but seamless é kinda estranho traduzir} com o ecosistema
+Babel~\cite{fouto2022babel}, possibilitando a implementação e formação de
+sistemas heterógeneos onde dispositivos com recursos limitados na \emph{edge}
+interoperam com nós computacionais \emph{opcionais} para capacidades
+adicionais quando disponíveis.
 
-\begin{enumerate}
-  \item Qual é o problema?
-  \item Porque é que é um problema interessante/desafiante?
-  \item Qual é a proposta de abordagem/solução?
-  \item Quais são as consequências/resultados da solução proposta?
-\end{enumerate}
-
-% E agora vamos fazer um teste com uma quebra de linha no hífen a ver se a \LaTeX\ duplica o hífen na linha seguinte se usarmos \verb+"-+… em vez de \verb+-+.
-%
-% zzzz zzz zzzz zzz zzzz zzz zzzz zzz zzzz zzz zzzz zzz zzzz zzz zzzz zzz zzzz comentar"-lhe zzz zzzz zzz zzzz
-%
-% Sim!  Funciona! :)
-
-% Palavras-chave do resumo em Português
-% \begin{keywords}
-% Palavra-chave 1, Palavra-chave 2, Palavra-chave 3, Palavra-chave 4
-% \end{keywords}
 \keywords{
-  Primeira palavra-chave \and
-  Outra palavra-chave \and
-  Mais uma palavra-chave \and
-  A última palavra-chave
+	\glslink{iot}{\glsentrylong{iot}} (\glslink{iot}{\glsentryshort{iot}}) \and
+	Operação Autónoma \and
+	Comunicação Multi-Protocolo \and
+	Resiliência a Desastres \and
+	Sistemas Embutidos \and
+	Redes Mesh \gls{P2P} \and
 }
-% to add an extra black line
