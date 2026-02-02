@@ -23,16 +23,16 @@ At the application layer, two messaging protocols stand out given their
 wide-spread adoption in \gls{iot} deployments:
 
 \begin{description}
-    \item[\textbf{\gls{MQTT}:}] A lightweight publish/subscribe messaging
-        protocol designed for constrained devices and unreliable, low-bandwidth
-        networks. It relies on a centralized \emph{broker} to mediate
-        communication between publishers and subscribers -- essential, a
-        server.
-    
-    \item[\textbf{\gls{CoAP}~\cite{coap2012,rfc7252}:}] A RESTful,
-        request/response protocol designed for constrained environments.
-        Operates over \gls{UDP} and assumes the presence of well-known
-        endpoints or proxy servers for resource discovery and access.
+	\item[\textbf{\gls{MQTT}:}] A lightweight publish/subscribe messaging
+	      protocol designed for constrained devices and unreliable, low-bandwidth
+	      networks. It relies on a centralized \emph{broker} to mediate
+	      communication between publishers and subscribers -- essential, a
+	      server.
+
+	\item[\textbf{\gls{CoAP}~\cite{coap2012,rfc7252}:}] A RESTful,
+	      request/response protocol designed for constrained environments.
+	      Operates over \gls{UDP} and assumes the presence of well-known
+	      endpoints or proxy servers for resource discovery and access.
 \end{description}
 
 Both protocols inherently assume the availability of stable endpoints, and rely
@@ -52,7 +52,8 @@ discussed here provide the foundational communication stack that determines the
 behavior of \gls{ubabel}.
 
 Table~\ref{tab:protocol_specs} details the basic operational characteristics of
-the wireless communication technologies considered in this work.
+the wireless communication technologies considered in this work and how they
+drive protocol selection based on different factors:
 
 \rowcolors{1}{}{GhostWhite}
 \begin{table}[htbp]
@@ -66,8 +67,8 @@ the wireless communication technologies considered in this work.
 		\textbf{Protocol}  & \textbf{Discovery}        & \textbf{Range$^1$} & \textbf{Frequency}  & \textbf{Data Rate} & \textbf{Power Draw} \\
 		\midrule
 		Wi-Fi              & \glslink{SSID}{SSID} scan & 50-100 m           & 2.4 GHz             & 1-50 Mbps          & High                \\
-		\glslink{BLE}{BLE} & Advertising               & 10-50 m            & 2.4 GHz             & 1-2 Mbps           & Low                 \\
-		\gls{ESP-NOW}      & Peer list                 & 50-100 m           & 2.4 GHz             & ~1 Mbps            & Very Low            \\
+		\glslink{BLE}{BLE} & Advertising               & 10-50 m            & 2.4 GHz             & 1-2 Mbps           & Very Low            \\
+		\gls{ESP-NOW}      & Peer list                 & 50-100 m           & 2.4 GHz             & ~1 Mbps            & Low                 \\
 		\gls{ZigBee}       & Beacon                    & 10-100 m           & 2.4 GHz             & 250 Kbps           & Very Low            \\
 		\gls{LoRa}         & Preamble detection        & 2-10 km            & 433/868/915 MHz$^2$ & 0.3-50 Kbps$^3$    & Low$^3$             \\
 		\bottomrule
@@ -82,10 +83,7 @@ the wireless communication technologies considered in this work.
 		}                                                                                                                                    \\
 	\end{tabular}
 \end{table}
-\todo{get actual power draw values from somewhere}
-
-These characteristics drive protocol selection based on deployment context and
-communication requirements:
+\todo{get actual milliamp power draw values from somewhere and/or source?}
 
 \paragraph{Range vs. Throughput Trade-offs:} \gls{LoRa} provides 2-10 km range
 (with appropriate antenna configurations) but very limited throughput (0.3-50
@@ -118,13 +116,13 @@ instead of relying on a single one.
 \subsection{Discussion}
 \label{subsec:rw_discussion_1}
 
-The communication technologies highlight that no single protocol can
-simultaneously optimize for range, throughput, energy efficiency, and autonomy
-under infrastructure failures. Instead, resilience emerges from the ability
-to combine the complimentary features of each technology and adapt communication
-strategies to the specific context and requirements of a given environment.
+The considered technologies highlight that no single protocol can
+simultaneously optimize for range, throughput and energy efficiency upon loss
+of infrastructure. Instead, resilience emerges from the ability to combine the
+complimentary features of each technology and adapt communication strategies to
+the specific context and requirements of a given environment.
 
-These observations motivate an approach in which diversity is
-treated as a first-class requirement, and provide the technological context for
-the multi-protocol operation and architectural choices discussed in
+These observations motivate an approach in which diversity is treated as a
+first-class requirement, and provide the technological context for the
+multi-protocol operation and architectural choices discussed in
 Chapter~\ref{cha:solution_arch}.

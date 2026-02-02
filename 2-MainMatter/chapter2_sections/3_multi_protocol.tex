@@ -23,9 +23,6 @@ selection frameworks that switch protocols based on runtime conditions.
 \subsection{Multi-Channel Resilience Architectures}
 \label{subsec:multi-channel}
 
-Several disaster-focused systems explicitly address infrastructure failures
-through the exploitation of protocol diversity.
-
 The \gls{AWCT} framework~\cite{awct} orchestrates \gls{LPWAN} on top of
 \gls{LoRaWAN} with ad-hoc networks (Bluetooth and Wi-Fi) specifically for
 standby emergency communication. Their architecture adds three modules to
@@ -37,18 +34,17 @@ between the Bluetooth, Wi-Fi and \gls{LPWAN} interfaces.
 The system leverages dense \gls{iot} device deployment to provide emergency coverage,
 demonstrating that existing infrastructure can still serve a purpose during
 scenarios where the main power grid suffers issues.
-
 However, AWCT's reliance on centralized \gls{LoRaWAN} gateways for Internet
 connectivity creates a single point of failure when those gateways become
 unreachable.\\
 
 A more comprehensive heterogeneous approach is presented
 in~\cite{heterogeneous-disaster}, which integrates \gls{HF} radio with
-\gls{NVIS}, satellite links, \glspl{WSN}, and \gls{DTN} with mobile drones for
-disaster monitoring. Their system uses \gls{RPL}~\cite{rfc6550} with three
-separate instances to differentiate traffic by priority: human data (voice/text
-via Bluetooth) receives the highest priority, followed by drone-collected data
-and finally sensor data.
+\gls{NVIS} technology, satellite links, \glspl{WSN}, and \gls{DTN} with mobile
+drones for disaster monitoring. Their system uses \gls{RPL}~\cite{rfc6550} with
+three separate instances to differentiate traffic by priority: human data
+(voice/text via Bluetooth) receives the highest priority, followed by
+drone-collected data and finally sensor data.
 
 The \gls{NVIS} backhaul provides 250 km coverage radius without line-of-sight
 requirements, offering a cost-effective alternative to satellite
@@ -150,7 +146,7 @@ with minimum 20-second send intervals at 10 hops, MCSC-WoT~\cite{mcsc-wot}
 requires master nodes broadcasting synchronization signals, the multi-protocol
 gateway~\cite{multiproto_gateway} uses tree topologies with gateway
 coordinators as single points of failure, and MINOS~\cite{minos2019} assumes
-SDN controllers with persistent \gls{MQTT}/web infrastructure.
+SDN controllers with persistent \gls{MQTT}/web infrastructure.\\
 
 % While adaptive protocol selection frameworks~\cite{adaptive2025} provide
 % runtime switching strategies, they assume infrastructure availability
@@ -159,7 +155,9 @@ SDN controllers with persistent \gls{MQTT}/web infrastructure.
 
 We have found no work that addresses fully distributed multi-protocol
 coordination where nodes can autonomously select and switch protocols without
-resorting to persistent infrastructure. \gls{ubabel}'s approach to
-decentralized protocol selection is detailed in Section
-\ref{component:protocol_manager} along with masterless synchronization
-mechanisms.
+resorting to persistent infrastructure.
+
+\todo{REMOVED: ubabel's approach will...}
+% \gls{ubabel}'s approach to decentralized protocol selection is detailed in
+% Section \ref{component:protocol_manager} along with masterless synchronization
+% mechanisms.
