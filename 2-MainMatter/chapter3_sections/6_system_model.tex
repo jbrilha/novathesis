@@ -8,16 +8,15 @@ to achieve autonomous multi-protocol operation. This section presents the key
 architectural components organized into four functional layers: Core
 Components, Discovery \& Topology, Coordination, and Data Management.
 
-Figure~\ref{fig:system_architecture}
+Figure~\ref{fig:architecture_components}
 illustrates the overall component organization and interactions.
 
-\todo{figure out onde meter o event dispatcher?}
 % trim=left bottom right top,
 \begin{figure}[htbp]
 	\centering
-	\includegraphics[width=\linewidth, trim=2cm 10cm 10cm 1cm, clip]{2-MainMatter/chapter3_sections/arch_components.pdf}
+	\includegraphics[width=14cm, trim=0cm 1.8cm 6cm 0cm, clip]{2-MainMatter/chapter3_sections/component_interactions.pdf}
 	\caption{System architecture and component interactions}
-	\label{fig:system_architecture}
+	\label{fig:architecture_components}
 \end{figure}
 
 \subsection{Core Components Layer}
@@ -278,11 +277,19 @@ Responsibilities include:
 \subsection{Component Interactions}
 \label{subsec:component_interactions}
 
-% Figure~\ref{fig:system_architecture} illustrates the interactions between
+% Figure~\ref{fig:component_interactions} illustrates the interactions between
 % components.
 % The Communication Manager is the top-level abstraction for application
 % interaction, it receives user messages and processes them according to
 % their type, available protocols, and known topology.
+
+% % trim=left bottom right top,
+% \begin{figure}[htbp]
+% 	\centering
+% 	\includegraphics[width=14cm, trim=0cm 1.8cm 6cm 0cm, clip]{2-MainMatter/chapter3_sections/component_interactions.pdf}
+% 	\caption{Component interactions}
+% 	\label{fig:component_interactions}
+% \end{figure}
 
 Peer Discovery continuously feeds neighbor information to the Topology Manager,
 which maintains active/passive views and provides topology information to the
@@ -290,7 +297,7 @@ Communication Manager for routing decisions. The Communication Manager then
 hands messages to the Message Queue Manager for immediate transmission or
 buffering based on those decisions.
 
-The Message Queue Manager coordinates with the Protocol Manager to schedule
+The Message Queue Manager coordinates with the Protocol Manager\todo{ou o comms manager fala com o proto manager... what do we think?} to schedule
 actual transmission by querying for protocol availability and managing the
 transmission timing, the Compression Service then acts upon outbound messages
 prior to actual transmission, performing data reduction if the message type and
