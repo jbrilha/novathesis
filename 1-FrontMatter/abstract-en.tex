@@ -8,42 +8,45 @@
 
 \typeout{NT FILE abstract-en.tex}%
 
-Current \gls{iot} and domotics systems are fundamentally dependent on
-continuous infrastructure availability, which creates critical vulnerabilities
-when cloud connectivity fails, access points become unreachable, or centralized
-coordinators become unresponsive.
+Nowadays, small sensors and actuators can form the basis for sophisticated
+technological solutions for \gls{iot} infrastructures and domotics applications
+that monitor and control spaces, or even promote safety in case of disasters,
+by providing guidance in a reactive and timely manner. Unfortunately, existing
+commercial solutions in the domains of \gls{iot} and domotics are dependent on
+centralized and cloud-based infrastructures to operate, which at best can lead
+to the unavailability of these solutions when connectivity is lost, and at
+worst -- particularly in the context of safety-critical space management --
+potential human loss, as infrastructures can easily become inaccessible during
+a disaster.
 
-Resolving this dependence is particularly challenging when targeting
-resource-constrained platforms due to the conflicting nature of autonomous
-operation and the available computational, memory, and energy budgets. The
-heterogeneity of available communication protocols (i.e., Wi-Fi, \gls{BLE},
-\gls{LoRa}, \gls{ZigBee}, \gls{ESP-NOW}) introduces additional complexity but
--- if properly utilized -- can help mitigate infrastructure dependence by
-providing resilience and autonomy through variety.
+One way to address this is to take advantage of direct interactions between
+devices and small on-premises edge servers, exploiting the myriad wireless
+technologies (i.e., Wi-Fi, \gls{BLE}, \gls{LoRa}, \gls{ZigBee}, \gls{ESP-NOW})
+that allow such systems to remain available even when centralized
+infrastructures or Internet access are not. One can leverage multiple of these
+technologies to make \gls{iot} and domotics systems more robust, by
+automatically selecting protocols based on their availability per device,
+medium congestion, among other factors. However, taking advantage of this
+heterogeneity is challenging: on one hand, because these devices usually have
+limited computational power, and on the other, because tackling this level of
+complexity is a hard task for application developers.
 
-In this paper we propose \gls{ubabel}\todo{o template não deixa meter o ubabel
-assim na cover page.... reverter tudo para "microBabel?"}, a lightweight,
-\emph{multi-protocol} communication framework intended to address the
-difficulties of decentralized coordination in commodity embedded devices (ESP32
-family, Raspberry Pi Pico). Leveraging the available avenues for communication,
-we plan to enable resilient, decentralized,  and infrastructure-independent
-operation with: adaptive protocol selection based on operating conditions,
-\gls{QoS} requirements, and device capabilities; autonomous peer discovery;
-gossip-based time synchronization; and lightweight data reduction techniques.
-
-The proposed system is designed for fully autonomous operation, but will allow
-for seamless integration with the broader
-Babel~\cite{fouto2022babel}\todo{talvez não mencionar o Babel aqui? kinda
-shifts focus maybe} ecosystem, further enabling the deployment and formation
-of heterogeneous systems where resource-constrained edge devices interoperate
-with \emph{optional} computational nodes for enhanced capabilities when
-available.
+To overcome these challenges, in this work we plan to study and develop
+mechanisms to automatically exploit that heterogeneity -- essentially a
+specialized variant of the Babel framework (originally developed to assist in
+the development of distributed protocols and applications) for small and
+integrated devices, tentatively named \gls{ubabel}. We plan to validate and
+evaluate our solution through two relevant use cases: one focused on data
+acquisition within a large area (e.g., university campus), and another focused
+on a disaster-response system in the context of a building, combining data
+acquisition, local decisions, and actuation through alerts and emergency
+guidance.
 
 \keywords{
 	\glslink{iot}{\glsentrylong{iot}} (\glslink{iot}{\glsentryshort{iot}}) \and
 	Autonomous Operation \and
-	Multi-Protocol Communication \and
+	Hybrid Wireless Communication \and
 	Disaster Resilience \and
 	Embedded Systems \and
-	\gls{P2P} Mesh Networks \and
+	\gls{P2P} Mesh Networks
 }
