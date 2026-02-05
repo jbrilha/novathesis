@@ -12,24 +12,11 @@ deployment evaluation, measuring for different metrics at each turn.
 \paragraph{Component Verification:} (1) Message delivery rates, latency,  and
 energy consumption per protocol (\textbf{communication manager}); (2) Discovery
 time and neighbor view consistency across protocol combinations (\textbf{peer
-discovery}); (3) Active/passive view maintenance and failure detection latency
+	discovery}); (3) Active/passive view maintenance and failure detection latency
 (\textbf{topology manager}); (4) Clock drift compensation, gossip convergence
 speed, and multi-protocol sync overhead (\textbf{synchronization service}); (5)
 Compression ratios, prediction accuracy, and computational overhead
 (\textbf{compression service}).
-
-% \begin{itemize}
-% 	\item \textbf{Protocol handlers:} Message delivery rates, latency bounds,
-% 	      and energy consumption per protocol
-% 	\item \textbf{Peer discovery:} Discovery time and neighbor view consistency
-% 	      across protocol combinations
-% 	\item \textbf{Topology manager:} Active/passive view maintenance and
-% 	      failure detection latency
-% 	\item \textbf{Synchronization service:} Clock drift compensation, gossip
-% 	      convergence speed, and multi-protocol sync overhead
-% 	\item \textbf{Compression service:} Compression ratios, prediction
-% 	      accuracy, and computational overhead on Class-1 devices
-% \end{itemize}
 
 \paragraph{Integration Testing:} (1) Network formation time without access
 points or coordinators (\textbf{infrastructure independence}); (2) Switching
@@ -38,234 +25,153 @@ latency and stability under changing conditions (\textbf{protocol adaptation});
 partitions (\textbf{fault tolerance}); (4) Performance degradation as network
 size increases (\textbf{scalability}); (5) Message delivery times across
 multi-hop paths with varying protocol combinations (\textbf{end-to-end
-latency});
-
-% \begin{itemize}
-% 	\item \textbf{Infrastructure independence:} Network formation time without
-% 	      access points or coordinators
-% 	\item \textbf{Protocol adaptation:} Switching latency and stability under
-% 	      changing conditions (e.g., interference, protocol unavailability)
-% 	\item \textbf{Fault tolerance:} Recovery time after node failures, message
-% 	      delivery during network partitions
-% 	\item \textbf{Scalability:} Performance degradation as network size
-% 	      increases
-% 	\item \textbf{End-to-end latency:} Message delivery times across multi-hop
-% 	      paths with varying protocol combinations
-% \end{itemize}
-
-% \paragraph{Deployment Evaluation:}
-% Real-world validation using the use cases from Section~\ref{subsec:use_cases}:
-%
-% \begin{itemize}
-% 	\item \textbf{Campus monitoring scenario:} Multi-building deployment
-% 	      measuring autonomous operation duration, data delivery rates, and
-% 	      battery lifetime under normal vs. disaster modes
-% 	\item \textbf{Building safety scenario:} Single-building deployment
-% 	      measuring critical alert propagation, evacuation guidance system, and
-% 	      responsiveness during simulated infrastructure failures
-% \end{itemize}
-%
-% Where applicable, performance will be compared against centralized alternatives
-% (e.g., MQTT based systems) to quantify the benefits and drawbacks of our
-% approach.
+	latency});
 
 \subsection{Use Cases}
 \label{subsec:use_cases}
 
 To guide development and further validate \gls{ubabel}'s implementation, we
 consider two complementary scenarios that showcase different aspects of the
-system's capabilities. These are meant to demonstrate operation during normal
-and simulated disaster conditions, taking advantage of a heterogeneous
-collection of devices with optional cloud integration.
+system's capabilities. Both use cases adhere to a general hierarchy:
+
+\begin{description}
+    \item[Sensing Tier:] Devices performing direct environmental or physical
+        monitoring, typically using short-range wireless technologies for
+        communication among themselves.
+	
+    \item[Actuation Tier:] Devices providing physical feedback to users or the
+        environment (i.e., displays, alarms, controls), receiving commands from
+        higher tiers.
+	
+    \item[Aggregation Tier:] Devices responsible zones or regions, aggregating
+        data from the sensing tier, controlling the actuation tier, and bridging
+        autonomous regions for wide-spread communication.
+	
+	\item[Coordination Tier:] System-wide coordination and optional external
+	      integration (cloud services, building management systems), typically
+	      requiring more capable hardware.
+\end{description}
+
+These following scenarios are meant to demonstrate operation during normal and
+degraded conditions, taking advantage of a heterogeneous collection of devices
+with optional cloud integration when available.
 
 \subsubsection*{Campus-Wide Environmental Monitoring}
 \label{subsubsec:uc_campus}
 
 \paragraph{Deployment Context:}
-
-A university campus with sensors distributed across multiple buildings to
-monitor environmental conditions (e.g., temperature, humidity, CO$_2$ levels,
-occupancy) and classroom occupancy\todo{TODO: look into Millimeter Wave Radar}.
-The deployment consists of:
+Sensors distributed across multiple buildings in a university campus to monitor
+environmental conditions (e.g., temperature, humidity, CO$_2$ levels,
+occupancy) and classroom occupancy:\todo{TODO: look into Millimeter Wave Radar}
 
 \begin{itemize}
-    \item \textbf{Class-1 sensor nodes:} Battery-powered devices (ESP32-family,
-        Pico 2 W) placed throughout rooms and corridors, performing periodic
-        sensing
-    \item \textbf{Class-1 gateway nodes:} Battery-powered devices with greater
-        resources (ESP32-S3/P4) at strategic locations within each building,
-        serving as protocol bridges and data aggregators
-    \item \textbf{Class-2 aggregation nodes:} Grid-powered Raspberry Pi devices
-        in server rooms or management offices, providing additional processing
-        capacity and optional cloud connectivity
+    \item \textbf{Sensing:} Battery-powered ESP32/Pico 2 W devices (Class-1)
+        throughout rooms and corridors
+    \item \textbf{Actuation:} Small displays showing current conditions and
+        occupancy status; battery-power as backup if using low-power e-paper
+        technology
+    \item \textbf{Aggregation:} ESP32-S3/P4 devices (Class-1) as floor/building
+        gateways using \gls{BLE}/\gls{ESP-NOW} locally, and \gls{LoRa} for
+        inter-building communication; larger batteries supply this tier once
+        grid power becomes unavailable
+    \item \textbf{Coordination:} Grid-powered Raspberry Pi devices (Class-2) in
+        server rooms, providing \gls{MQTT} brokerage and cloud connectivity
 \end{itemize}
 
-\paragraph{Normal Operation Mode:} During stable conditions, the system
-operates with cloud connectivity when available, with Class-2 devices acting as
-\gls{MQTT} brokers and makeshift cloud servers. Sensor nodes form local meshes
-within buildings, forwarding data through gateway nodes to building-level
-aggregators. 
+\paragraph{Normal Operation Mode:} Full hierarchical connectivity: sensing tier
+using \gls{BLE}/\gls{ESP-NOW} within rooms and corridors to gather
+environmental information; actuation tier using the same technologies to
+provide real-time data in information hubs; aggregation tier providing
+inter-building communication via \gls{LoRa}; and coordination tier providing
+cloud integration.
 
 This mode validates:
-(1) Multi-protocol communication for different ranges: \gls{BLE} within rooms,
-\gls{ESP-NOW}/\gls{ZigBee} between floors, \gls{LoRa} across buildings;
-(2) Topology management with hybrid active/passive views;
-(3) Data reduction for efficient transmission;
-(4) Optional cloud integration (\gls{NFR},
-Section~\ref{subsubsec:nonfunc_reqs}).
+(1) Hybrid wireless communication;
+(2) Topology management;
+(4) Optional cloud integration (\gls{NFR}, Section~\ref{subsubsec:nonfunc_reqs}).
 
-% This mode validates:
-% \begin{itemize}
-%     \item Multi-protocol communication for different ranges: \gls{BLE} within
-%         rooms, \gls{ESP-NOW}/\gls{ZigBee} between floors, \gls{LoRa} across
-%         buildings
-%     \item Topology management with hybrid active/passive views
-%     \item Data reduction for efficient transmission
-%     \item Optional cloud integration (Non-Functional Requirement,
-%         Section~\ref{subsubsec:nonfunc_reqs})
-% \end{itemize}
-
-\paragraph{Disaster Operation Mode:} Upon infrastructure failure (simulated
-power outage or network collapse), battery-powered sensors continue autonomous
-operation. The system maintains local coordination through \gls{P2P} gossip
-interactions, with Class-1 gateways aggregating data from their vicinity and
-coordinating between buildings via \gls{LoRa}.
+\paragraph{Offline Operation Mode:} Upon infrastructure failure (simulated
+power outage or network collapse), coordination tier becomes unavailable but
+the other three continue autonomous operation through \gls{P2P} gossip,
+with data buffered for later storage once regular connectivity is reinstated. 
 
 This mode validates:
 (1) Infrastructure independence (\gls{FR}, Section~\ref{subsubsec:func_reqs});
-(2) Autonomous operation without cloud connectivity;
-(3) Protocol adaptation when primary mediums become unavailable;
+(2) Autonomous operation;
+(3) Communication technology adaptation;
 (4) Store-and-forward mechanisms;
-(5) Resource-efficient operation on limited battery power.
-
-% This mode validates:
-% \begin{itemize}
-%     \item Infrastructure independence (Functional Requirement,
-%         Section~\ref{subsubsec:func_reqs})
-%     \item Autonomous operation without cloud connectivity
-%     \item Protocol adaptation when primary mediums become unavailable
-%     \item Store-and-forward mechanisms
-%     \item Resource-efficient operation on limited battery power
-% \end{itemize}
+(5) Graceful degradation.
 
 \subsubsection*{Building Safety and Evacuation System}
 \label{subsubsec:uc_safety}
 
 \paragraph{Deployment Context:}
-A safety-focused monitoring system, combining environmental hazard detection
-(smoke, fire, CO$_2$, structural integrity\todo{a "earthquake detection" de
-SCMU não funcionava muito bem... maybe outra coisa?}) with occupancy tracking
-and evacuation guidance. This use case expands upon the campus scenario by
-emphasizing real-time responsiveness and critical message prioritization:
+Safety monitoring system combining hazard detection (smoke, fire, CO$_2$) with
+evacuation guidance:
 
 \begin{itemize}
-    \item \textbf{Class-1 hazard sensors:} Fixed sensors at key locations
-        (stairwells, corridors, rooms) for smoke, temperature, and air quality
-        monitoring
-    \item \textbf{Class-1 gateway nodes:} Per-floor devices maintaining
-        floor-level mesh coordination and hazard aggregation
-    \item \textbf{Class-2 building coordinator:} Central aggregation point
-        integrating with existing building management systems when available
-    \item \textbf{Mobile display nodes:} Battery-powered displays (ESP32-S3/P4
-        with e-paper or small screens) showing evacuation routes and hazard
-        warnings
+	\item \textbf{Sensing:} Class-1 hazard sensors at strategic locations
+	      (stairwells, corridors, rooms)
+	\item \textbf{Actuation:} Class-1 devices with e-paper displays showing
+	      evacuation routes and hazard warnings
+	\item \textbf{Aggregation:} Class-1 per-floor gateways maintaining floor-level
+	      coordination and dynamically computing safe routes
+	\item \textbf{Coordination:} Class-2 building coordinator integrating with
+	      building management systems
 \end{itemize}
 
-\paragraph{Normal Operation Mode:} The system continuously monitors
-environmental conditions and occupancy patterns, integrating with building
-management infrastructure for logging and analysis. Sensor readings are
-transmitted via short-range protocols (\gls{BLE}, \gls{ESP-NOW}) to floor
-gateways, which forward aggregated data to the building coordinator.
+\paragraph{Normal Operation Mode:} Continuous monitoring with sensing tier using
+\gls{BLE}/\gls{ESP-NOW} to aggregation tier, which forwards to coordination
+tier for logging and analysis.
 
 This mode validates:
-(1) Priority-based message queuing (critical vs. periodic data);
+(1) Priority-based queuing (critical vs. periodic data);
 (2) Low-latency local communication for real-time monitoring;
 (3) Integration with existing infrastructure.
 
-% This mode validates:
-% \begin{itemize}
-%     \item Priority-based message queuing (critical vs. periodic data)
-%     \item Low-latency local communication for real-time monitoring
-%     \item Integration with existing infrastructure
-% \end{itemize}
-
-\paragraph{Disaster Operation Mode:} Upon detecting hazardous conditions or
-infrastructure failure, the system automatically transitions to emergency mode.
-Hazard sensors immediately broadcast critical alerts via available protocols,
-floor gateways compute safe evacuation routes based on detected
-hazards\todo{might be overpromising, cada um teria de manter some sort of
-layout info...}, and displays show real-time evacuation guidance reflecting
-current conditions.
-\todo{ou.... layout info stored in an SD card? much to consider}
+\paragraph{Disaster Operation Mode:} Upon hazard detection or infrastructure
+failure, sensing tier broadcasts alerts via available wireless channels,
+aggregation tier autonomously computes evacuation routes 
+\todo{layout info stored in an SD card? much to consider}
+and updates actuation tier displays which show real-time guidance. Critical
+functions remain operational without coordination tier.
 
 This mode validates:
-(1) Autonomous operation during infrastructure collapse;
-(2) Multi-protocol broadcast for critical alerts (redundancy through protocol
-diversity);
-(3) Decentralized coordination without central controllers;
-(4) Adaptive protocol selection under emergency conditions;
-(5) Real-time responsiveness despite limited resources.
+(1) Autonomous operation;
+(2) Multi-radio redundancy for resilience;
+(3) Decentralized coordination;
+(4) Adaptive communication technology selections;
+(5) Real-time responsiveness.
 
-% This mode validates:
-% \begin{itemize}
-%     \item Autonomous operation during infrastructure collapse (Functional
-%         Requirement)
-%     \item Multi-protocol broadcast for critical alerts (redundancy through
-%         protocol diversity)
-%     \item Decentralized coordination without central controllers
-%     \item Adaptive protocol selection under emergency conditions
-%     \item Real-time responsiveness despite limited resources
-% \end{itemize}
-
-\subsection{Task Scheduling}
+\subsection{Scheduling}
 
 In order to achieve the proposed requirements
 (Section~\ref{subsubsec:func_reqs}), we delineate a set of tasks to be carried
 out in the coming months:
 
 \begin{description}
-	\item[Task 1 -- Core Components:] Foundational protocol and communication
-	      primitives
-	      \begin{description}
-		      \item[Task 1.1:] Protocol Manager (2 weeks)
-		      \item[Task 1.2:] Event Dispatcher Validation (1 week)\todo{exagero?}
-		      \item[Task 1.3:] Communication Manager (2 weeks)
-	      \end{description}
+    \item[Task 1 -- Developing Core Components:]  Protocol Manager, Event
+        Dispatcher validation, Communication Manager, and Time Synchronization
+        Service as the foundation of our framework.
 
-	\item[Task 2 -- Discovery \& Topology:] Network formation, discovery and
-	      routing mechanisms
-	      \begin{description}
-		      \item[Task 2.1:] Peer Discovery Service (2 weeks)
-		      \item[Task 2.2:] Topology Manager (2 weeks)
-	      \end{description}
+    \item[Task 2 -- Developing User-Level Protocols:]Peer Discovery Service and
+        Topology Manager for autonomous mesh operation.
 
-	\item[Task 3 -- Coordination Layer:] Synchronization Service (2 weeks)
+    \item[Task 3 -- Validating the implementation:] Use case development
+        parallel to Tasks 1 and 2, followed by experimental setup and
+        performance evaluation.
 
-    \item[Task 4 -- Data Management]: Message queueing, lightweight reduction
-        and compression
-	      \begin{description}
-		      \item[Task 4.1:] Message Queue Manager (2 weeks)
-		      \item[Task 4.2:] Compression Service (2 weeks)
-	      \end{description}
-
-	\item[Task 5 -- Integration] \todo{I mean duh... se calhar retiro isto, era a pensar no integration hell ser chato e demorado de resolver}
-
-	\item[Task 6 -- Validation:] Following the approach outlined in
-	      Section~\ref{subsec:validation}
-	      \begin{description}
-		      \item[Task 6.1:] Use Case Development (2 weeks)
-		      \item[Task 6.2:] Experimental Setup (1 week)
-		      \item[Task 6.3:] Performance Evaluation (1 week)
-	      \end{description}
-
-	\item[Task 7 -- Dissertation Work:] Elaboration of the final document
-	      \begin{description}
-		      \item[Task 7.1:] Writing
-		      \item[Task 7.2:] Preparation for PerCom (2027)\todo{perhaps too ambitious...?}
-	      \end{description}
+    \item[Task 4 -- Completing the Dissertation:] Final document preparation
+        for potential conference submission (PerCom 2027).
 \end{description}
 
-The GANTT
-\todo{needs to be updated}
-chart in Figure~\ref{fig:gantt_chart} presents the timeline
-for completing these tasks.
+The GANTT chart in Figure~\ref{fig:gantt_chart} presents the timeline for
+completing these tasks.
+
+% trim=left bottom right top,
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=\linewidth, trim=1.5cm 11.6cm 2.9cm 1.9cm, clip]{2-MainMatter/chapter4_sections/GANTT.pdf}
+  \caption{Proposed timeline}
+  \label{fig:gantt_chart}
+\end{figure}

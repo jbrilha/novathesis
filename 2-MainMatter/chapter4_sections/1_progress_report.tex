@@ -6,20 +6,18 @@
 The implementation of \gls{ubabel} is currently in its early stages, with
 protocol-specific handlers under development. 
 
-The Core Infrastructure Layer (Section~\ref{subsec:core_infra}) is partially
-complete. \glspl{HAL} for peripheral access (\gls{GPIO}, \gls{SPI} and
-\gls{I2C}) are functional across both ESP-IDF and Pico SDK platforms; the Event
-Dispatcher is operational, providing event-driven communication between
-components, and the Communication Manager currently supports Wi-Fi peer
-connection management, and unicast/multicast message delivery.
+\glspl{HAL} for peripheral access (\gls{GPIO}, \gls{SPI} and \gls{I2C}) are
+functional across both ESP-IDF and Pico SDK platforms. The implementation of
+the Core Components (Section~\ref{subsec:core_components}) is partially
+complete: the Protocol Manager supports basic protocol registration and lookup,
+the Event Dispatcher is operational, providing event-driven communication
+between components, the Communication Manager currently supports Wi-Fi peer
+connection management, and unicast/multicast message delivery. The Time
+Synchronization Service is still in the planning stage.
 
-The Discovery \& Topology Layer (Section~\ref{subsec:discovery_topology}) has
-one working component in the Peer Discovery Service, which currently supports
-discovery over Wi-Fi.
-
-The Coordination (Section~\ref{subsec:coordination}), and Data Management
-(Section~\ref{subsec:data_management}) Components remain in the planning and design
-phase.
+The User-Level protocols (Section~\ref{subsec:user_protos}) has one working
+component in the Peer Discovery Service, which currently supports discovery
+over Wi-Fi, while the Topology Manager is still in the planning stage.
 
 \paragraph{Proof-of-Concept Deployment:} The current system has been deployed
 and tested on M5Stack Core Basic~\cite{m5corebasic} devices (ESP32-based) by

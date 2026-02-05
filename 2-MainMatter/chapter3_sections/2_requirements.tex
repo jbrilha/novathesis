@@ -22,16 +22,15 @@
 % interactions, to lightweight data compression techniques to make the most out
 % of the limited storage and battery available in each device.
 
-In order to effectively overcome the aforementioned challenges, we can
-highlight a set of \glspl{FR} that \gls{ubabel} must meet in order to eliminate
-the \emph{dependency} on centralized coordination, continuous connectivity, and
-cloud infrastructure; and a set of \glspl{NFR} which would strengthen the
-overall quality of the framework and ensure it can be widely adopted with ease.
+In order to effectively overcome the difficulties exposed in the previous
+chapter, we can highlight a set of \glspl{FR} that \gls{ubabel} must meet in
+order to eliminate the \emph{dependency} on centralized coordination,
+continuous connectivity, and cloud infrastructure; and a set of \glspl{NFR}
+which would strengthen the overall quality of the framework and ensure it can
+be widely adopted with ease.
 
 \subsubsection*{\glslink{FR}{\glsentrylongpl{FR}}}
 \label{subsubsec:func_reqs}
-
-\todo{"something something these are essential ..." ou o parágrafo anterior basta?}
 
 \paragraph{Infrastructure Independence:}
 
@@ -45,17 +44,17 @@ available, rather than a hard dependency.
 \paragraph{Autonomous Operation:}
 
 Devices will self-organize into functional networks, dispensing centralized
-coordinators and static master nodes. Instead, local \gls{P2P} gossip
+coordinator nodes. Instead, local \gls{P2P} gossip
 interactions will be the basis for coordination and synchronization.
 
-\paragraph{Multi-Protocol Exploitation:}
+\paragraph{Hybrid Wireless Technology Exploitation:}
 
 Communication strategies will adapt to the available mediums and device
 resources without centralized control. Communications will continue despite
-disruption of individual protocols through adaptive selection and opportunistic
-protocol switching. Protocol diversity provides resilience through redundancy,
-and this should be achieved with minimal impact on the upper layers of the
-application (through abstractions).
+disruption of individual radio interfaces through adaptive selection and
+opportunistic switching. Interface diversity provides resilience
+through redundancy, and this should be achieved with minimal impact on the
+upper layers of the application (through abstractions).
 
 \paragraph{Scalability:}
 
@@ -71,10 +70,9 @@ per-node overhead bounded by local group size.
 
 Embedded platforms inevitably present strict resource constraints (i.e., memory
 storage, processing, battery), thus all protocols and algorithms must execute
-within these limitations. In order to enable this, lightweight data compression
-and reduction techniques will be employed to make the most out of the limited
-storage and battery available, and adaptive protocol selection will take into
-account device capabilities and available resources.
+within these limitations. In order to enable this, adaptive selection of the
+employed communication technologies will take into account device capabilities
+and available resources.
 
 \subsubsection*{\glslink{NFR}{\glsentrylongpl{NFR}}}
 \label{subsubsec:nonfunc_reqs}

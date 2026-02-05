@@ -9,17 +9,16 @@ establishes the operational environment and failure scenarios that drive our
 architectural decisions.
 
 \subsection{Target Operating Environments}
-\todo{move this para os use cases later?}
 
 \gls{ubabel} targets deployments where infrastructure availability cannot be
 guaranteed, and in which autonomous operation is a necessity:
 
 \paragraph{Disaster Scenarios:} Locations susceptible to natural disasters
-(i.e., earthquakes, floods, fires) or infrastructure failures that eliminate
+(i.e., earthquakes, floods) or infrastructure failures that eliminate
 power grids and network access points.
 
 \paragraph{Remote or Hazardous Locations:} Industrial sites, wilderness
-monitoring, or dangerous environments where manual intervention and
+monitoring, or other dangerous environments where manual intervention and
 infrastructure maintenance are impractical or impossible.
 
 \paragraph{Local-First Deployments:} Environments where data sovereignty
@@ -35,10 +34,10 @@ The architecture must maintain functionality under the following conditions:
 external network connectivity. Devices must self-organize and maintain
 \gls{P2P} communication without infrastructure support.
 
-\paragraph{Communication Medium Disruption:} Individual protocols may become
-unavailable due to interference, jamming, congestion, or physical obstacles
-blocking signal propagation. Multi-protocol diversity provides alternative
-communication paths and ensures continued operation.
+\paragraph{Communication Medium Disruption:} Individual radio interfaces may
+become unavailable due to interference, jamming, congestion, or physical
+obstacles blocking signal propagation. Technology diversity provides
+alternative communication paths and ensures continued operation.
 
 \paragraph{Network Partitioning:} Physical damage or communication range
 limitations may split networks into isolated subgroups. Devices within

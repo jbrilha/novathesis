@@ -5,8 +5,8 @@
 
 \gls{ubabel} targets resource-constrained embedded platforms commonly used in
 \gls{iot} and domotics systems. The following sections cover device
-specifications and communication protocol characteristics, establishing the
-foundation for our multi-protocol, heterogeneous architecture.
+specifications and wireless technology characteristics, establishing the
+foundation for our hybrid architecture.
 
 We distinguish between two device classes based on their capabilities and roles
 within the architecture.
@@ -52,31 +52,25 @@ Resource availability within Class-1 devices varies significantly both in
 processing power and available memory. While there are no fixed roles,
 capability awareness naturally influences dynamic selection procedures:
 
-% \paragraph{Group Leader Preference:} Higher-resource devices (ESP32-S3/P4) are
-% prioritized in local \gls{GL} elections due to their ability to efficiently
-% aggregate member \glspl{MAC} and maintain group state
-% (Section~\ref{component:security_keys}). Resource availability merely
-% influences preference, not eligibility.
-
 \paragraph{Data Aggregation and Buffering:} Higher-resource devices
 (ESP32-S3/P4) can maintain larger message buffers and aggregate data from
 multiple sensor nodes, which is particularly valuable during network partitions
 when store-and-forward mechanisms come into effect.
 
-\paragraph{Protocol Bridging:} Devices with broader protocol support naturally
-serve as bridges between protocol domains, forwarding messages across different
-mediums based on advertised capabilities.\\
+\paragraph{Interface Bridging:} Devices with broader communication technology
+support naturally serve as bridges between domains, forwarding messages across
+different mediums based on advertised capabilities.\\
 
-\subsubsection*{Protocol Diversity and Device Coverage}
+\subsubsection*{Radio Interface Diversity and Device Coverage}
 
-Table~\ref{tab:device_protos} shows the communication protocols supported
-across Class-1 devices, demonstrating considerable heterogeneity.
+Table~\ref{tab:device_wireless_tech} shows the wireless technologies
+supported across Class-1 devices, demonstrating considerable heterogeneity.
 
 \rowcolors{1}{}{GhostWhite}
 \begin{table}[htbp]
 	\centering
-	\caption{Supported Communication Protocols}
-	\label{tab:device_protos}
+	\caption{Supported Wireless Technologies}
+	\label{tab:device_wireless_tech}
 	\footnotesize
 	\begin{tabular}{@{}lccccc@{}}
 		\toprule
@@ -107,14 +101,17 @@ across Class-1 devices, demonstrating considerable heterogeneity.
 	\end{tabular}
 \end{table}
 
-Protocol support across devices provides several advantages:
+The wide variety of communication support across devices provides several
+advantages:
 
-\paragraph{Coverage:} All devices support at least three protocols (Wi-Fi,
-\gls{BLE}, \gls{LoRa}), ensuring baseline multi-protocol operation across the
-entire platform range. Even the least capable device (Pico 2 W) can participate
-in protocol-diverse mesh networks.
+\paragraph{Coverage:} All devices support at least three technologies (Wi-Fi,
+\gls{BLE}, \gls{LoRa}), ensuring baseline hybrid operation across the entire
+platform range, such that even the least capable device (Pico 2 W) can
+participate in heterogeneous mesh networks. Particularly, \gls{LoRa} is
+supported using external transceivers via \gls{SPI}, ensuring long-range
+connectivity across the board.
 
-\paragraph{Protocol-Specific Advantages:} ESP32 family devices can leverage
+\paragraph{Device-Specific Advantages:} ESP32 family devices can leverage
 \gls{ESP-NOW} for \gls{P2P} communication without infrastructure. ESP32-C5/C6
 additionally provide \gls{ZigBee} support for standardized mesh networking --
 particularly interesting in building automation and domotics contexts.
@@ -122,21 +119,16 @@ particularly interesting in building automation and domotics contexts.
 Notably, ESP32-C5 supports \gls{ESP-NOW} over both 2.4 and 5 GHz
 bands, which provides a crucial short-range alternative path for congested
 environments where \gls{BLE}, Wi-Fi and \gls{ZigBee} all contend for 2.4 GHz
-channels.
+channels.\\
 
-\paragraph{Long-Range Capabilities:} All platforms support external \gls{LoRa}
-transceivers via \gls{SPI}, enabling long-range communication for disaster
-scenarios. This addresses the multi-protocol resilience requirements discussed
-in Section~\ref{sec:multi_protocol}.\\
-
-These factors combine to provide multi-protocol resilience: spectrum diversity
+These factors combine to provide remarkable resilience: spectrum diversity
 across 2.4/5 GHz and sub-GHz bands, infrastructure-free operation via
 \gls{ESP-NOW} and \gls{BLE}, and long-range connectivity through \gls{LoRa}.
 
-Together, these Class-1 specifications and multi-protocol capabilities
-establish the core hardware foundation for \gls{ubabel}'s autonomous operation.
-Section~\ref{sec:system_model} details how these resources are exploited
-in the proposed architecture.
+Together, these Class-1 specifications and radio capabilities establish the
+core hardware foundation for \gls{ubabel}'s autonomous operation.
+Section~\ref{sec:system_model} details how these resources are exploited in the
+proposed architecture.
 
 \subsection{Class-2: Optional Aggregation Nodes}
 
