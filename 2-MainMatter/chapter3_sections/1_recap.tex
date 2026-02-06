@@ -26,19 +26,18 @@ Throughout Chapter~\ref{cha:related_work} we identified the core challenges
 that prevent existing approaches from fully addressing the overarching problem
 of reliable autonomous operation:
 
-\paragraph{Centralized coordination:} Protocol selection requires master nodes
-or SDN controllers. Topology management depends on gateway coordinators. Time
-synchronization relies on master beacons. Authentication requires persistent
-servers or group leaders. When these central elements fail or become
+\paragraph{Centralized Coordination:} Radio selection requires master nodes or
+\gls{SDN} controllers. Topology management depends on gateway coordinators.
+Time synchronization relies on master beacons. Authentication requires
+persistent servers or group leaders. When these central elements fail or become
 unreachable, coordination collapses despite local devices remaining
 operational.
 
-\paragraph{Single-protocol operation:} Gossip-based synchronization assumes
+\paragraph{Single-Radio Operation:} Gossip-based synchronization assumes
 homogeneous networks where all nodes share identical communication
-characteristics. Compression techniques optimize for single technologies
-without considering protocol-specific energy costs. Topology maintenance
-protocols assume either persistent connections or uniform radio properties
-ill-suited for multi-protocol embedded platforms.
+characteristics, and topology maintenance protocols assume either persistent
+connections or uniform radio properties ill-suited for embedded platforms with
+access to multiple wireless technologies.
 
 \paragraph{Infrastructure dependencies:} Blockchain-based security requires
 connectivity to distributed ledgers. Edge computing assumes eventual cloud
@@ -53,7 +52,7 @@ tension between autonomous operation demands and limited computational, memory,
 and energy budgets remains unresolved in existing approaches.\\
 
 \gls{ubabel} will address these interconnected challenges through a unified
-framework designed specifically for resource-constrained multi-protocol
+framework designed specifically for resource-constrained multi-radio
 operation during infrastructure failures. The following sections detail the
 design goals, targeted platforms, and design decisions that enable autonomous
 coordination without central dependencies.
