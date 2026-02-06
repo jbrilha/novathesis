@@ -3,9 +3,13 @@
 \section{\gls{P2P} Mesh Networking and Topology Management}
 \label{sec:p2p_mesh}
 
+While communication technologies define what devices can transmit, network
+topologies determine how they organize themselves once infrastructure
+disappears.\todo{added narrative connector}
+
 Infrastructure-dependent star topologies in which devices communicate via a
 central coordinator or gateway suffer from a similar downside when compared
-with single-protocol communication: when that coordinator becomes unavailable
+with single-radio communication: when that coordinator becomes unavailable
 or unreachable, the entire network loses connectivity.
 
 This pattern pervades current \gls{iot} deployments, from Wi-Fi access point
@@ -26,24 +30,36 @@ impossible or inefficient.
 \subsection{Peer Discovery and Topology Maintenance}
 \label{subsec:peer_disc}
 
-As discussed in Section~\ref{subsec:proto-het}, the Multi-Protocol \gls{iot}
-Gateway implementation~\cite{multiproto_gateway} demonstrates \gls{BLE}-based
-neighbor discovery with \gls{RSSI} measurements for proximity estimation.
+\todo{added narrative device (cake analogy) aka more focus on the technical aspect of topology management}
+Tree-based topologies are a common design choice in resource-constrained
+\gls{iot} networks due to their routing simplicity and low coordination
+overhead. In the Multi-Protocol \gls{iot} Gateway implementation presented
+in~\cite{multiproto_gateway}, devices organize hierarchically with a central
+gateway serving as the root of three.
 
-While that work focuses on multi-protocol integration, its topology management
-reveals a limitation of its tree-based approach: the system implements
-automatic parent reselection when coordinators fail, but the underlying tree
-structure imposes that nodes can only communicate through their parent-child
-relationships rather than arbitrary peer connections.
-This restriction limits route diversity and resilience, creating dependency
-chains where a single intermediate node failure can disconnect entire subtrees.\\
+While that work focuses on multi-radio integration (discussed further in
+Section~\ref{subsec:proto-het}), its topology management reveals a limitation
+of its tree-based approach: the system implements automatic parent reselection
+when coordinators fail, but the underlying tree structure imposes that nodes
+can only communicate through their parent-child relationships rather than
+arbitrary peer connections.
 
-A more sophisticated approach to membership management is presented in
-HyParView~\cite{hyparview2007}, in which each node maintains two distinct
-partial views for scalability: a small \emph{active view} (size = fanout + 1)
-containing nodes with which symmetric links are actively maintained, and a
-larger \emph{passive view} serving as a backup pool of potential neighbors that
-may be promoted to the \emph{active view} if one of its nodes fails.
+Testing demonstrated successful multi-hop operation up to 5 hops in office
+environments, but the dependence on linear topologies and the restriction of
+parent-child communication limit route diversity and resilience, creating
+dependency chains where a single intermediate node failure can disconnect
+entire subtrees, rather than behaving as a \gls{P2P} mesh.\\
+
+\todo{another connector cake analogy thing}
+Hybrid gossip–flooding approaches can be used to balance overlay adaptability
+with deterministic broadcast guarantees in \gls{P2P} networks, and a more
+sophisticated approach to membership management is presented in
+HyParView~\cite{hyparview2007}. In this protocol each node maintains two
+distinct partial views for scalability: a small \emph{active view} (size =
+fanout + 1) containing nodes with which symmetric links are actively
+maintained, and a larger \emph{passive view} serving as a backup pool of
+potential neighbors that may be promoted to the \emph{active view} if one of
+its nodes fails.
 
 The \emph{active view} is managed reactively, such that nodes are added during
 join operations and removed upon failure detection, while the \emph{passive
@@ -175,10 +191,10 @@ routing and \gls{TCP} availability and persistent connections is not suitable
 for embedded devices using connectionless radio technology or operating under
 intermittent connectivity conditions.
 
-The multi-protocol gateway's~\cite{multiproto_gateway}
-\gls{BLE}-based neighbor discovery works on our targeted hardware but imposes
-tree topologies with parent-child communication restrictions that limit route
-diversity and create dependency chains.
+The multi-protocol gateway's~\cite{multiproto_gateway} \gls{BLE}-based neighbor
+discovery works on our targeted hardware but imposes tree topologies with
+parent-child communication restrictions that limit route diversity and create
+dependency chains.
 
 \gls{RPL} routing in the heterogeneous disaster
 architecture~\cite{heterogeneous-disaster} demonstrates practical WSN operation
@@ -196,6 +212,11 @@ servers.\\
 We have found no work that integrates connectionless neighbor discovery, hybrid
 view maintenance, true P2P routing (not tree-based), and partition-tolerant
 store-and-forward on resource-constrained embedded platforms.
+
+\todo{added narrative connector for next section}
+However, topology alone does not guarantee resilience, especially if all nodes
+still rely on a single form of communication, shifting the focus from network
+coordination to radio availability.
 
 \todo{REMOVED: ubabel's approach will...}
 % \gls{ubabel}'s approach (Section \ref{component:topology_manager})

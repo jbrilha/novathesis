@@ -26,6 +26,9 @@ to be executed on resource-constrained platforms.
 \subsection{Master-Based Synchronization as Counterexample}
 \label{subsec:master_sync}
 
+Time synchronization in distributed networks is frequently implemented through
+beacon or master-clock schemes due to their precision and implementation
+simplicity.
 As discussed in Section~\ref{subsec:multi-channel}, the MCSC-WoT
 framework~\cite{mcsc-wot} demonstrates a security-focused multi-channel hopping
 approach aimed at embedded platforms, but with a fundamental dependency on a
@@ -122,8 +125,8 @@ knowledge.
 \subsection{Discussion}
 \label{subsec:rw_discussion_4}
 
-Master-based synchronization approaches like MCSC-WoT~\cite{mcsc-wot}
-demonstrate feasibility on ESP32 platforms with measured AES encryption
+Coordinator-based synchronization approaches like MCSC-WoT~\cite{mcsc-wot}
+demonstrate feasibility on ESP32 platforms with measured \gls{AES} encryption
 coexistence, but create single points of failure when master nodes become
 unreachable.
 

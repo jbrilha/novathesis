@@ -143,7 +143,7 @@ still supporting cloud integration when connectivity is available and desired.
 
 In this document we propose \gls{ubabel}, a lightweight framework targeting
 embedded platforms (e.g., ESP32, Raspberry Pi Pico) aimed at developing
-resilient, multi-protocol, and decentralized \gls{iot} systems that can operate
+resilient, multi-radio, and decentralized \gls{iot} systems that can operate
 autonomously during infrastructure failures.
 
 \gls{ubabel} will integrate with the broader Babel Ecosystem, which runs on
@@ -153,14 +153,17 @@ desktops/laptops, or servers. This enables a heterogeneous architecture
 seamlessly interoperate with computational nodes for additional data
 aggregation, processing, and large-scale coordination.
 
-\paragraph{Note on terminology:} Throughout this work the term
-\emph{multi-protocol} is used to refer to heterogeneity in communication
-technologies (i.e., \gls{BLE}, \gls{LoRa}, Wi-Fi, etc.) that have distinct
-link/physical layers, while \emph{multi-channel} refers to frequency diversity
-within a single protocol (e.g., 2.4GHz Wi-Fi channels 1-13, \gls{LoRa}
-frequency hopping). Multi-protocol operation provides technology diversity for
-resilience; multi-channel operation provides frequency diversity for both
-anti-jamming and additional throughput.
+\todo{FIXED: multi-protocol -> multi-radio mas dar atenção à literatura}
+\paragraph{Note on terminology:} Throughout this work, the term
+\emph{multi-radio} refers to heterogeneity in communication technologies (i.e.,
+\gls{BLE}, \gls{LoRa}, Wi-Fi, etc.) operating in distinct link/physical layers.
+In the literature, \emph{multi-protocol} is commonly used to describe the same
+concept, but we try to avoid this nomenclature where possible given our usage
+of \emph{protocol} as a distributed application (see Section
+~\ref{sec:system_model}).\todo{TODO: validar esta definição please} Neither of
+these terms should be confused with \emph{multi-channel}, which refers to
+frequency diversity within a single radio technology stack (e.g., 2.4GHz Wi-Fi
+channels 1-13, \gls{LoRa} frequency hopping).
 
 \section*{Main Research Questions}
 \label{sec:research_questions}
@@ -176,12 +179,12 @@ easily become unavailable during disasters, or is altogether unreliable in
 remote locations.
 
 \gls{ubabel} will address this by leveraging a
-multi-protocol communication approach, supporting a diverse set of wireless
+multi-radio communication approach, supporting a diverse set of wireless
 protocols that can operate independently of infrastructure.
 
-By enabling adaptive protocol selection and \gls{P2P} mesh formation, devices
-can establish alternative communication paths when primary channels fail,
-allowing them to sustain information exchange and system availability.
+By enabling adaptive radio interface selection and \gls{P2P} mesh formation,
+devices can establish alternative communication paths when primary channels
+fail, allowing them to sustain information exchange and system availability.
 
 \todo{FIXED: muito ênfase em iot}
 
@@ -205,10 +208,10 @@ environments?}
 
 Straightforward deployments are essential where users cannot perform complex
 configurations -- from smart homes and factories to hazardous areas.
-\gls{ubabel} will provide automatic peer discovery across multiple protocols,
-self-organizing network formation, and decentralized coordination mechanisms
-that eliminate the need for pre-configured coordinator nodes or manual network
-planning.
+\gls{ubabel} will provide automatic peer discovery across multiple radio
+interfaces, self-organizing network formation, and decentralized coordination
+mechanisms that eliminate the need for pre-configured coordinator nodes or
+manual network planning.
 \todo{FIXED: demasiado foco em emergências}
 Devices will autonomously establish connectivity with each other, negotiate
 protocols, and begin operation upon being activated, with minimal configuration
@@ -248,12 +251,12 @@ We plan to make the following main contributions:
 
 \begin{itemize}
     \item A decentralized architecture supporting multiple communication
-        protocols (Wi-Fi, \gls{BLE}, \gls{LoRa}, \gls{ZigBee}, \gls{ESP-NOW})
+        technologies (Wi-Fi, \gls{BLE}, \gls{LoRa}, \gls{ZigBee}, \gls{ESP-NOW})
         with adaptive switching based on \gls{QoS} requirements, resource
         availability and device capabilities;
     \item A resource-efficient programming framework for embedded platforms
         that enables autonomous operation without central coordination,
-        providing abstractions for multi-protocol communication, peer
+        providing abstractions for multi-radio communication, peer
         discovery, and opportunistic data forwarding;
     \item A proof-of-concept implementation demonstrating infrastructure-
         independent operation and automatic disaster-mode failover in a
@@ -268,9 +271,8 @@ The remainder of this document is arranged as follows:
 \begin{description}
     \item[\textbf{Chapter~\ref{cha:related_work}}] Reviews widely-used
         communication protocols and related work in \gls{P2P} networking,
-        multi-protocol communication, decentralized synchronization and data
-        compression.
-        % , and security.
+        multi-radio communication, decentralized synchronization, and
+        establishes the scope of this work in regard to security.
 
 	\item[\textbf{Chapter~\ref{cha:solution_arch}}] Presents the system
 	      requirements, operating conditions, failure modes, hardware and

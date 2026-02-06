@@ -5,7 +5,7 @@
 
 \gls{ubabel} targets resource-constrained embedded platforms commonly used in
 \gls{iot} and domotics systems. The following sections cover device
-specifications and wireless technology characteristics, establishing the
+specifications and radio technology characteristics, establishing the
 foundation for our hybrid architecture.
 
 We distinguish between two device classes based on their capabilities and roles
@@ -63,14 +63,14 @@ different mediums based on advertised capabilities.\\
 
 \subsubsection*{Radio Interface Diversity and Device Coverage}
 
-Table~\ref{tab:device_wireless_tech} shows the wireless technologies
+Table~\ref{tab:device_radio_tech} shows the different radio technologies
 supported across Class-1 devices, demonstrating considerable heterogeneity.
 
 \rowcolors{1}{}{GhostWhite}
 \begin{table}[htbp]
 	\centering
 	\caption{Supported Wireless Technologies}
-	\label{tab:device_wireless_tech}
+	\label{tab:device_radio_tech}
 	\footnotesize
 	\begin{tabular}{@{}lccccc@{}}
 		\toprule
@@ -104,11 +104,11 @@ supported across Class-1 devices, demonstrating considerable heterogeneity.
 The wide variety of communication support across devices provides several
 advantages:
 
-\paragraph{Coverage:} All devices support at least three technologies (Wi-Fi,
-\gls{BLE}, \gls{LoRa}), ensuring baseline hybrid operation across the entire
-platform range, such that even the least capable device (Pico 2 W) can
-participate in heterogeneous mesh networks. Particularly, \gls{LoRa} is
-supported using external transceivers via \gls{SPI}, ensuring long-range
+\paragraph{Coverage:} All devices support at least three radio communication
+technologies (Wi-Fi, \gls{BLE}, \gls{LoRa}), ensuring baseline hybrid operation
+across the entire platform range, such that even the least capable device (Pico
+2 W) can participate in heterogeneous mesh networks. Particularly, \gls{LoRa}
+is supported using external transceivers via \gls{SPI}, ensuring long-range
 connectivity across the board.
 
 \paragraph{Device-Specific Advantages:} ESP32 family devices can leverage

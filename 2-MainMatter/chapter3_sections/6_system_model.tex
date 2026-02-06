@@ -5,7 +5,7 @@
 
 \gls{ubabel} is structured as a layered architecture that provides foundational
 services for distributed and autonomous communication using heterogeneous
-wireless technologies. We distinguish between \emph{core components}, and
+radio/wireless technologies. We distinguish between \emph{core components}, and
 \emph{protocols}, where a protocol is a state machine implementing a
 distributed algorithm, coordination mechanism, or application-specific logic.
 
@@ -119,7 +119,7 @@ operation without reliance on centralized coordination.
 \label{component:peer_discovery}
 
 Implements neighbor discovery across different wireless technologies.
-Short-range communication technologies like \gls{BLE}, \gls{ESP-NOW}, and
+Short-range radios like \gls{BLE}, \gls{ESP-NOW}, and
 \gls{ZigBee} employ active discovery mechanisms (i.e., advertising, peer lists,
 beacons), while long-range \gls{LoRa} communication relies on opportunistic
 message exchange.
@@ -127,7 +127,7 @@ message exchange.
 The service discovers peers and provides standardized information to the
 Topology Manager by:
 (1) Periodically scanning for neighbor advertisements and beacons;
-(2) Advertising local device capabilities (supported technologies, computational resources, battery status);
+(2) Advertising local device capabilities (supported radio interfaces, computational resources, battery status);
 (3) Translating technology-specific discovery information into standardized peer
 descriptors for the Topology Manager.
 

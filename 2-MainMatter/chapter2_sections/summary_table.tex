@@ -9,35 +9,35 @@ discussed in this chapter.
 
 \rowcolors{1}{}{GhostWhite}
 \begin{table}[htbp]
-\centering
-\caption{Related work summary}
-\label{tab:rw_summary}
-\small
-\begin{tabular}{@{}lp{5.5cm}p{5.5cm}@{}}
-\toprule
-\rowcolor{Gainsboro}%
-\textbf{Domain} & \textbf{Related Work Limitations} & \gls{ubabel} Approach \\
-\midrule
-Protocol coordination & Master nodes (MCSC-WoT), SDN controllers (MINOS),
-gateway coordinators (multi-protocol gateway) & Fully distributed selection \\
-\midrule
-Mesh topology & Tree-based restrictions, TCP-dependent links (HyParView),
-centralized coordination & Connectionless BLE/LoRa discovery, hybrid views,
-true P2P routing \\
-\midrule
-Time sync & Master beacons (MCSC-WoT), single-protocol gossip (RGCS) &
-Protocol-specific Poisson rates, multi-graph converge-to-max \\
-\midrule
-Compression & Single-protocol optimization (Ambrosia, Sprintz), sender-focused
-& Protocol-aware adaptive thresholds, gateway receiver energy management \\
-% \midrule
-% Authentication & Centralized components (GASE AS/GLs), specialized hardware
-% (PUFs) & Two-phase: pre-disaster provisioning, post-disaster local GL election \\
-% \midrule
-% Key management & KDC bootstrapping (LPKM), circular dependencies
-% (zero-preloading) & Pre-deployment shares distribution, gossip-based revocation \\
-\bottomrule
-\end{tabular}
+	\centering
+	\caption{Related work summary}
+	\label{tab:rw_summary}
+	\small
+	\begin{tabular}{@{}lp{5.5cm}p{5.5cm}@{}}
+		\toprule
+		\rowcolor{Gainsboro}%
+		\textbf{Domain}                               & \textbf{Related Work Limitations}                                    & \gls{ubabel} Approach \\
+		\midrule
+		Radio coordination                            & Master nodes (MCSC-WoT), \gls{SDN} controllers (MINOS),
+		gateway coordinators (multi-protocol gateway) & Fully distributed selection, adaptation based on application context                         \\
+		\midrule
+		Mesh topology                                 & Tree-based restrictions, \gls{TCP}-dependent links (HyParView),
+		centralized coordination                      & Connectionless \gls{BLE}/\gls{LoRa} discovery, hybrid views,
+		true P2P routing                                                                                                                             \\
+		\midrule
+		Time sync                                     & Master beacons (MCSC-WoT), single-protocol gossip (\gls{RGCS})       &
+		Protocol-specific Poisson rates, converge-to-max                                                                                 \\ 
+		% \midrule
+		% Compression & Single-protocol optimization (Ambrosia, Sprintz), sender-focused
+		% & Protocol-aware adaptive thresholds, gateway receiver energy management \\
+		% \midrule
+		% Authentication & Centralized components (GASE AS/GLs), specialized hardware
+		% (PUFs) & Two-phase: pre-disaster provisioning, post-disaster local GL election \\
+		% \midrule
+		% Key management & KDC bootstrapping (LPKM), circular dependencies
+		% (zero-preloading) & Pre-deployment shares distribution, gossip-based revocation \\
+		\bottomrule
+	\end{tabular}
 \end{table}
 \todo{FIXED: removed seurity row}
 
@@ -47,8 +47,7 @@ infrastructure collapse.
 
 Protocol coordination depends on master nodes or \gls{SDN} controllers, mesh
 topologies assume consistent connectivity or gateway coordinators, time
-synchronization requires master beacons, and authentication protocols depend on
-centralized servers or group leaders.
+synchronization requires master beacons.
 
 Even distributed approaches like HyParView and \gls{RGCS} make assumptions
 (routing infrastructure, persistent \gls{TCP} connections, single-protocol
@@ -64,59 +63,3 @@ and resilience under unstable connectivity.
 There we highlight the system requirements, operating conditions, and
 architectural choices that will enable robust communication and coordination
 across heterogeneous devices.
-
-% \section{Summary of Related Work}
-% \label{sec:summary_related_work3}
-%
-% \begin{table}[htbp]
-% \centering
-% \caption{Feature comparison: Related work vs. MicroBabel}
-% \label{tab:feature_matrix}
-% \footnotesize
-% \begin{tabular}{@{}lccccccc@{}}
-% \toprule
-% \textbf{Feature} & \textbf{MCSC-WoT} & \textbf{MINOS} & \textbf{HyParView} & \textbf{RGCS} & \textbf{Ambrosia} & \textbf{GASE} & \gls{ubabel} \\
-% \midrule
-% Multi-protocol & \checkmark & \checkmark & \xmark & \xmark & \xmark & \xmark & \checkmark \\
-% Masterless & \xmark & \xmark & \checkmark & \checkmark & n/a & \xmark & \checkmark \\
-% Embedded platform & \checkmark & \xmark & \xmark & \checkmark & \checkmark & \checkmark & \checkmark \\
-% P2P mesh & \xmark & \xmark & \checkmark & \checkmark & n/a & \xmark & \checkmark \\
-% Adaptive compression & \xmark & \xmark & n/a & n/a & \checkmark & n/a & \checkmark \\
-% Infrastructure-less & \xmark & \xmark & \checkmark & \checkmark & \xmark & \xmark & \checkmark \\
-% Distributed auth & \xmark & \xmark & n/a & n/a & n/a & \texttildelow & \checkmark \\
-% \bottomrule
-% \multicolumn{8}{l}{\footnotesize \texttildelow = Partial support (requires centralized components)} \\
-% \multicolumn{8}{l}{\footnotesize n/a = Not applicable to this work's scope}
-% \end{tabular}
-% \end{table}
-%
-
-% \bgroup
-% \rowcolors{1}{}{GhostWhite}
-% \begin{xltabular}{\textwidth}{Xccccc}
-%   \caption{Test results summary.}
-%   \label{tab:hla:results}\\
-%   \toprule
-%   \rowcolor{Gainsboro}%
-%   Test   & Anomalies  & Warnings  & Correct   & Categories            & Missed \\
-%   \midrule
-% Connection~\cite{Beckman08}     & 2       & 2          & 1          & \emph{C}              & 1 \\
-% Coordinates'03~\cite{Artho03}   & 1        & 4          & 1          & \emph{2B, 1C}          & 0 \\
-% Local Variable~\cite{Artho03}    & 1        & 2          & 1          & \emph{A}              & 0 \\
-% NASA~\cite{Artho03}              & 1        & 1          & 1          & ---                    & 0 \\
-% Coordinates'04~\cite{Artho04}    & 1        & 4          & 1          & \emph{3C}              & 0 \\
-% Buffer~\cite{Artho04}            & 0        & 7          & 0          & \emph{2A, 1B, 2C, 2D}  & 0 \\
-% Double-Check~\cite{Artho04}      & 0        & 2          & 0          & \emph{1A, 1B}          & 0 \\
-% StringBuffer~\cite{Flanagan04}  & 1        & 0          & 0          & ---                    & 1 \\
-% Account~\cite{Praun03}          & 1        & 1          & 1          & ---                   & 0 \\
-% Jigsaw~\cite{Praun03}            & 1        & 2          & 1          & \emph{C}              & 0 \\
-% Over-reporting~\cite{Praun03}    & 0        & 2          & 0          & \emph{1A, 1C}          & 0 \\
-% Under-reporting~\cite{Praun03}  & 1        & 1          & 1          & ---                    & 0 \\
-% Allocate Vector~\cite{IBM-Rep}  & 1        & 2          & 1          & \emph{C}              & 0 \\
-% Knight Moves~\cite{Beckman08}   & 1        & 3          & 1          & \emph{2B}              & 0 \\
-%   \midrule
-%   \rowcolor{Gainsboro}%
-% Total                            & 12      & 33        & 10        & 5A, 6B, 10C, 2D       & 2 \\
-%   \bottomrule
-%   \end{xltabular}
-% \egroup

@@ -1,24 +1,30 @@
 %!TEX root = ../../template.tex
 
-\section{Multi-Protocol Communication and Adaptive Protocol Selection}
+\section{Multi-Radio Communication and Adaptive Protocol Selection}
 \label{sec:multi_protocol}
 
-Single-protocol (i.e. Wi-Fi only, \gls{BLE} only, \gls{LoRa} only, etc.) communication
-architectures are susceptible to a fundamental vulnerability: if their chosen
-medium becomes unavailable or inefficient due to interference, range
-limitations, or infrastructure failures, the entire system loses connectivity
-and most times ceases to operate altogether.
+\todo{added narrative thingamagig}
+Even if devices can self-organize without fixed coordinators, the remaining
+issue becomes their ability to communicate across heterogeneous protocol
+stacks.
+
+Single-radio (i.e. Wi-Fi only, \gls{BLE} only, \gls{LoRa} only, etc.)
+communication architectures are susceptible to a fundamental vulnerability: if
+their chosen medium becomes unavailable or inefficient due to interference,
+range limitations, or infrastructure failures, the entire system loses
+connectivity and most times ceases to operate altogether.
 
 This becomes especially grave in disaster scenarios where communication
 conditions change unpredictably due to factors such as \gls{RF} interference
 caused by debris, obstacles blocking line-of-sight propagation, or
 damaged/unavailable access points.
 
-Existing approaches to multi-protocol \gls{iot} systems can be divided into
-three categories: multi-channel resilience architectures that orchestrate
-communication technologies for emergency scenarios; implementations that show
-the feasibility of protocol heterogeneity on embedded platforms; and adaptive
-selection frameworks that switch protocols based on runtime conditions.
+Existing approaches to multi-radio \gls{iot} systems -- or multi-protocol, as
+commonly used in the literature -- can be divided into three categories:
+multi-channel resilience architectures that orchestrate communication
+technologies for emergency scenarios; implementations that show the feasibility
+of radio heterogeneity on embedded platforms; and adaptive selection
+frameworks that switch protocols based on runtime conditions.
 
 \subsection{Multi-Channel Resilience Architectures}
 \label{subsec:multi-channel}
@@ -31,12 +37,11 @@ module for power management, a power interrupt handler that triggers emergency
 mode when the power grid fails, and an ad-hoc bridge that forwards packets
 between the Bluetooth, Wi-Fi and \gls{LPWAN} interfaces.
 
-The system leverages dense \gls{iot} device deployment to provide emergency coverage,
-demonstrating that existing infrastructure can still serve a purpose during
-scenarios where the main power grid suffers issues.
-However, AWCT's reliance on centralized \gls{LoRaWAN} gateways for Internet
-connectivity creates a single point of failure when those gateways become
-unreachable.\\
+The system leverages dense \gls{iot} device deployment to provide emergency
+coverage, demonstrating that existing infrastructure can still serve a purpose
+during scenarios where the main power grid suffers issues. However, AWCT's
+reliance on centralized \gls{LoRaWAN} gateways for Internet connectivity
+creates a single point of failure when those gateways become unreachable.\\
 
 A more comprehensive heterogeneous approach is presented
 in~\cite{heterogeneous-disaster}, which integrates \gls{HF} radio with
@@ -75,54 +80,24 @@ system is operational.
 \label{subsec:proto-het}
 
 The work presented in~\cite{multiproto_gateway} shows the technical feasibility
-of multi-protocol operation on commodity Wi-Fi/\gls{BLE} modules by integrating
+of multi-radio operation on commodity Wi-Fi/\gls{BLE} modules by integrating
 \gls{ESP-NOW}, \gls{ZigBee}, and \gls{Modbus} protocols on devices from the
 ESP32 family to construct multi-hop, tree-based wireless networks.
 
-In this tree-based architecture, devices organize hierarchically with a central
-gateway serving as the root. Their implementation uses \gls{BLE} advertising
-beacons for neighbor discovery with \gls{RSSI} measurements (for distance
-estimation), computing parent selection priorities based on weighted
-combinations of child count, \gls{RSSI} values, and hop count in the network
-tree of a given node. The system also supports automatic parent reselection
-when the current parent becomes unreachable, making it somewhat resilient to
-single node failures.
+\todo{FIXED: changed this to be more focused on the technical aspect}
+\gls{ESP-NOW} requires pairing between peers based on their MAC addresses, thus
+some form of discovery is required after deployment. Their implementation uses
+\gls{BLE} advertising beacons for neighbor discovery with \gls{RSSI}
+measurements (for distance estimation), computing parent selection priorities
+based on weighted combinations of child count, \gls{RSSI} values, and hop count
+in the network tree of a given node.
 
-Testing demonstrated successful multi-hop operation up to 5 hops in office
-environments, but evaluation was limited to linear network topologies.
-Additionally, this architecture relies on a tree topology with parent/child
-communication that is centered around a gateway (coordinator) rather than being
-a \gls{P2P} mesh, creating a single point of failure at the coordinator node.\\
+Testing demonstrated successful coexistence with \gls{ZigBee} sensors, and
+supports the idea that different technologies can cooperate to overcome
+individual limitations.\\
 
 \subsection{Runtime Adaptive Protocol Selection}
 \label{subsec:runtime-adaptive}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%
-% A recent approach to protocol adaptation is presented in~\cite{adaptive2025},
-% which introduces a closed-loop control system with four integrated components:
-% a context monitor sampling runtime metrics at 1 Hz, a decision engine using
-% multi-criteria weighted scoring across six dimensions (message frequency,
-% payload size, network conditions, packet loss rate, energy budget, \gls{QoS}
-% requirements), protocol adapters encapsulating protocol-specific libraries, and
-% a learning component that adjusts thresholds using \gls{EWMA} for
-% deployment-specific patterns.
-%
-% Some key aspects of this work include \gls{hysteresis} control with a threshold
-% band to prevent oscillation between protocols, and switching cost awareness
-% requiring benefits to exceed costs by a certain threshold before transitioning.
-%
-% However, this framework assumes infrastructure availability for protocol
-% endpoints (\gls{MQTT} brokers, \gls{HTTP} servers, \gls{CoAP} endpoints) and was
-% evaluated only on laptop platforms using Python libraries rather than embedded
-% C implementations.
-%
-% Nevertheless, the evaluation methodology provides valuable insight into the
-% energy expenditure of these different approaches (further explored in
-% Section~\ref{subsec:receiver_energy}), and grants useful foundations for more
-% complex multi-protocol approaches, in particular with the multi-criteria
-% decision framework and \gls{hysteresis} control mechanism, but the actual
-% system cannot operate when infrastructure fails.\\
-% %%%%%%%%%%%%%%%%%%%%%%%%%
 
 The MINOS platform~\cite{minos2019} exemplifies the limitations of centralized
 multi-protocol approaches. While providing sophisticated multi-protocol support
@@ -134,6 +109,17 @@ entire system loses its adaptive capabilities and reverts to static operation
 at best, or complete failure at worst.
 \todo{FIXED: removed MDPI paper}
 
+This centralization pattern persists in other multi-protocol/multi-radio
+platforms despite their sophistication. MARS~\cite{mars2025} provides
+\gls{ML}-based radio selection between \gls{ZigBee} and \gls{BLE} on Raspberry
+Pi devices, achieving an increase of up to 49\% in throughput thanks to
+optimized switching, but requires fixed gateways for \gls{ML} decision-making
+making it unsuitable for decentralized operation. The Chorus~\cite{chorus2021}
+routing framework also operates on Raspberry Pi devices and utilizes
+\gls{ZigBee}, \gls{BLE} and Wi-Fi, however, it places routing decisions on a
+cloud coordinator that floods the network \emph{a priori}, meaning it cannot
+adapt to disaster circumstances should that coordinator fail.
+
 \subsection{Discussion}
 \label{subsec:rw_discussion_3}
 
@@ -141,21 +127,23 @@ Existing frameworks demonstrate the technical feasibility of heterogeneous
 channel/protocol coordination but rely on centralized control mechanisms
 incompatible with disaster scenarios. AWCT~\cite{awct} depends on centralized
 \gls{LoRaWAN} gateways for Internet connectivity, the heterogeneous disaster
-architecture~\cite{heterogeneous-disaster} uses centralized \gls{NVIS} coordination
-with minimum 20-second send intervals at 10 hops, MCSC-WoT~\cite{mcsc-wot}
-requires master nodes broadcasting synchronization signals, the multi-protocol
-gateway~\cite{multiproto_gateway} uses tree topologies with gateway
-coordinators as single points of failure, and MINOS~\cite{minos2019} assumes
-SDN controllers with persistent \gls{MQTT}/web infrastructure.\\
+architecture~\cite{heterogeneous-disaster} uses centralized \gls{NVIS}
+coordination with minimum 20-second send intervals at 10 hops,
+MCSC-WoT~\cite{mcsc-wot} requires master nodes broadcasting synchronization
+signals, the multi-protocol gateway~\cite{multiproto_gateway} validates
+multi-radio operation but imposes tree topologies with gateway coordinators as
+single points of failure, and MINOS~\cite{minos2019},  MARS~\cite{mars2025},
+and Chorus~\cite{chorus2021} all assume some form of persistent
+infrastructure.\\
 
 % While adaptive protocol selection frameworks~\cite{adaptive2025} provide
 % runtime switching strategies, they assume infrastructure availability
 % (\gls{MQTT} brokers, \gls{HTTP} servers, \gls{CoAP} endpoints) and have not
 % been validated on embedded platforms.\\
 
-We have found no work that addresses fully distributed multi-protocol
-coordination where nodes can autonomously select and switch protocols without
-resorting to persistent infrastructure.
+We have found no work that addresses fully distributed multi-radio coordination
+where nodes can autonomously select and switch communication technologies
+without resorting to persistent infrastructure.
 
 \todo{REMOVED: ubabel's approach will...}
 % \gls{ubabel}'s approach to decentralized protocol selection is detailed in

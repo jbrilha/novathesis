@@ -19,8 +19,11 @@ their potential for harmonious cooperation within a unified system.
 
 \subsection{Application-Layer Protocols}
 
-At the application layer, two messaging protocols stand out given their
-wide-spread adoption in \gls{iot} deployments:
+Application-layer IoT protocols typically focus on interoperability and
+efficient data exchange under stable connectivity assumptions rather than
+autonomous operation during infrastructure loss. At the application layer, two
+messaging protocols stand out given their wide-spread adoption in \gls{iot}
+deployments:
 
 \begin{description}
 	\item[\textbf{\gls{MQTT}:}] A lightweight publish/subscribe messaging
@@ -38,18 +41,23 @@ wide-spread adoption in \gls{iot} deployments:
 Both protocols inherently assume the availability of stable endpoints, and rely
 on continuous network connectivity in order to operate. These assumptions
 conflict with the infrastructure-less and failure-prone environments targeted
-by \gls{ubabel}. For this reason, while such protocols are of interest for
-broader interoperability (see Non-Functional Requirements in
-Section~\ref{subsubsec:nonfunc_reqs}), they are not a part of the foundational
-protocols employed by this work.
+by \gls{ubabel}, and emphasize the contrast between higher-layer protocols
+which tend to optimize for usage under stable infrastructure, and resilience
+requirements that push architectural decisions towards lower layers.
+\todo{added narrative connector}
+
+For this reason, while such protocols are of interest for broader
+interoperability (see \glspl{NFR} in Section~\ref{subsubsec:nonfunc_reqs}),
+they are not a part of the foundational protocols employed by our work.
 
 \subsection{Physical- and Link-Layer Technologies}
 
 This section reviews the physical- and link-layer wireless technologies
-relevant to resilient and decentralized \gls{iot} deployments. While the
-previous section addressed higher-layer messaging protocols, the technologies
-discussed here provide the foundational communication stack that determines the
-behavior of \gls{ubabel}.
+relevant to resilient and decentralized \gls{iot} deployments, as they  are
+commonly adopted in due to their low energy consumption and hardware
+availability. While the previous section addressed higher-layer messaging
+protocols, the technologies discussed here provide the foundational
+communication stack that determines the behavior of \gls{ubabel}.
 
 Table~\ref{tab:protocol_specs} details the basic operational characteristics of
 the wireless communication technologies considered in this work and how they
@@ -119,10 +127,10 @@ instead of relying on a single one.
 The considered technologies highlight that no single protocol can
 simultaneously optimize for range, throughput and energy efficiency upon loss
 of infrastructure. Instead, resilience emerges from the ability to combine the
-complimentary features of each technology and adapt communication strategies to
+complementary features of each technology and adapt communication strategies to
 the specific context and requirements of a given environment.
 
 These observations motivate an approach in which diversity is treated as a
 first-class requirement, and provide the technological context for the
-multi-protocol operation and architectural choices discussed in
+multi-radio operation and architectural choices discussed in
 Chapter~\ref{cha:solution_arch}.
