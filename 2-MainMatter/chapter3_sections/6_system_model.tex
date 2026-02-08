@@ -54,7 +54,7 @@ delivery.
 Main responsibilities include:
 (1) Managing component subscriptions to specific event types (i.e.,
 notifications, timers, messages) and subtypes (protocol-specific);
-(2) Broadcasting events to all registered subscribers for publish/subscribe
+(2) Delivering events to all registered subscribers for publish/subscribe
 style communication;
 (3) Routing directed messages to specific protocols using protocol identifiers
 for point-to-point communication;
@@ -136,12 +136,15 @@ descriptors for the Topology Manager.
 
 Provides resilient overlay membership by maintaining hybrid partial views
 (HyParView~\cite{hyparview2007}) of a network of devices, enabling the mesh to
-survive infrastructure failures. 
-It has two modes of operation: when infrastructure is available (e.g., Wi-Fi
-access points), it builds and maintains an overlay topology that may span
-beyond direct neighbors; when infrastructure fails, the topology gracefully
-degrades to proximity-based membership using direct wireless links discovered
-by the Peer Discovery Service.
+survive infrastructure failures. It has two modes of operation: when
+infrastructure is available (e.g., Wi-Fi access points), it builds and
+maintains an overlay topology that may span beyond direct neighbors; when
+infrastructure fails, the topology gracefully degrades to proximity-based
+membership using direct wireless links discovered by the Peer Discovery
+Service. \todo{FIXED: dizer que exploramos heterogeneidade para resilience}The
+topology manager can exploit neighbor heterogeneity (e.g., available radio
+technologies, distance, processing capabilities) to enhance overlay resilience
+through diversified connectivity.
 
 It maintains a small \emph{active view} of peers for active communication, and
 a larger \emph{passive view} of potential neighbors. The \emph{active view} is

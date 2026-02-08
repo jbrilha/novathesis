@@ -2,8 +2,8 @@
 
 \section{Planning}
 
-\subsection{Validation}
-\label{subsec:validation}
+% \subsection{Validation}
+% \label{subsec:validation}
 
 To validate \gls{ubabel}'s implementation, we intend to follow a three-tier
 approach with individual component verification, integration testing, and
@@ -61,7 +61,7 @@ with optional cloud integration when available.
 \paragraph{Deployment Context:}
 Sensors distributed across multiple buildings in a university campus to monitor
 environmental conditions (e.g., temperature, humidity, CO$_2$ levels,
-occupancy) and classroom occupancy:\todo{TODO: look into Millimeter Wave Radar}
+occupancy) and classroom occupancy:
 
 \begin{itemize}
     \item \textbf{Sensing:} Battery-powered ESP32/Pico 2 W devices (Class-1)
@@ -77,7 +77,7 @@ occupancy) and classroom occupancy:\todo{TODO: look into Millimeter Wave Radar}
         server rooms, providing \gls{MQTT} brokerage and cloud connectivity
 \end{itemize}
 
-\paragraph{Normal Operation Mode:} Full hierarchical connectivity: sensing tier
+\paragraph{Normal Operation Mode:} Full hierarchical connectivity, sensing tier
 using \gls{BLE}/\gls{ESP-NOW} within rooms and corridors to gather
 environmental information; actuation tier using the same technologies to
 provide real-time data in information hubs; aggregation tier providing
@@ -87,7 +87,7 @@ cloud integration.
 This mode validates:
 (1) Hybrid wireless communication;
 (2) Topology management;
-(4) Optional cloud integration (\gls{NFR}, Section~\ref{subsubsec:nonfunc_reqs}).
+(4) Optional cloud integration (\gls{NFR}, presented in Section~\ref{subsubsec:nonfunc_reqs}).
 
 \paragraph{Offline Operation Mode:} Upon infrastructure failure (simulated
 power outage or network collapse), coordination tier becomes unavailable but
@@ -95,7 +95,7 @@ the other three continue autonomous operation through \gls{P2P} gossip,
 with data buffered for later storage once regular connectivity is reinstated. 
 
 This mode validates:
-(1) Infrastructure independence (\gls{FR}, Section~\ref{subsubsec:func_reqs});
+(1) Infrastructure independence (\gls{FR}, presented in Section~\ref{subsubsec:func_reqs});
 (2) Autonomous operation;
 (3) Communication technology adaptation;
 (4) Store-and-forward mechanisms;
@@ -130,10 +130,10 @@ This mode validates:
 
 \paragraph{Disaster Operation Mode:} Upon hazard detection or infrastructure
 failure, sensing tier broadcasts alerts via available wireless channels,
-aggregation tier autonomously computes evacuation routes 
-\todo{layout info stored in an SD card? much to consider}
-and updates actuation tier displays which show real-time guidance. Critical
-functions remain operational without coordination tier.
+aggregation tier autonomously computes evacuation routes (with building layout
+information in local storage or established dynamically during normal
+operation) and updates actuation tier displays which show real-time guidance.
+Critical functions remain operational without coordination tier.
 
 This mode validates:
 (1) Autonomous operation;
@@ -146,7 +146,7 @@ This mode validates:
 
 In order to achieve the proposed requirements
 (Section~\ref{subsubsec:func_reqs}), we delineate a set of tasks to be carried
-out in the coming months:
+out in the coming months, depicted in Figure~\ref{fig:gantt_chart}:
 
 \begin{description}
     \item[Task 1 -- Developing Core Components:]  Protocol Manager, Event
@@ -163,9 +163,6 @@ out in the coming months:
     \item[Task 4 -- Completing the Dissertation:] Final document preparation
         for potential conference submission (PerCom 2027).
 \end{description}
-
-The GANTT chart in Figure~\ref{fig:gantt_chart} presents the timeline for
-completing these tasks.
 
 % trim=left bottom right top,
 \begin{figure}[htbp]

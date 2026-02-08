@@ -20,7 +20,7 @@ mechanism forms the basis for queues (as data structures), semaphores, and
 mutexes. FreeRTOS also allows for configurable memory allocation and per-task
 stack management, all without the overhead of a full-featured \gls{OS}.
 
-This allows multiple protocol components and I/O handlers to execute
+This allows multiple communication components and I/O handlers to execute
 concurrently while preserving predictable timing behavior, which is essential
 for networking and radio-driver applications.
 
@@ -45,10 +45,10 @@ operations.\\
 By encapsulating platform-specific bare-metal details behind stable interfaces,
 they allow \gls{ubabel} to target multiple microcontrollers through a set of
 thin \glspl{HAL}, enabling re-utilization of higher-level protocols and
-coordination logic across Class-1 devices. \gls{ubabel} is implemented in C, as
-it allows precise control over memory usage, interrupt behavior, and timing,
-which are essential in embedded environments with limited memory and strict
-real-time constraints.
+coordination logic across Class-1 devices. \gls{ubabel} will be implemented in
+C, as it allows precise control over memory usage, interrupt behavior, and
+timing, which are essential in embedded environments with limited memory and
+strict real-time constraints.
 
 \paragraph{Concurrency Model}
 

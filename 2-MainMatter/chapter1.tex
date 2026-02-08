@@ -111,12 +111,6 @@ critical, yet traditional infrastructure often fails first, eliminating both
 cloud connectivity and local network access points that deployed devices rely
 on, making support systems for these scenarios unavailable or non-operational.
 
-\todo{A pragmatic issue in the context of smart homes is that without cloud
-connectivity, users cannot interact with their appliances, such that during a
-Wi-Fi outage smart lights become uncontrollable despite all hardware being
-physically present.}
-\todo{REMOVED para o chap1 não passar da pág. 4}
-
 While merely inconvenient domestically, this architectural
 dependency has critical implications in other contexts and \gls{ubabel} aims at
 addressing such scenarios across different application domains: from
@@ -148,22 +142,21 @@ autonomously during infrastructure failures.
 
 \gls{ubabel} will integrate with the broader Babel Ecosystem, which runs on
 hardware with greater resources such as full Raspberry Pi boards,
-desktops/laptops, or servers. This enables a heterogeneous architecture
-\todo{FIXED: "class-based"} where resource-constrained edge devices can
-seamlessly interoperate with computational nodes for additional data
-aggregation, processing, and large-scale coordination.
+desktops/laptops, or servers. This enables a heterogeneous architecture where
+resource-constrained edge devices can seamlessly interoperate with
+computational nodes for additional data aggregation, processing, and
+large-scale coordination.
 
-\todo{FIXED: multi-protocol -> multi-radio mas dar atenção à literatura}
 \paragraph{Note on terminology:} Throughout this work, the term
 \emph{multi-radio} refers to heterogeneity in communication technologies (i.e.,
 \gls{BLE}, \gls{LoRa}, Wi-Fi, etc.) operating in distinct link/physical layers.
 In the literature, \emph{multi-protocol} is commonly used to describe the same
 concept, but we try to avoid this nomenclature where possible given our usage
 of \emph{protocol} as a distributed application (see Section
-~\ref{sec:system_model}).\todo{TODO: validar esta definição please} Neither of
-these terms should be confused with \emph{multi-channel}, which refers to
-frequency diversity within a single radio technology stack (e.g., 2.4GHz Wi-Fi
-channels 1-13, \gls{LoRa} frequency hopping).
+~\ref{sec:system_model}). Neither of these terms should be confused with
+\emph{multi-channel}, which refers to frequency diversity within a single radio
+technology stack (e.g., 2.4GHz Wi-Fi channels 1-13, \gls{LoRa} frequency
+hopping).
 
 \section*{Main Research Questions}
 \label{sec:research_questions}
@@ -185,8 +178,6 @@ protocols that can operate independently of infrastructure.
 By enabling adaptive radio interface selection and \gls{P2P} mesh formation,
 devices can establish alternative communication paths when primary channels
 fail, allowing them to sustain information exchange and system availability.
-
-\todo{FIXED: muito ênfase em iot}
 
 \paragraph{How can device heterogeneity be leveraged to create and orchestrate
 	these systems?}
@@ -211,11 +202,10 @@ configurations -- from smart homes and factories to hazardous areas.
 \gls{ubabel} will provide automatic peer discovery across multiple radio
 interfaces, self-organizing network formation, and decentralized coordination
 mechanisms that eliminate the need for pre-configured coordinator nodes or
-manual network planning.
-\todo{FIXED: demasiado foco em emergências}
-Devices will autonomously establish connectivity with each other, negotiate
-protocols, and begin operation upon being activated, with minimal configuration
-effort to enable rapid deployment even in hard-to-reach locations.
+manual network setup. Devices will autonomously establish connectivity with
+each other, negotiate protocols, and begin operation upon being activated, with
+minimal configuration effort to enable rapid deployment even in hard-to-reach
+locations.
 
 % \todo{move to immediately before amazon azure etc, use as motivation like:
 % "to motivate this consider these relevant examples of use cases: imagine that etc etc; that suffer from x y and z with cloud infra etc dependencies"}
@@ -265,8 +255,7 @@ We plan to make the following main contributions:
 
 \section*{Document Structure (Roadmap)}
 
-\todo{FIXED: added doc structure}
-The remainder of this document is arranged as follows:
+The remainder of this document is organized as follows:
 
 \begin{description}
     \item[\textbf{Chapter~\ref{cha:related_work}}] Reviews widely-used
