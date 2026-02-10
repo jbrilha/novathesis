@@ -3,7 +3,7 @@
 \section{Wireless Communication Technologies}
 \label{sec:wireless_comms}
 
-A core pillar of resilient and decentralized \gls{iot} systems is the
+A core pillar of resilient and decentralized \glspl{ISE} is the
 heterogeneity of available communication capabilities and wireless protocols
 across different layers of the communication stack.
 Different technologies naturally expose different trade-offs in terms of
@@ -18,11 +18,10 @@ their potential for harmonious cooperation within a unified system.
 
 \subsection{Application-Layer Protocols}
 
-Application-layer IoT protocols typically focus on interoperability and
-efficient data exchange under stable connectivity assumptions rather than
-autonomous operation during infrastructure loss. At the application layer, two
-messaging protocols stand out given their wide-spread adoption in \gls{iot}
-deployments:
+Application-layer communication protocols typically focus on interoperability
+and efficient data exchange under stable connectivity assumptions rather than
+autonomous operation during infrastructure loss. At this layer, two messaging
+protocols stand out given their wide-spread adoption in \gls{iot} deployments:
 
 \begin{description}
 	\item[\textbf{\gls{MQTT}:}] A lightweight publish/subscribe messaging
@@ -51,8 +50,8 @@ they are not a part of the foundational protocols employed by our work.
 \subsection{Physical- and Link-Layer Technologies}
 
 This section reviews the physical- and link-layer wireless technologies
-relevant to resilient and decentralized \gls{iot} deployments, as they  are
-commonly adopted in due to their low energy consumption and hardware
+relevant to resilient and decentralized \gls{ISE} deployments, as they are
+commonly adopted due to their low energy consumption and plentiful hardware
 availability. While the previous section addressed higher-layer messaging
 protocols, the technologies discussed here provide the foundational
 communication stack that determines the behavior of \gls{ubabel}.
@@ -105,12 +104,12 @@ beacon-based association. \gls{ubabel}'s hybrid discovery mechanism
 while translating protocol-specific information into standardized peer
 descriptors.
 
-\paragraph{Energy Considerations:} Protocol selection must account for energy
-costs: Wi-Fi consumes significantly more power than \gls{BLE}, while
+\paragraph{Energy Considerations:} Wireless protocol selection must account for
+energy costs: Wi-Fi consumes significantly more power than \gls{BLE}, while
 \gls{LoRa} power consumption depends on \gls{SF} configuration.\\
 
-Together, these protocol characteristics illustrate the inherent trade-offs
-faced by resilient \gls{iot} deployments operating without reliable
+Together, these characteristics illustrate the inherent trade-offs
+faced by resilient \gls{ISE} deployments operating without reliable
 infrastructure. Understanding how range, throughput, discovery mechanisms and
 energy consumption vary across communication technologies is essential to
 establish an architecture that can adaptively leverage multiple protocols

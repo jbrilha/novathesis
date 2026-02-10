@@ -27,13 +27,12 @@ infrastructure failures during disasters: their predominantly cloud-centric
 architectures collapse precisely when autonomous operation becomes
 indispensable.
 
-\todo{FIXED? umbrella term, ainda não atualizei o resto do doc, pending approval}
 In the remainder of this work, these two domains are collectively referred to
-as \glspl{CPS}~\cite{cps2017review,cps2009,cps2017}, to emphasize their shared
-integration of networked computation, sensing, and physical actuation.\\
+as \textbf{\glspl{ISE}}, to emphasize their shared integration of networked
+computation, sensing, and physical actuation.\\
 
-The challenges faced by disaster-resilient \glspl{CPS} 
-span multiple dimensions:
+The challenges faced in disaster-resilient \glspl{ISE} span multiple
+dimensions:
 \begin{description}
     \item \textbf{Infrastructure failures} eliminate access points that devices
         depend on for coordination and operation;
@@ -45,10 +44,10 @@ span multiple dimensions:
         mechanisms in embedded platforms.
 \end{description}
 
-These challenges are fundamentally architectural: existing \gls{iot} and
-domotics systems are designed around the assumption of stable infrastructure,
-treating network partitions and coordinator failures as transient anomalies
-rather than the norm.
+These challenges are fundamentally architectural: existing \glspl{ISE} are
+designed around the assumption of stable infrastructure, treating network
+partitions and coordinator failures as transient anomalies rather than the
+norm.
 
 Cloud-centric architectures place control decisions in remote servers, creating
 dependencies that cannot be satisfied when connectivity fails.
@@ -72,7 +71,7 @@ Disaster-resilient systems require architectural choices that prioritize
 autonomous \gls{P2P} connectivity as the baseline mode of operation rather than
 having it as a secondary -- even exceptional -- fallback mechanism.
 
-Naturally, this requires a fundamental rethinking of \gls{iot} systems design:
+Naturally, this requires a fundamental rethinking of \gls{ISE} design:
 how devices discover and communicate with each other using diverse communication
 stacks (without depending on centralized control), how they achieve temporal
 synchronization and coordination without master beacons, how to optimize the
