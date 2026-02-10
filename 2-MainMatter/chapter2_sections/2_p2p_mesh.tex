@@ -5,7 +5,7 @@
 
 While communication technologies define what devices can transmit, network
 topologies determine how they organize themselves once infrastructure
-disappears.\todo{added narrative connector}
+disappears.
 
 Infrastructure-dependent star topologies in which devices communicate via a
 central coordinator or gateway suffer from a similar downside when compared
@@ -15,7 +15,6 @@ or unreachable, the entire network loses connectivity.
 This pattern pervades current \gls{iot} deployments, from Wi-Fi access point
 dependencies to \gls{LoRaWAN} gateway requirements, and becomes catastrophic in
 disaster scenarios where central coordinators are most likely to fail first,
-\todo{FIXED: justify this claim}
 due to power outages, physical damage, or severe network congestion from increased
 emergency communications traffic.
 
@@ -30,7 +29,6 @@ impossible or inefficient.
 \subsection{Peer Discovery and Topology Maintenance}
 \label{subsec:peer_disc}
 
-\todo{added narrative device (cake analogy) aka more focus on the technical aspect of topology management}
 Tree-based topologies are a common design choice in resource-constrained
 \gls{iot} networks due to their routing simplicity and low coordination
 overhead. In the Multi-Protocol \gls{iot} Gateway implementation presented
@@ -50,7 +48,6 @@ parent-child communication limit route diversity and resilience, creating
 dependency chains where a single intermediate node failure can disconnect
 entire subtrees, rather than behaving as a \gls{P2P} mesh.\\
 
-\todo{another connector cake analogy thing}
 Hybrid gossip–flooding approaches can be used to balance overlay adaptability
 with deterministic broadcast guarantees in \gls{P2P} networks, and a more
 sophisticated approach to membership management is presented in
@@ -117,7 +114,6 @@ resilience through \gls{P2P} overlay management but assume network capabilities
 impractical for embedded platforms; and hybrid multi-layer approaches
 demonstrate practical deployment but still face throughput limitations.
 
-\todo{FIXED: add take-away for the section + set up narrativo "motivates exploration..."}
 This gap between resilience requirements and embedded capabilities
 motivates the exploration of topology management strategies more suitable for
 autonomous operation, particularly in unstable network conditions.
@@ -212,12 +208,10 @@ We have found no work that integrates connectionless neighbor discovery, hybrid
 view maintenance, true P2P routing (not tree-based), and partition-tolerant
 store-and-forward on resource-constrained embedded platforms.
 
-\todo{added narrative connector for next section}
 However, topology alone does not guarantee resilience, especially if all nodes
 still rely on a single form of communication, shifting the focus from network
 coordination to radio availability.
 
-\todo{REMOVED: ubabel's approach will...}
 % \gls{ubabel}'s approach (Section \ref{component:topology_manager})
 % must adapt HyParView's architectural principles to \gls{BLE}/\gls{LoRa}
 % connectionless communication while supporting multi-hop routing without

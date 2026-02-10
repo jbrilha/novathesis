@@ -3,10 +3,9 @@
 \section{Multi-Radio Communication and Adaptive Protocol Selection}
 \label{sec:multi_protocol}
 
-\todo{added narrative thingamagig}
 Even if devices can self-organize without fixed coordinators, the remaining
-issue becomes their ability to communicate across heterogeneous protocol
-stacks.
+issue becomes their ability to communicate across heterogeneous wireless
+communication stacks.
 
 Single-radio (i.e. Wi-Fi only, \gls{BLE} only, \gls{LoRa} only, etc.)
 communication architectures are susceptible to a fundamental vulnerability: if
@@ -84,7 +83,6 @@ of multi-radio operation on commodity Wi-Fi/\gls{BLE} modules by integrating
 \gls{ESP-NOW}, \gls{ZigBee}, and \gls{Modbus} protocols on devices from the
 ESP32 family to construct multi-hop, tree-based wireless networks.
 
-\todo{FIXED: changed this to be more focused on the technical aspect}
 \gls{ESP-NOW} requires pairing between peers based on their MAC addresses, thus
 some form of discovery is required after deployment. Their implementation uses
 \gls{BLE} advertising beacons for neighbor discovery with \gls{RSSI}
@@ -107,7 +105,6 @@ controller, \gls{MQTT} broker, and web server infrastructure. The architecture's
 single point of failure means that when the controller becomes unreachable the
 entire system loses its adaptive capabilities and reverts to static operation
 at best, or complete failure at worst.
-\todo{FIXED: removed MDPI paper}
 
 This centralization pattern persists in other multi-protocol/multi-radio
 platforms despite their sophistication. MARS~\cite{mars2025} provides
@@ -145,7 +142,6 @@ We have found no work that addresses fully distributed multi-radio coordination
 where nodes can autonomously select and switch communication technologies
 without resorting to persistent infrastructure.
 
-\todo{REMOVED: ubabel's approach will...}
 % \gls{ubabel}'s approach to decentralized protocol selection is detailed in
 % Section \ref{component:protocol_manager} along with masterless synchronization
 % mechanisms.

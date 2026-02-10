@@ -4,7 +4,6 @@
 building blocks (wireless sensors, embedded devices, network communication) but
 diverge significantly in their operational focus and architectures:
 
-\todo{FIXED: added citations}
 \begin{description}
     \item \textbf{\gls{iot} systems}~\cite{iottaxonomy2015} typically focus on
         \textbf{data collection and monitoring}, by streaming sensor readings
@@ -66,16 +65,15 @@ The fundamental point of contention is between resilience requirements
 computation, memory, and energy). Traditional approaches address one at the
 cost of the other: cloud platforms provide sophisticated coordination but fail
 during outages; purely local systems avoid external dependencies but struggle
-with inter-device coordination and protocol heterogeneity with low resource
+with inter-device coordination and radio heterogeneity with low resource
 usage.
 
 Disaster-resilient systems require architectural choices that prioritize
-\todo{TOFIX: general statement.. não encontro citations to back this up exactly, sinto que é kind of a given}
 autonomous \gls{P2P} connectivity as the baseline mode of operation rather than
 having it as a secondary -- even exceptional -- fallback mechanism.
 
 Naturally, this requires a fundamental rethinking of \gls{iot} systems design:
-how devices discover and communicate with each other using diverse protocol
+how devices discover and communicate with each other using diverse communication
 stacks (without depending on centralized control), how they achieve temporal
 synchronization and coordination without master beacons, how to optimize the
 usage of limited available resources, and how to maintain secure operation
@@ -96,7 +94,6 @@ For each area, we examine how existing approaches handle (or fail to handle)
 infrastructure failure scenarios, and identify architectural assumptions that
 conflict with disaster-resilient requirements.
 
-\todo{FIXED: separei a section sobre security, no longer part of "autonomous operation" areas per se}
 Additionally, security and privacy considerations are presented in
 Section~\ref{sec:security_scope}, which outlines the scope of this work in
 regard to higher-layer safety mechanisms.
